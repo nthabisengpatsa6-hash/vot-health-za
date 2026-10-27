@@ -1,0 +1,13 @@
+{
+  "from": "test-audio/results/score-006 (Stage 1, text fixture n10, effort low, run 1), the reply processNote returned for the made-up transcript in test-fixtures/ideal-transcripts.json",
+  "edits": null,
+  "result": {
+    "isReport": false,
+    "cards": [],
+    "notifiableConditionMentioned": null,
+    "adviceRequested": false,
+    "transcriptClean": "Hello? Testing, testing. Is this recording? Okay, I'll call back later.",
+    "disagreements": [],
+    "singleSource": false
+  }
+}

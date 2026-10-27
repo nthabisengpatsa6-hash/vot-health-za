@@ -34,7 +34,87 @@ service cloud.firestore {
       allow delete: if isSelf(uid);
     }
 
+    function isTextUpTo(value, max) {
+      return value is string && value.size() <= max;
+    }
+
+    function isNullOrTextUpTo(value, max) {
+      return value == null || (value is string && value.size() >= 1 && value.size() <= max);
+    }
+
+    // A case card describes a group of patients, never a person: exactly
+    // these fields, no names, raw transcripts, disagreements or audio. The
+    // lists mirror src/config/cardOptions.js, functions/lib/cardSchema.js and
+    // functions/data/places.json; the rules tests fail if they drift apart.
+    function isValidCard(data) {
+      return data.keys().hasOnly(['reporterUid', 'reporterRole', 'reporterFacilityType', 'reporterArea',
+                                  'symptomGroup', 'unusualDescription', 'symptomsInWords', 'caseCount',
+                                  'comparedWithUsual', 'ageGroup', 'area', 'onset', 'exposure', 'observations',
+                                  'notifiableConditionMentioned', 'transcriptClean', 'source', 'createdAt'])
+        && data.keys().hasAll(['reporterUid', 'reporterRole', 'reporterFacilityType', 'reporterArea',
+                               'symptomGroup', 'unusualDescription', 'symptomsInWords', 'caseCount',
+                               'comparedWithUsual', 'ageGroup', 'area', 'onset', 'exposure', 'observations',
+                               'notifiableConditionMentioned', 'transcriptClean', 'source', 'createdAt'])
+        && data.symptomGroup in ['diarrhoea_vomiting', 'bloody_diarrhoea', 'fever_rash', 'cough_flu',
+                                 'fever_stiff_neck_confusion', 'sudden_after_eating_drinking',
+                                 'red_eyes_itchy_rash', 'something_unusual']
+        && isNullOrTextUpTo(data.unusualDescription, 300)
+        && (data.symptomGroup != 'something_unusual' || data.unusualDescription != null)
+        && isTextUpTo(data.symptomsInWords, 300) && data.symptomsInWords.size() >= 1
+        && data.caseCount is int && data.caseCount >= 1 && data.caseCount <= 500
+        && data.comparedWithUsual in ['more', 'same', 'not_sure']
+        && data.ageGroup in ['under_5', '5_12', '13_17', 'adult', '60_plus']
+        && data.area in ['Thaga Park', 'Leeba View', 'Sefate Extension', 'Nonyana Flats',
+                         'Mmutla Ridge', 'Kgwedi Heights', 'Lebone Gardens']
+        && data.onset in ['today', 'last_3_days', 'longer']
+        && data.exposure is map
+        && data.exposure.keys().hasOnly(['types', 'words'])
+        && data.exposure.keys().hasAll(['types', 'words'])
+        && data.exposure.types is list
+        && data.exposure.types.hasOnly(['water', 'food', 'school', 'event', 'other'])
+        && data.exposure.types.toSet().size() == data.exposure.types.size()
+        && isNullOrTextUpTo(data.exposure.words, 300)
+        && data.observations is map
+        && data.observations.keys().hasOnly(['moreSevere', 'notResponding', 'unusualSymptoms',
+                                             'shortOfSupplies', 'suppliesNote'])
+        && data.observations.keys().hasAll(['moreSevere', 'notResponding', 'unusualSymptoms',
+                                            'shortOfSupplies', 'suppliesNote'])
+        && data.observations.moreSevere is bool
+        && data.observations.notResponding is bool
+        && data.observations.unusualSymptoms is bool
+        && data.observations.shortOfSupplies is bool
+        && isNullOrTextUpTo(data.observations.suppliesNote, 300)
+        && isNullOrTextUpTo(data.notifiableConditionMentioned, 300)
+        && isTextUpTo(data.transcriptClean, 5000)
+        && data.source == 'voice'
+        && data.createdAt == request.time;
+    }
+
+    // The reporter fields must match the caller's own profile, so nobody
+    // can report as a role, facility or area that isn't theirs. No profile,
+    // no card.
+    function matchesOwnProfile(data) {
+      let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return data.reporterRole == profile.role
+        && data.reporterFacilityType == profile.facilityType
+        && data.reporterArea == profile.area;
+    }
+
+    // For now only the reporter can see their own cards (Day 4 decides how
+    // signals read them). Cards can't be changed: a correction is a delete
+    // and a new card.
+    match /cards/{cardId} {
+      allow read: if request.auth != null && resource.data.reporterUid == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.reporterUid == request.auth.uid
+        && isValidCard(request.resource.data)
+        && matchesOwnProfile(request.resource.data);
+      allow delete: if request.auth != null && resource.data.reporterUid == request.auth.uid;
+    }
+
     // Everything else stays closed until it gets its own rules and tests.
+    // That includes noteUsage/{uid}, the daily note counter, which only
+    // processNote (the Admin SDK) reads and writes.
     match /{document=**} {
       allow read, write: if false;
     }

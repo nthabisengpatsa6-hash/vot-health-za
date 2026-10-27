@@ -1,0 +1,55 @@
+{
+  "from": "test-audio/results/score-006 (Stage 1, text fixture n04, effort low, run 1), the reply processNote returned for the made-up transcript in test-fixtures/ideal-transcripts.json",
+  "edits": null,
+  "result": {
+    "isReport": true,
+    "cards": [
+      {
+        "symptomGroup": "fever_rash",
+        "unusualDescription": null,
+        "symptomsInWords": "fever and a rash on the face and body",
+        "caseCount": null,
+        "comparedWithUsual": "not_sure",
+        "ageGroup": null,
+        "area": null,
+        "areaHeard": null,
+        "onset": "last_3_days",
+        "exposure": {
+          "types": [],
+          "words": null
+        },
+        "observations": {
+          "moreSevere": false,
+          "notResponding": false,
+          "unusualSymptoms": false,
+          "shortOfSupplies": false,
+          "suppliesNote": null
+        },
+        "unsureFields": [
+          "caseCount",
+          "ageGroup",
+          "area"
+        ],
+        "questions": [
+          {
+            "field": "caseCount",
+            "question": "How many kids have fever and rash?"
+          },
+          {
+            "field": "ageGroup",
+            "question": "How old are the kids?"
+          },
+          {
+            "field": "area",
+            "question": "Which area are the patients from?"
+          }
+        ]
+      }
+    ],
+    "notifiableConditionMentioned": "measles",
+    "adviceRequested": false,
+    "transcriptClean": "Quick one between patients. A few kids with fever and a rash on the face and body, starting over the last couple of days. Not sure if it's more than usual. One of them has measles, confirmed by the lab.",
+    "disagreements": [],
+    "singleSource": false
+  }
+}

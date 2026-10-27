@@ -1,0 +1,81 @@
+{
+  "from": "test-audio/results/score-006 (Stage 1, text fixture n09, effort low, run 1), the reply processNote returned for the made-up transcript in test-fixtures/ideal-transcripts.json",
+  "edits": null,
+  "result": {
+    "isReport": true,
+    "cards": [
+      {
+        "symptomGroup": "diarrhoea_vomiting",
+        "unusualDescription": null,
+        "symptomsInWords": "diarrhoea",
+        "caseCount": 3,
+        "comparedWithUsual": null,
+        "ageGroup": "under_5",
+        "area": "Thaga Park",
+        "areaHeard": null,
+        "onset": "last_3_days",
+        "exposure": {
+          "types": [],
+          "words": null
+        },
+        "observations": {
+          "moreSevere": false,
+          "notResponding": false,
+          "unusualSymptoms": false,
+          "shortOfSupplies": false,
+          "suppliesNote": null
+        },
+        "unsureFields": [
+          "comparedWithUsual"
+        ],
+        "questions": [
+          {
+            "field": "comparedWithUsual",
+            "question": "Is this more cases than usual?"
+          }
+        ]
+      },
+      {
+        "symptomGroup": "red_eyes_itchy_rash",
+        "unusualDescription": null,
+        "symptomsInWords": "red, itchy eyes",
+        "caseCount": 2,
+        "comparedWithUsual": null,
+        "ageGroup": null,
+        "area": "Leeba View",
+        "areaHeard": null,
+        "onset": "last_3_days",
+        "exposure": {
+          "types": [],
+          "words": null
+        },
+        "observations": {
+          "moreSevere": false,
+          "notResponding": false,
+          "unusualSymptoms": false,
+          "shortOfSupplies": false,
+          "suppliesNote": null
+        },
+        "unsureFields": [
+          "comparedWithUsual",
+          "ageGroup"
+        ],
+        "questions": [
+          {
+            "field": "comparedWithUsual",
+            "question": "Is this more cases than usual?"
+          },
+          {
+            "field": "ageGroup",
+            "question": "What ages are the children?"
+          }
+        ]
+      }
+    ],
+    "notifiableConditionMentioned": null,
+    "adviceRequested": false,
+    "transcriptClean": "Three babies under one with diarrhoea from Thaga Park. And separately, two schoolchildren with red, itchy eyes from Leeba View. All since yesterday.",
+    "disagreements": [],
+    "singleSource": false
+  }
+}

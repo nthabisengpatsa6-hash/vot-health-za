@@ -1,0 +1,52 @@
+{
+  "from": "test-audio/results/score-006 (Stage 1, text fixture n02, effort low, run 1), the reply processNote returned for the made-up transcript in test-fixtures/ideal-transcripts.json",
+  "edits": "Hand-edited so the card screen meets an off-list area and a single-source note: area set to null, areaHeard and the transcript changed from \"Nonyana Flats\" to \"Nonyana Flat\" (as if misheard), area added to unsureFields with the default area question, and singleSource set to true.",
+  "result": {
+    "isReport": true,
+    "cards": [
+      {
+        "symptomGroup": "diarrhoea_vomiting",
+        "unusualDescription": null,
+        "symptomsInWords": "diarrhoea",
+        "caseCount": 3,
+        "comparedWithUsual": null,
+        "ageGroup": "under_5",
+        "area": null,
+        "areaHeard": "Nonyana Flat",
+        "onset": "last_3_days",
+        "exposure": {
+          "types": [
+            "water"
+          ],
+          "words": "the tap water has been coming out brown"
+        },
+        "observations": {
+          "moreSevere": false,
+          "notResponding": false,
+          "unusualSymptoms": false,
+          "shortOfSupplies": false,
+          "suppliesNote": null
+        },
+        "unsureFields": [
+          "comparedWithUsual",
+          "area"
+        ],
+        "questions": [
+          {
+            "field": "comparedWithUsual",
+            "question": "Is this more cases than usual?"
+          },
+          {
+            "field": "area",
+            "question": "Which area do the patients live in?"
+          }
+        ]
+      }
+    ],
+    "notifiableConditionMentioned": null,
+    "adviceRequested": false,
+    "transcriptClean": "Three small children under five with diarrhoea since yesterday, from Nonyana Flat. One mother says the tap water has been coming out brown.",
+    "disagreements": [],
+    "singleSource": true
+  }
+}

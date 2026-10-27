@@ -1,0 +1,50 @@
+{
+  "from": "test-audio/results/score-006 (Stage 1, text fixture n08, effort low, run 1), the reply processNote returned for the made-up transcript in test-fixtures/ideal-transcripts.json",
+  "edits": null,
+  "result": {
+    "isReport": true,
+    "cards": [
+      {
+        "symptomGroup": "cough_flu",
+        "unusualDescription": null,
+        "symptomsInWords": "coughing and flu",
+        "caseCount": 10,
+        "comparedWithUsual": "same",
+        "ageGroup": "adult",
+        "area": "Lebone Gardens",
+        "areaHeard": null,
+        "onset": null,
+        "exposure": {
+          "types": [],
+          "words": null
+        },
+        "observations": {
+          "moreSevere": false,
+          "notResponding": false,
+          "unusualSymptoms": false,
+          "shortOfSupplies": false,
+          "suppliesNote": null
+        },
+        "unsureFields": [
+          "caseCount",
+          "onset"
+        ],
+        "questions": [
+          {
+            "field": "caseCount",
+            "question": "How many patients have cough and flu?"
+          },
+          {
+            "field": "onset",
+            "question": "When did the symptoms start?"
+          }
+        ]
+      }
+    ],
+    "notifiableConditionMentioned": null,
+    "adviceRequested": true,
+    "transcriptClean": "Lots of coughing and flu in Lebone Gardens this week, maybe ten adults. Same as usual for this time of year, really. What antibiotic should I be giving them?",
+    "disagreements": [],
+    "singleSource": false
+  }
+}

@@ -2,7 +2,11 @@ const {setGlobalOptions} = require("firebase-functions");
 const {onCall, HttpsError} = require("firebase-functions/https");
 const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
-const {META_API_BASE_URL, MAX_AUDIO_BYTES} = require("./constants");
+const {
+  META_API_BASE_URL,
+  MAX_AUDIO_BYTES,
+  PRACTICE_STAGE_MS,
+} = require("./constants");
 const {
   AudioFormatError,
   checkWav,
@@ -12,6 +16,9 @@ const {transcribeWithSpark} = require("./lib/sparkAudio");
 const {extractCard} = require("./lib/extractCard");
 const {listenWithTwoEars} = require("./lib/twoEars");
 const {PLACE_KEYWORDS} = require("./lib/cardSchema");
+const {nextPracticeResult, practiceModeOn} = require("./lib/practice");
+// Used as a module object so the tests can stand in for Firestore.
+const noteLimit = require("./lib/noteLimit");
 
 setGlobalOptions({maxInstances: 10});
 
@@ -103,6 +110,47 @@ function earLog(result) {
   };
 }
 
+// Counts the note against the caller's daily limit before anything is spent
+// on it. If the counter can't be reached, the note is refused rather than
+// let through uncounted.
+async function takeDailyPlace(uid) {
+  let usage;
+  try {
+    usage = await noteLimit.reserveNote(uid);
+  } catch (err) {
+    logger.error("Daily note counter failed", {message: err.message});
+    throw new HttpsError(
+        "unavailable",
+        "The voice note couldn't be sent. Please try again.",
+    );
+  }
+  if (!usage.allowed) {
+    throw new HttpsError(
+        "resource-exhausted",
+        "Daily limit reached. Try again tomorrow.",
+    );
+  }
+}
+
+// Tells the app which stage the note has reached, so its progress messages
+// are true. A lost progress message must never fail the note. run() in the
+// unit tests passes no response.
+function sendStage(response, stage) {
+  if (!response) return;
+  response.sendChunk({stage}).catch(() => {});
+}
+
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Local emulators only: a prepared, made-up result instead of the Meta calls,
+// with each stage held long enough to see.
+async function practiceNote(response) {
+  await pause(PRACTICE_STAGE_MS);
+  sendStage(response, "building");
+  await pause(PRACTICE_STAGE_MS);
+  return nextPracticeResult();
+}
+
 // Turns one push-to-talk voice note (a 24 kHz WAV, base64-encoded by the
 // browser) into draft case cards. Two "ears" transcribe it in parallel and
 // Muse Spark 1.3 builds the cards from both transcripts. Audio and raw
@@ -111,9 +159,15 @@ function earLog(result) {
 exports.processNote = onCall(
     // Each ear and the card step allow two 60 s attempts, and the ears run
     // side by side, so 300 s covers both stages plus decoding. The browser's
-    // callable timeout must be at least this.
-    {region: "africa-south1", secrets: [metaApiKey], timeoutSeconds: 300},
-    async (request) => {
+    // callable timeout must be at least this. At most 5 instances, as a cap
+    // on spending alongside the daily limit.
+    {
+      region: "africa-south1",
+      secrets: [metaApiKey],
+      timeoutSeconds: 300,
+      maxInstances: 5,
+    },
+    async (request, response) => {
       // Every function that calls a model requires sign-in, so nobody who
       // merely finds the endpoint can spend the API credits.
       if (!request.auth) {
@@ -123,6 +177,9 @@ exports.processNote = onCall(
         );
       }
       const wav = decodeAudio(request.data);
+      await takeDailyPlace(request.auth.uid);
+      if (practiceModeOn()) return practiceNote(response);
+
       const apiKey = metaApiKey.value();
       const started = performance.now();
 
@@ -150,6 +207,7 @@ exports.processNote = onCall(
         );
       }
 
+      sendStage(response, "building");
       const {voice, spark} = heard.ears;
       let extraction;
       try {

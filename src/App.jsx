@@ -8,11 +8,11 @@ import { auth, onLocalEmulators } from "./lib/firebase";
 import { useSession } from "./lib/useSession";
 import PlaceholderScreen from "./screens/PlaceholderScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import ReportScreen from "./screens/ReportScreen";
 import SignInScreen from "./screens/SignInScreen";
 
 // What each placeholder says until its screen is built.
 const SCREENS = {
-  report: { title: "Report", day: 2, summary: "Hold the button to record a voice note, check the case card, then confirm it." },
   today: { title: "Today", day: 6, summary: "Your morning briefing: what's going around near you this week, and open signals nearby." },
   nearMe: { title: "Near me", day: 4, summary: "A map of your area with Watch, Signal and Alert markers, and a \"Seeing this too\" button on each." },
   signal: { title: "Signal detail", day: 6, summary: "The reports behind a signal, possible common sources with their evidence, and a draft notification for a person to review and send." },
@@ -39,7 +39,7 @@ function SessionContent({ session }) {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path="/report" element={<PlaceholderScreen {...SCREENS.report} />} />
+        <Route path="/report" element={<ReportScreen key={user.uid} user={user} profile={profile} />} />
         <Route path="/today" element={<PlaceholderScreen {...SCREENS.today}><AreaNote area={profile.area} /><LevelKey /></PlaceholderScreen>} />
         <Route path="/near-me" element={<PlaceholderScreen {...SCREENS.nearMe}><AreaNote area={profile.area} /><LevelKey /><Link to="/signals/sample" className="button button-secondary">Open a sample signal</Link></PlaceholderScreen>} />
         <Route path="/signals/:signalId" element={<SignalDetailPlaceholder />} />

@@ -1,7 +1,8 @@
 // Firestore rules for users/{uid}. Run with `npm run test:rules`, which
 // starts a throwaway Firestore emulator under the local-only "demo-fola"
 // project. The allowed values come from the app's own lists, so the copies
-// in firestore.rules can't drift from them unnoticed.
+// in firestore.rules can't drift from them unnoticed. RULES_FILE lets the
+// break-the-rule check run these tests against a deliberately broken copy.
 import { readFileSync } from "node:fs";
 import { after, before, beforeEach, describe, test } from "node:test";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
@@ -23,7 +24,7 @@ let testEnv;
 before(async () => {
   testEnv = await initializeTestEnvironment({
     projectId: "demo-fola",
-    firestore: { rules: readFileSync(new URL("../../firestore.rules", import.meta.url), "utf8") },
+    firestore: { rules: readFileSync(process.env.RULES_FILE || new URL("../../firestore.rules", import.meta.url), "utf8") },
   });
 });
 
@@ -197,8 +198,8 @@ describe("denied: wrong content", () => {
 describe("denied: everything else", () => {
   test("a signed-in user can't read or write another collection", async () => {
     const db = dbAs(OWNER);
-    await assertFails(setDoc(doc(db, "cards", "x"), { count: 1 }));
-    await assertFails(getDoc(doc(db, "cards", "x")));
+    await assertFails(setDoc(doc(db, "signals", "x"), { count: 1 }));
+    await assertFails(getDoc(doc(db, "signals", "x")));
   });
 
   test("a signed-in user can't use a subcollection under their own profile", async () => {

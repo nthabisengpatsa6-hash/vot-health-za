@@ -1,11 +1,11 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 15:16 SAST
+**Last updated:** 2026-10-27 18:02 SAST
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is public: no keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. All five screens are routed; only Profile is real so far, and the others are placeholders that say which day they arrive. Firestore rules for users/{uid} are written and tested in the emulator (28 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Nothing from Task 6 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 7, the Report screen, built on this layout. Score the 10 recordings when they arrive.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Nothing from Tasks 6 and 7 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: a separate deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
 
 ## Done
 
@@ -86,6 +86,65 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - checkMetaConnection through api.js while signed out
   - at 360 px: no sideways scrolling, every tap target at least 44 px, smallest text 14.5 px
   - no unexpected console errors
+
+### Day 2 work — Task 7: the Report screen, from recording to a saved card (built Tue 27 Oct; nothing deployed)
+- Recording (src/lib/recorder.js, src/components/RecordButton.jsx):
+  - One large round button: hold it while speaking and let go to stop, or tap to start and tap again to stop. Keyboard and screen readers work like a tap. Long-press menus and text selection are switched off on the button.
+  - A timer out of 1:30, "10 seconds left" from 1:20, and an automatic stop at 90 s. A note under 1 s gets "That was too short".
+  - MediaRecorder records in each browser's own default format (webm/Opus on Android Chrome, mp4/AAC on iPhone Safari); no format is chosen, because a browser can always decode its own default.
+  - The microphone is released as soon as recording stops.
+  - Plain messages for a blocked microphone (with steps for Android Chrome and iPhone Safari), no microphone, a microphone busy in another app, and a browser that can't record.
+- Audio (src/lib/wav.js): decodeAudioData (callback form, for older Safari), then OfflineAudioContext resamples to 24 kHz mono, then our own encoder writes a 16-bit PCM WAV. Base64 is built in slices. No new library.
+- Review: the note's length and a player with no download option (it plays the WAV that will be sent); Send or Record again.
+- The audio lives only in memory. It is dropped (and its playback link revoked) once the cards arrive, or when the note is thrown away. A failed send keeps it, so Try again resends without re-recording.
+- Progress: "Listening…" while recording; after Send, "Reading your note…" until processNote says the transcripts are in, then "Building the card…". processNote sends that one progress message with Firebase's built-in callable streaming (src/lib/api.js streamFunction). The SDK ignores the timeout option for streamed calls, so streamFunction applies the 310 s limit itself, and also stops waiting if the connection closes without an answer.
+- Errors: plain messages with Try again (or Record again for bad audio, OK for the daily limit). The SDK adds " [status]" to error messages; streamFunction removes it, because our functions' messages are written for people.
+- Card screen (src/components/CaseCardForm.jsx, src/lib/cardDraft.js):
+  - One panel per card ("Card 1 of 2").
+  - Symptom group dropdown, plus "What is unusual?" for Something unusual. "Symptoms, in your words". Number of cases with − and + (1–500). Compared with usual (3 buttons). Age group (5 buttons). Area dropdown. When it started (3 buttons). Exposure chips plus "In your words". 4 observation tick boxes plus a supplies note.
+  - Unsure fields are highlighted (a bar, a tint and a "Please check" label, which becomes "Answered"), with the card's question above them.
+  - Unsure fields start empty: the AI's guess isn't filled in. An unsure Exposure gets a "None" chip and unsure Observations a "None of these" tick box.
+  - "You said ‘…’. Which area is it?" appears only when the area is unsure and areaHeard is set.
+  - Confirm and save stays disabled until every unsure field is answered and every needed field is filled; the line above it says how many answers are still needed.
+  - "This card isn't right" folds a card to one line with Undo.
+- Under the cards (src/components/NoteNotices.jsx), all fixed text:
+  - "Check the transcript. Fola can miss or mishear words, especially in languages other than English. Remove any names before confirming." Then "What we heard", folded away by default, with the transcript editable.
+  - Single source: "Only one transcription came back. Please check carefully."
+  - Advice requested: "Fola can't advise on treatment. Use your facility's protocols or official clinical guidelines." Then the two hotlines as tap-to-call links (see "Official hotlines").
+  - Notifiable condition: "You mentioned <words>. If it's a notifiable medical condition, remember to notify it through the NMC system."
+  - Not a report: "This didn't sound like a report. Record again?", with the transcript readable but not editable and nothing to save.
+  - In practice mode only: "Practice result: made up, not from your recording."
+- Saving (src/lib/cards.js): one cards/{cardId} document per card, all of a note's cards in one batch (all or nothing). Fields: reporterUid, reporterRole, reporterFacilityType, reporterArea (from the profile), symptomGroup, unusualDescription, symptomsInWords, caseCount, comparedWithUsual, ageGroup, area, onset, exposure, observations, notifiableConditionMentioned, transcriptClean (after edits), source "voice", createdAt (server time). Nothing else: no areaHeard, unsure fields, questions, raw transcripts, disagreements or audio. Then "Saved. Thank you." with Record another.
+- firestore.rules for cards/{cardId} (not deployed):
+  - create: signed in; reporterUid is the caller; the reporter role, facility type and area match the caller's own users/{uid} profile (read with get(); no profile, no card); only the 18 fields; allowed values only; caseCount a whole number from 1 to 500; text caps (symptomsInWords 1–300, unusualDescription 300 and required for Something unusual, exposure words 300, supplies note 300, notifiable condition 300, transcriptClean 5000); exposure types without repeats; source "voice"; createdAt the server's time.
+  - read and delete: the owner only. Update: never (a correction is a delete and a new card).
+  - noteUsage/{uid}, the daily counter, has no client rule, so the deny-all rule keeps clients out.
+- Rules tests: test/rules/cards.rules.test.js (60 tests; 88 rules tests in all). Every list value is swept from the app's own lists. Break-the-rule check: 45 broken copies of the cards rules, each with one condition removed or loosened. The tests caught 38. The other 7 are "equivalent" breaks: the write is still denied without that line, because reading a missing or wrong-typed field makes the rules deny anyway (signed-in check on create, hasAll on the card, exposure and observations, "is map" on both, "is list" on exposure types). The check first found one real gap (a card naming someone else as reporter was also caught by the profile check, so the uid check itself went untested); the test was fixed.
+- Daily limit (functions/lib/noteLimit.js): at most 40 notes per user per SAST day (DAILY_NOTE_LIMIT). processNote checks sign-in, then the audio, then counts the note in a transaction on noteUsage/{uid} ({ day, count, updatedAt }), then calls Meta. Over the limit: "Daily limit reached. Try again tomorrow." (resource-exhausted), and the refused note isn't counted. If the counter can't be reached, the note is refused. A note that passes the audio check counts even if Meta then fails. processNote has maxInstances 5.
+- Practice mode (functions/lib/practice.js): only when FUNCTIONS_EMULATOR is "true" AND the project ID starts with "demo-", processNote returns the prepared results in test-fixtures/practice-results/ in turn (holding each stage 1.5 s), instead of calling Meta. The files sit outside functions/, so they are never deployed, and they are read only after the check. The audio check and the daily limit still run for real.
+  - The 5 files come from Stage 1 run score-006 (made-up text fixtures only): 1-n02 (hand-edited: off-list area "Nonyana Flat" and single source; the edit is described in the file), 2-n09 (two cards), 3-n08 (advice), 4-n04 (NMC), 5-n10 (not a report). Each file has "from" and "edits" fields.
+- Unit tests: web 20 (WAV encoder, checked against the server's own checkWav; card lists against functions/lib/cardSchema.js; card drafts and the saved document), Functions 61 (practice mode on and off, including that processNote under the real project ID calls Meta and never a practice result; the daily limit, including the SAST midnight edge).
+- Checked in headless Edge at 360 × 740 against the emulators in practice mode, with a fake microphone fed from a local test WAV (109 checks, all passing):
+  - sign-up and profile, then the Report screen in place of the placeholder
+  - microphone blocked: the help message; allowed again: Try again records
+  - all five ways of recording: mouse tap, touch hold, keyboard, mouse hold, touch tap
+  - each upload a 24 kHz mono 16-bit PCM WAV of the recorded length (3–4 s notes, and a 90 s note of 4.3 MB that stopped by itself at 1:30 after the "10 seconds left" warning); every call streamed
+  - stages shown in order: Listening… done, Reading your note…, Building the card…
+  - all 5 practice results: questions, highlights, "You said ‘Nonyana Flat’", single source, two cards with remove and Undo, the advice text and both tel: links, the NMC reminder, not a report; Confirm disabled until every answer is in; the edited transcript saved
+  - the saved Firestore documents: exactly the 18 fields, reporter fields from the profile, the answers given; nothing saved for not-a-report
+  - the daily counter at 5 after 5 notes; set to 40, the next note gets the limit message and isn't counted
+  - Edge forced to record audio/mp4 (Safari's format): decoded, sent as WAV, accepted
+  - after processing, the playback link is revoked; no audio in local or session storage, IndexedDB or caches
+  - at 360 px on every state: no sideways scrolling, every tap target at least 44 px, smallest text 14.45 px
+  - no unexpected console errors (the one expected error is the check's own fetch of the revoked link)
+- iPhone Safari itself wasn't tested (there's no Safari on Windows); it's in the deploy task.
+
+## Official hotlines (checked 27 Oct 2026, on each organisation's own pages)
+Shown, with tap-to-call links, when a note asks about treatment (src/config/hotlines.js).
+- NICD: 0800 212 552, "a 24-hour service for healthcare professionals only". Source: NICD, situational update on the Ebola disease outbreak caused by Bundibugyo virus, 29 June 2026, https://www.nicd.ac.za/situational-update-on-the-ebola-disease-outbreak-caused-by-bundibugyo-virus/ (several other 2025–2026 NICD pages give the same number; older NICD pages give other numbers).
+- Poisons Information Centre helpline: 0861 555 777. Sources: University of Cape Town, Poisons information centre, https://health.uct.ac.za/pathology-learning-centre/disease-themes-harmful-substances/poisons-information-centre ("Poisons Information Helpline, 0861 555 777, 24 hours / 7 days per week"); Western Cape Government, Know who you can call in an emergency, https://www.westerncape.gov.za/know-who-you-can-call-emergency ("Poisons Information Helpline of the Western Cape, 0861 555 777").
+- Hours aren't shown in the app, because the pages disagree: the UCT Pathology Learning Centre page says 24/7, while the Red Cross centre's UCT page (https://health.uct.ac.za/node/71338) says the helpline runs 08:30 to 01:30 daily.
+- Stellenbosch University's poison centre pages refused automated access (HTTP 403), so they weren't used.
 
 ## Confirmed API formats
 
@@ -181,16 +240,16 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 
 ## Next steps (in order)
 1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. Task 7 (Day 2, part 2): the Report screen end to end, replacing the /report placeholder.
-   - The browser records 24 kHz mono 16-bit WAV for processNote.
-   - Call processNote with callFunction("processNote", { audioBase64 }) from src/lib/api.js (310 s timeout).
-   - Show each card with its unsure fields highlighted and its questions; Confirm stays disabled until they're answered.
-   - Show transcriptClean as "what we heard, please check".
-   - adviceRequested shows fixed text pointing to official guidance (NICD, Poisons Information Centre); notifiableConditionMentioned shows the NMC reminder.
-   - The card's reporter comes from the profile (role and facilityType).
-   - Running processNote in the emulator calls Meta for real: it needs META_API_KEY in functions/.secret.local, which Nthabiseng creates herself.
-3. Deploys, each its own STOP: Functions (so the live checkMetaConnection gets its sign-in check), the Firestore rules, then Hosting (the live site still shows the Vite starter page).
-4. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it).
+2. A separate deploy task, each deploy its own STOP:
+   - Functions: checkMetaConnection gets its sign-in check live; processNote with the daily limit and maxInstances 5.
+     - Decide processNote's memory and concurrency first. Each note holds about 30 MB in memory (the base64 upload, the decoded WAV and the Spark ear's base64 copy). A 2nd-gen function defaults to 256 MiB and up to 80 requests at once per instance, so a busy instance could run out of memory. Options: concurrency 10 at 256 MiB, or 512 MiB.
+   - The Firestore rules (users and cards).
+   - Hosting (the live site still shows the Vite starter page). Run `npm run build` first.
+3. Then a real end-to-end test on phones, against the live project with real Meta calls:
+   - Android Chrome and iPhone Safari. iPhone Safari has never been tested: there's no Safari on Windows. Check that it records (audio/mp4), decodes, plays back, sends, shows the stages and saves; check the microphone permission steps; check that holding the button doesn't open a long-press menu.
+   - Made-up notes only. A note that asks about treatment, one that mentions a notifiable condition, and a two-group note.
+   - Watch the processNote logs for timings, and the daily counter in Firestore (noteUsage).
+4. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
 
 ## Decisions and why
 - 26 Oct — Firestore and Functions in africa-south1: data stays in South Africa. Firestore's location can never be changed.
@@ -225,6 +284,14 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 27 Oct — Profile: role, facilityType and area only, plus server timestamps. Never a name, phone number or ID number; the email stays in Firebase Auth. The signed-in owner may read, change and delete their own profile; nobody can list profiles. (Owner delete was Nthabiseng's call; the delete button comes later with the privacy notice.)
 - 27 Oct — Google sign-in uses a popup and a plain "Continue with Google" button with no Google logo, so we use no third-party trademark artwork. Google sign-in stores the Google name and photo in the Firebase Auth record; the app never reads, shows or copies them.
 - 27 Oct — How three Task 4 cases are read: the day patients came in isn't the onset, so it's asked; very weak, unable to walk, collapsed, unconscious, badly dehydrated, admitted or a death counts as moreSevere, in any language; schoolchildren can be 5 to 17, so their age group is asked.
+- 27 Oct — Unsure fields start empty; the AI's guess isn't filled in (Nthabiseng approved). Why: "unsure means ask", and a pre-filled guess tends to get confirmed without a look. Unsure Exposure and Observations get an explicit "None" answer.
+- 27 Oct — "You said ‘…’. Which area is it?" only when the area is unsure (approved). Why: the model often sets areaHeard to the same name as an area it is sure of, and asking then is noise.
+- 27 Oct — On-screen labels say "your words", not "her words" (approved): the person using the app is the clinician.
+- 27 Oct — Practice mode in the local emulators, with a "Practice result: made up, not from your recording" line (approved). Five prepared results, one hand-edited and labelled as such (approved). Fenced by FUNCTIONS_EMULATOR plus a "demo-" project ID, with the files outside functions/ so they're never deployed. Why: the emulators can't reach Meta under demo-fola, and the card screen needs every case exercised.
+- 27 Oct — Daily limit: 40 notes per user per SAST day; a note that passes the audio check counts even if Meta then fails (approved), because the Meta call may already have cost money. processNote maxInstances 5 (approved). Why: anyone can create an account.
+- 27 Oct — Progress stages come from processNote itself (one streamed message when the transcripts are in), not from timers. Why: the stages must be honest, and Firebase callables can stream with no new library.
+- 27 Oct — MediaRecorder gets no format; each browser records in its own default. Why: a browser can always decode its own default, while a chosen format can be one the browser lists but can't decode.
+- 27 Oct — Hotline numbers come only from the organisations' own pages, and hours aren't shown because the official pages disagree on them.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Product name (before the video is recorded).
@@ -245,7 +312,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - .oxlintrc.json — linter rules.
 - .firebaserc — links this folder to the Firebase project vot-health-za.
 - firebase.json — Firebase settings: Firestore (africa-south1, rules, indexes), Functions folder, Hosting from dist/, emulator ports.
-- firestore.rules — Firestore security rules: users/{uid} for its owner only; everything else deny-all. Not deployed.
+- firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Not deployed.
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
 - public/favicon.svg — the browser-tab icon (three rising bars on teal).
@@ -254,22 +321,39 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - src/index.css — the app's only stylesheet: colours, sizes, layout, forms, navigation, level badges.
 - src/config/product.js — PRODUCT_NAME, the only place the product name is set.
 - src/config/profileOptions.js — the role and facility-type lists (stored value and label).
+- src/config/cardOptions.js — the case card lists (stored value and label) and the text limits; mirrors functions/lib/cardSchema.js.
+- src/config/hotlines.js — the fixed advice text and the NICD and Poisons Information Centre numbers, with their sources.
 - src/lib/firebase.js — Firebase web config; Auth, Firestore and Functions (africa-south1); on localhost, the emulators under demo-fola.
-- src/lib/api.js — callFunction(name, data): calls a callable function with a 310 s timeout.
+- src/lib/api.js — callFunction(name, data) and streamFunction(name, data, onProgress): call a callable function with a 310 s timeout; streamFunction also passes on progress messages.
+- src/lib/recorder.js — the microphone and MediaRecorder, with the 90 s limit and plain error kinds.
+- src/lib/wav.js — decode and resample a recording to 24 kHz mono, the WAV encoder and base64.
+- src/lib/cardDraft.js — a card while it's being checked (unsure fields empty), what still needs answering, and the exact document that's saved.
+- src/lib/cards.js — saveCards: one cards/{cardId} document per card, in one batch.
 - src/lib/authErrors.js — plain-English messages for sign-in errors.
 - src/lib/places.js — the town and area names, read from functions/data/places.json.
 - src/lib/profile.js — watchProfile and saveProfile for users/{uid}.
 - src/lib/useSession.js — the hook that says who's signed in and whether their profile is set up.
 - src/components/AppLayout.jsx — header and bottom navigation around the signed-in screens.
+- src/components/RecordButton.jsx — the hold-or-tap record button.
+- src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions.
+- src/components/NoteNotices.jsx — the transcript and the fixed notices under the cards (single source, advice and hotlines, NMC reminder).
 - src/components/LevelBadge.jsx — the Watch, Signal and Alert badges and their key.
 - src/components/Icons.jsx — the five line icons (drawn for this app).
 - src/screens/SignInScreen.jsx — Google, email sign-in, create account, password reset.
 - src/screens/ProfileScreen.jsx — the first-time set-up and the Profile screen.
 - src/screens/PlaceholderScreen.jsx — "Arrives on Day N" for screens not built yet.
+- src/screens/ReportScreen.jsx — record, review, send with progress stages, check the cards, confirm and save.
 - test/unit/auth-errors.test.js — unit tests for the sign-in error messages.
-- test/rules/users.rules.test.js — Firestore rules tests (run with npm run test:rules).
+- test/unit/wav.test.js — unit tests for the WAV encoder, checked against the server's own WAV check.
+- test/unit/card-options.test.js — checks the card screen's lists match functions/lib/cardSchema.js.
+- test/unit/cards.test.js — unit tests for card drafts and the saved document, using the practice results.
+- test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
+- test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
+- test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
 - functions/index.js — Cloud Functions: checkMetaConnection and processNote (not deployed).
-- functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears).
+- functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears, the daily note limit, practice-mode stage time).
+- functions/lib/noteLimit.js — the daily note limit: the SAST day and the counter transaction on noteUsage/{uid}.
+- functions/lib/practice.js — practice mode: the emulator-and-demo check and the prepared results in turn.
 - functions/data/places.json — the demo town Kganya: 7 areas and which works feeds each (Day 3's town file grows from this).
 - functions/prompts/spark-audio.md — the instruction for the Muse Spark audio ear.
 - functions/prompts/extract-card.md — the extraction prompt; {{placeholders}} are filled from cardSchema.js.
@@ -285,6 +369,8 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - functions/test/two-ears.test.js — unit tests for the parallel ears, with fake ears.
 - functions/test/sign-in.test.js — checks that both callables refuse signed-out callers before any network call.
 - functions/test/spark-and-extract.test.js — unit tests for the Spark ear and extraction requests, with a fake fetch.
+- functions/test/practice.test.js — practice mode is on only in the emulator under demo-, and processNote under the real project ID calls Meta.
+- functions/test/note-limit.test.js — the daily limit, with a fake Firestore transaction.
 - functions/test/make-wav.js — builds WAVs in memory for the tests.
 - functions/package.json, functions/package-lock.json — Functions libraries, Node 22, npm scripts.
 - functions/.gitignore — keeps node_modules/ and *.local (including .secret.local) out of git.
@@ -307,7 +393,12 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 Use two PowerShell windows, both in the repo folder.
 1. Window 1: `npm run emulators`. This starts local copies of Auth (9099), Firestore (8080) and Functions (5001) under the made-up project ID demo-fola. Wait for "All emulators ready", then leave it running. Ctrl+C stops it, and that wipes every test account and profile.
 2. Window 2: `npm run dev`. This starts the web app with live reload. Open http://localhost:5173. The dark strip at the top, "Local test mode: emulators, nothing is live", confirms the app is using the emulators.
-3. Optional: the Emulator UI at http://127.0.0.1:4000 shows the test accounts (Authentication tab) and saved profiles (Firestore tab, collection "users").
+3. Optional: the Emulator UI at http://127.0.0.1:4000 shows the test accounts (Authentication tab) and saved profiles and cards (Firestore tab, collections "users", "cards" and "noteUsage").
+
+Trying the Report screen locally (practice mode):
+- Record any note on the Report screen and tap Send. Locally, processNote doesn't call Meta: it returns the 5 prepared made-up results in test-fixtures/practice-results/ in turn (1-n02 first), and the card screen says "Practice result: made up, not from your recording". The cards won't match what you said. Restarting `npm run emulators` starts the turn again at the first result.
+- The audio check and the daily limit still run for real. To try the limit, set noteUsage/<your uid> to count 40 in the Emulator UI.
+- Microphone: the browser asks once for localhost. The Report screen explains how to allow it if it was blocked.
 
 Signing in locally:
 - Email: choose Create account, then any made-up address (for example nurse.test@example.com) and any password of at least 6 characters. No email is ever sent.
@@ -319,13 +410,14 @@ Other local commands:
 - `npm run build` — builds the finished web app into dist/. It warns that the main file is over 500 kB; see Known issues.
 - `npm run preview` — serves the built dist/ at http://localhost:4173; with `npm run emulators` running, it uses the emulators too.
 - Avoid a plain `firebase emulators:start`, `npm --prefix functions run serve` and `npm --prefix functions run shell` for app testing. They run under the real project ID, which the app on localhost doesn't use, and without functions/.secret.local the Functions emulator would then read the live META_API_KEY from Secret Manager.
-- The Functions emulator reads META_API_KEY from functions/.secret.local (gitignored), which Nthabiseng creates herself. Under demo-fola, without that file it logs "Unable to access secret … 403" when a function first runs. That's harmless, but any model call then fails.
+- The Functions emulator reads META_API_KEY from functions/.secret.local (gitignored), which Nthabiseng creates herself. Under demo-fola, without that file it logs "Unable to access secret … 403" when a function first runs. That's harmless: under demo-fola, processNote is in practice mode and never calls Meta, and only checkMetaConnection would fail.
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 4 web unit tests (sign-in error messages).
-- `npm --prefix functions test` — runs the 47 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks), all with fakes and no network calls.
-- `npm run test:rules` — runs the 28 Firestore rules tests. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 30 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
+- `npm test` — runs the 20 web unit tests (sign-in error messages, the WAV encoder, card lists, card drafts and the saved document).
+- `npm --prefix functions test` — runs the 61 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit), all with fakes and no network calls.
+- `npm run test:rules` — runs the 88 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
+- If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
 
 **Extraction scoring (local; calls the Meta API and uses credits)**
@@ -352,9 +444,14 @@ Other local commands:
 
 ## Known issues
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the public repo history. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
-- Nothing from Task 6 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so sign-in on the live site would work but saving a profile would fail until the rules are deployed.
+- Nothing from Tasks 6 and 7 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
+- iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
+- processNote's memory and concurrency are still the defaults (256 MiB, up to 80 requests per instance) and each note uses about 30 MB; decide in the deploy task (see Next steps).
+- firestore.rules also keeps its own copy of the card lists (symptom groups, age groups, compared with usual, onset, exposure types, areas). Changing src/config/cardOptions.js, functions/lib/cardSchema.js or functions/data/places.json means changing firestore.rules too; the unit and rules tests fail until they match.
+- The browser check and the break-the-rule check are local scripts, not part of the repo (they need a local test recording and Edge). Re-running them means rewriting them; HANDOVER lists what they checked.
+- Practice mode's turn is held in the Functions emulator's memory, so it starts again at the first result whenever the emulator restarts or reloads the code.
 - firestore.rules keeps its own copies of the role, facility-type and area lists, because rules can't import files. Changing src/config/profileOptions.js or functions/data/places.json means changing firestore.rules too; `npm run test:rules` fails until they match.
-- The web app ships as one JavaScript file of about 840 kB (257 kB compressed), mostly the Firebase libraries. Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
+- The web app ships as one JavaScript file of about 870 kB (267 kB compressed), mostly the Firebase libraries. Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
 - Anyone can create an account and choose any role: there's no email verification, and checking clinicians against the SANC and HPCSA registers is out of scope.
 - Hosting has no automatic build before deploy: run `npm run build` first or the deploy sends a stale or missing dist/.
 - Voice Transcribe can silently drop non-English speech. In Task 2, a Sesotho closing phrase appeared in only 2 of 9 calls. Consequence for the design: missing card fields are always asked, and the Report screen tells the clinician to check the transcript.
@@ -370,6 +467,7 @@ Other local commands:
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-27 — Task 7: the Report screen end to end (hold-or-tap recording, 24 kHz WAV in the browser, playback, streamed progress stages, the card screen with unsure fields empty and highlighted, fixed advice/NMC/single-source/not-a-report notices, saving to cards/{cardId}); cards rules with 60 emulator tests and a break-the-rule check; processNote's daily limit (40 per SAST day), maxInstances 5 and emulator-only practice mode with 5 made-up results; official hotline numbers checked. Nothing deployed.
 - 2026-10-27 — Task 6: sign-in (Google, email and password), a one-time profile at users/{uid}, the mobile layout with all five routes (placeholders except Profile), the emulators under demo-fola, src/lib/api.js, Firestore rules for users/{uid} with 28 emulator tests (not deployed), and a sign-in check in checkMetaConnection (not deployed). The Vite starter files are deleted; Java 21 is installed.
 - 2026-10-27 — Extraction prompt: "The day patients came in is not the onset."; Stage 1 now 100% with no confident-wrong values.
 - 2026-10-27 — Task 5: corrected three expected answers, tightened the extraction prompt, added the confident-wrong count and --rescore, added AGENTS.md (CLAUDE.md in step), recorded the Startup track, effort and audio-ear decisions; Stage 1 re-scored and re-run.
