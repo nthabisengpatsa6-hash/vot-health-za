@@ -1,11 +1,11 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 13:35 SAST
+**Last updated:** 2026-10-27 13:49 SAST
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is public: no keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 99.1% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with 3 confident-wrong values left; 91.7–95.8% on the two real recordings in Task 4 (results below). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. Next: score the 10 recordings when they arrive, then Day 2's Report screen.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. Next: score the 10 recordings when they arrive, then Day 2's Report screen.
 
 ## Done
 
@@ -60,6 +60,7 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - Scorer: a "confident wrong" count per note and overall, and --rescore to score a saved run against the current fixtures with no API calls.
   - AGENTS.md added with the same rules as CLAUDE.md; both gained three rules (no "-contributor" models; no transcript text, real names, keys or personal folder paths in the repo; keep the two files in step).
   - Stage 1 re-scored and re-run (results below).
+  - Follow-up: the onset guidance now also says "The day patients came in is not the onset."; Stage 1 re-run once.
 
 ## Confirmed API formats
 
@@ -148,14 +149,14 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - The new prompt fixed moreSevere for the very weak patient (n05: 3 of 3, was 0 of 3), and n06's onset is now always asked.
 - New confident-wrong problem: n01's onset is now filled in as "today" in all 3 repeats instead of being asked. The note only says when the patients came in; the new onset sentence covers other events (water, gatherings) but not the day patients came in.
 - Extraction 4.8 s on average (1.5–9.0 s).
+- Follow-up, after adding "The day patients came in is not the onset." (score-006): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions. n01's onset is now asked in all 3 repeats. Extraction 5.3 s on average (1.3–13.1 s); about $0.22.
 
 ## In progress
 - Nothing.
 
 ## Next steps (in order)
-1. Extraction prompt (needs Nthabiseng's approval): say that the day patients came in isn't the onset, since n01 still fills onset in with confidence (3 of 3); then re-run Stage 1 (`--stage text --repeat 3 --effort low`) and check the confident-wrong count.
-2. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-3. Day 2: Report screen end to end.
+1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
+2. Day 2: Report screen end to end.
    - The browser records 24 kHz mono 16-bit WAV for processNote.
    - Call processNote with a callable timeout of at least 300 s, for example httpsCallable(functions, "processNote", { timeout: 300000 }); the client's default is 70 s.
    - Show each card with its unsure fields highlighted and its questions; Confirm stays disabled until they're answered.
@@ -307,6 +308,7 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-27 — Extraction prompt: "The day patients came in is not the onset."; Stage 1 now 100% with no confident-wrong values.
 - 2026-10-27 — Task 5: corrected three expected answers, tightened the extraction prompt, added the confident-wrong count and --rescore, added AGENTS.md (CLAUDE.md in step), recorded the Startup track, effort and audio-ear decisions; Stage 1 re-scored and re-run.
 - 2026-10-27 — Two-ears case card extraction: places list, Spark audio ear, extraction with structured output and code guards, processNote (replaces transcribeNote; not deployed), shared retry code, scoring runner and fixtures; Stage 1 and Stage 2 scored.
 - 2026-10-27 — Recorded the Day 0–1 decisions and facts; transcription now retries once on temporary failures; test runner gained run selection, numbered results and Muse Spark audio runs; ran the Sesotho experiment (runs 003–004).
