@@ -1,0 +1,10 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Deny all reads and writes until real rules are written.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
