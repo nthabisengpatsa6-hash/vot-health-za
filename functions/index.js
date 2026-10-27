@@ -22,7 +22,14 @@ const metaApiKey = defineSecret("META_API_KEY");
 // returned or logged.
 exports.checkMetaConnection = onCall(
     {region: "africa-south1", secrets: [metaApiKey]},
-    async () => {
+    async (request) => {
+      // Like every function that uses the key: signed-in callers only.
+      if (!request.auth) {
+        throw new HttpsError(
+            "unauthenticated",
+            "Please sign in to check the Meta connection.",
+        );
+      }
       let response;
       try {
         response = await fetch(`${META_API_BASE_URL}/models`, {

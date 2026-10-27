@@ -1,11 +1,11 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 13:49 SAST
+**Last updated:** 2026-10-27 15:16 SAST
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is public: no keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. Next: score the 10 recordings when they arrive, then Day 2's Report screen.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. All five screens are routed; only Profile is real so far, and the others are placeholders that say which day they arrive. Firestore rules for users/{uid} are written and tested in the emulator (28 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Nothing from Task 6 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 7, the Report screen, built on this layout. Score the 10 recordings when they arrive.
 
 ## Done
 
@@ -61,6 +61,31 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - AGENTS.md added with the same rules as CLAUDE.md; both gained three rules (no "-contributor" models; no transcript text, real names, keys or personal folder paths in the repo; keep the two files in step).
   - Stage 1 re-scored and re-run (results below).
   - Follow-up: the onset guidance now also says "The day patients came in is not the onset."; Stage 1 re-run once.
+
+### Day 2 work — Task 6: sign-in, profile and app layout (built Tue 27 Oct; nothing deployed)
+- Sign-in screen: "Continue with Google" (a popup; no Google logo), plus email and password with Sign in, Create account and Forgot your password. Show/Hide password. Plain-English errors from src/lib/authErrors.js; a wrong password and an unknown email get the same message.
+- One-time profile at users/{uid}: role, facilityType, area, createdAt and updatedAt (both server timestamps), and nothing else. Role is a list of radio buttons (long role names were cut off in a dropdown at 360 px); facility type and area are dropdowns. Editable later on the Profile screen, which also shows the signed-in email (read from Auth, never stored) and Sign out. There is no delete button yet, although the rules allow the owner to delete.
+- App layout: a header with the product name (from src/config/product.js), Replay and Profile. Bottom navigation: Report, Today and Near me. Routes: /report, /today, /near-me, /signals/:signalId, /replay and /profile; any other address goes to /report. Placeholders say when each screen arrives: Report Day 2, Replay Day 3, Near me Day 4, Signal detail and Today Day 6. Near me and Today show the user's area and the Watch/Signal/Alert key.
+- Style: light theme, one deep teal accent, system fonts, 17 px body text, tap targets of at least 48 px, content at most 640 px wide. Watch, Signal and Alert are always shown as a word plus 1, 2 or 3 bars plus a colour (src/components/LevelBadge.jsx).
+- The Vite starter page is gone: src/App.css, src/assets/ (hero.png, react.svg, vite.svg) and public/icons.svg are deleted (with Nthabiseng's yes), and src/index.css and public/favicon.svg are replaced.
+- Emulators: on localhost or 127.0.0.1, src/lib/firebase.js connects Auth (9099), Firestore (8080) and Functions (5001) to the emulators, switches the project ID to demo-fola, and the app shows a "Local test mode" strip.
+- src/lib/api.js: callFunction(name, data) uses httpsCallable with a 310 s timeout (processNote's limit is 300 s).
+- firestore.rules: users/{uid} can be read (get only, never listed), created, updated and deleted only by its signed-in owner, with only the five fields, allowed values and server timestamps; createdAt can't change. Everything else stays deny-all. Not deployed.
+- Rules tests: test/rules/users.rules.test.js, 28 tests with @firebase/rules-unit-testing. They try every role, facility type and area from the app's own lists (src/config/profileOptions.js and functions/data/places.json), so if firestore.rules drifts from those lists the tests fail. They were also checked against 13 deliberately broken copies of the rules: every break except removing hasAll was caught (a missing field already makes the other checks deny).
+- checkMetaConnection now refuses callers who aren't signed in ("unauthenticated"). Not deployed. 2 new unit tests check both callables refuse signed-out calls before any network call (47 Functions tests in total).
+- Web unit tests: test/unit/auth-errors.test.js (4 tests).
+- Libraries added: react-router 8.4.0 (MIT) and, for tests only, @firebase/rules-unit-testing 6.0.0 (Apache-2.0).
+- Java 21 (Microsoft Build of OpenJDK, installed with winget) for the Firestore emulator.
+- Checked in headless Microsoft Edge at 360 × 740 against the emulators (27 checks, all passing):
+  - sign-up and the error messages
+  - the first-time profile and the five stored fields
+  - a profile edit that keeps createdAt and moves updatedAt
+  - every route, Back, deep-link reloads and unknown addresses
+  - sign out and back in; password reset
+  - the emulator's fake Google sign-in
+  - checkMetaConnection through api.js while signed out
+  - at 360 px: no sideways scrolling, every tap target at least 44 px, smallest text 14.5 px
+  - no unexpected console errors
 
 ## Confirmed API formats
 
@@ -156,13 +181,16 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 
 ## Next steps (in order)
 1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. Day 2: Report screen end to end.
+2. Task 7 (Day 2, part 2): the Report screen end to end, replacing the /report placeholder.
    - The browser records 24 kHz mono 16-bit WAV for processNote.
-   - Call processNote with a callable timeout of at least 300 s, for example httpsCallable(functions, "processNote", { timeout: 300000 }); the client's default is 70 s.
+   - Call processNote with callFunction("processNote", { audioBase64 }) from src/lib/api.js (310 s timeout).
    - Show each card with its unsure fields highlighted and its questions; Confirm stays disabled until they're answered.
    - Show transcriptClean as "what we heard, please check".
    - adviceRequested shows fixed text pointing to official guidance (NICD, Poisons Information Centre); notifiableConditionMentioned shows the NMC reminder.
-   - Add a sign-in check to checkMetaConnection once Auth exists.
+   - The card's reporter comes from the profile (role and facilityType).
+   - Running processNote in the emulator calls Meta for real: it needs META_API_KEY in functions/.secret.local, which Nthabiseng creates herself.
+3. Deploys, each its own STOP: Functions (so the live checkMetaConnection gets its sign-in check), the Firestore rules, then Hosting (the live site still shows the Vite starter page).
+4. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it).
 
 ## Decisions and why
 - 26 Oct — Firestore and Functions in africa-south1: data stays in South Africa. Firestore's location can never be changed.
@@ -191,6 +219,11 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 27 Oct — Startup track confirmed. Organisers said solo founders qualify if they're incorporated in their home country, and Vault of Time (Pty) Ltd is incorporated in South Africa.
 - 27 Oct — Extraction effort: low (EXTRACT_EFFORT). Why: in Task 4, medium scored the same as low and was slower and dearer.
 - 27 Oct — Audio ear: muse-spark-1.2 for now (SPARK_AUDIO_MODEL); the final choice comes after the 10 recordings. Why: 1.3 invented a disease name, which was caught, and 1.2 gave one confident wrong onset.
+- 27 Oct — Router: react-router (MIT), declarative mode only (BrowserRouter, Routes, NavLink), pinned to 8.4.0 because 8.5.0 was only 8 days old. Why: it's React's standard router; NavLink marks the current tab for screen readers; Signal detail needs URL parameters. wouter was ruled out (its "Unlicense" isn't on our licence list), and a home-made router would rebuild links, Back and active tabs.
+- 27 Oct — The web app imports functions/data/places.json directly (src/lib/places.js), instead of copying it. Why: Vite's root is the repo root, so there's one file, no copy step and no copy to go stale; functions/ is unchanged and still deploys on its own. firestore.rules has to keep its own copy of the area list, and the rules tests check it against places.json.
+- 27 Oct — All local emulator work runs under the made-up project ID demo-fola (npm run emulators, npm run test:rules), and the app switches to it on localhost. Why: Firebase never lets a "demo-" project reach a live one. Without functions/.secret.local, the Functions emulator asks Secret Manager for META_API_KEY; under demo-fola that fails with 403, but under the real project ID it would read the live key.
+- 27 Oct — Profile: role, facilityType and area only, plus server timestamps. Never a name, phone number or ID number; the email stays in Firebase Auth. The signed-in owner may read, change and delete their own profile; nobody can list profiles. (Owner delete was Nthabiseng's call; the delete button comes later with the privacy notice.)
+- 27 Oct — Google sign-in uses a popup and a plain "Continue with Google" button with no Google logo, so we use no third-party trademark artwork. Google sign-in stores the Google name and photo in the Firebase Auth record; the app never reads, shows or copies them.
 - 27 Oct — How three Task 4 cases are read: the day patients came in isn't the onset, so it's asked; very weak, unable to walk, collapsed, unconscious, badly dehydrated, admitted or a death counts as moreSevere, in any language; schoolchildren can be 5 to 17, so their age group is asked.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
@@ -206,21 +239,35 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - HANDOVER.md — current state of the build (this file).
 - docs/PROJECT_CONTEXT.md — the brief and the decisions.
 - README.md — public project summary.
-- index.html — the page shell Vite builds from.
+- index.html — the page shell Vite builds from (the tab title is set from src/config/product.js when the app starts).
 - vite.config.js — Vite settings (React plugin only).
 - package.json, package-lock.json — web app libraries and npm scripts.
 - .oxlintrc.json — linter rules.
 - .firebaserc — links this folder to the Firebase project vot-health-za.
 - firebase.json — Firebase settings: Firestore (africa-south1, rules, indexes), Functions folder, Hosting from dist/, emulator ports.
-- firestore.rules — Firestore security rules (deny-all).
+- firestore.rules — Firestore security rules: users/{uid} for its owner only; everything else deny-all. Not deployed.
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
-- public/ — files served as-is (favicon.svg, icons.svg).
-- src/main.jsx — starts the React app.
-- src/App.jsx, src/App.css, src/index.css — Vite's starter page and styles (placeholder).
-- src/assets/ — starter images (hero.png, react.svg, vite.svg).
+- public/favicon.svg — the browser-tab icon (three rising bars on teal).
+- src/main.jsx — starts the React app inside the router and sets the tab title.
+- src/App.jsx — chooses what to show (loading, sign-in, first-time profile, or the app) and holds the routes and the placeholders' text.
+- src/index.css — the app's only stylesheet: colours, sizes, layout, forms, navigation, level badges.
 - src/config/product.js — PRODUCT_NAME, the only place the product name is set.
-- src/lib/firebase.js — Firebase web config and app start-up (not imported anywhere yet).
+- src/config/profileOptions.js — the role and facility-type lists (stored value and label).
+- src/lib/firebase.js — Firebase web config; Auth, Firestore and Functions (africa-south1); on localhost, the emulators under demo-fola.
+- src/lib/api.js — callFunction(name, data): calls a callable function with a 310 s timeout.
+- src/lib/authErrors.js — plain-English messages for sign-in errors.
+- src/lib/places.js — the town and area names, read from functions/data/places.json.
+- src/lib/profile.js — watchProfile and saveProfile for users/{uid}.
+- src/lib/useSession.js — the hook that says who's signed in and whether their profile is set up.
+- src/components/AppLayout.jsx — header and bottom navigation around the signed-in screens.
+- src/components/LevelBadge.jsx — the Watch, Signal and Alert badges and their key.
+- src/components/Icons.jsx — the five line icons (drawn for this app).
+- src/screens/SignInScreen.jsx — Google, email sign-in, create account, password reset.
+- src/screens/ProfileScreen.jsx — the first-time set-up and the Profile screen.
+- src/screens/PlaceholderScreen.jsx — "Arrives on Day N" for screens not built yet.
+- test/unit/auth-errors.test.js — unit tests for the sign-in error messages.
+- test/rules/users.rules.test.js — Firestore rules tests (run with npm run test:rules).
 - functions/index.js — Cloud Functions: checkMetaConnection and processNote (not deployed).
 - functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears).
 - functions/data/places.json — the demo town Kganya: 7 areas and which works feeds each (Day 3's town file grows from this).
@@ -236,6 +283,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - functions/test/transcribe-retry.test.js — unit tests for the retry logic, using a fake fetch.
 - functions/test/card-guards.test.js — unit tests for the code guards.
 - functions/test/two-ears.test.js — unit tests for the parallel ears, with fake ears.
+- functions/test/sign-in.test.js — checks that both callables refuse signed-out callers before any network call.
 - functions/test/spark-and-extract.test.js — unit tests for the Spark ear and extraction requests, with a fake fetch.
 - functions/test/make-wav.js — builds WAVs in memory for the tests.
 - functions/package.json, functions/package-lock.json — Functions libraries, Node 22, npm scripts.
@@ -253,19 +301,31 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - `npm install` — downloads the web app's libraries.
 - `npm --prefix functions install` — downloads the Cloud Functions libraries.
 - ffmpeg (for the audio test tools only) is installed system-wide with winget (`winget install Gyan.FFmpeg`). It is deliberately not a project dependency.
+- Java 21 (for the Firestore emulator) is installed system-wide with winget (`winget install --id Microsoft.OpenJDK.21 -e`). After installing, close and reopen PowerShell windows (and VS Code) so they find it; `java -version` should print 21.
 
-**Run locally**
-- `npm run dev` — runs the web app on this computer with live reload; it prints the local address.
-- `npm run build` — builds the finished web app into dist/.
-- `npm run preview` — serves the built dist/ locally so you can check it before deploying.
-- `firebase emulators:start` — starts local copies of Auth (9099), Functions (5001), Firestore (8080) and Hosting (5000), plus the Emulator UI (address printed on start). Hosting serves dist/, so run `npm run build` first.
-- `npm --prefix functions run serve` — starts only the Functions emulator.
-- `npm --prefix functions run shell` — a prompt for calling functions locally by hand (`npm --prefix functions start` does the same).
-- The Functions emulator reads META_API_KEY from functions/.secret.local (gitignored), which Nthabiseng creates herself.
+**Run the app locally with the emulators (nothing touches the live project)**
+Use two PowerShell windows, both in the repo folder.
+1. Window 1: `npm run emulators`. This starts local copies of Auth (9099), Firestore (8080) and Functions (5001) under the made-up project ID demo-fola. Wait for "All emulators ready", then leave it running. Ctrl+C stops it, and that wipes every test account and profile.
+2. Window 2: `npm run dev`. This starts the web app with live reload. Open http://localhost:5173. The dark strip at the top, "Local test mode: emulators, nothing is live", confirms the app is using the emulators.
+3. Optional: the Emulator UI at http://127.0.0.1:4000 shows the test accounts (Authentication tab) and saved profiles (Firestore tab, collection "users").
+
+Signing in locally:
+- Email: choose Create account, then any made-up address (for example nurse.test@example.com) and any password of at least 6 characters. No email is ever sent.
+- Google, with the emulator's fake account: tap "Continue with Google". A window from the Auth emulator opens instead of Google, titled "Sign-in with Google.com". Tap "Add new account", then "Auto-generate user information", then "Sign in with Google.com". No real Google account is involved. Next time, the fake account is listed; tap it.
+- Password reset: no email is sent. The reset link appears in window 1 (the emulator output).
+- Only http://localhost and http://127.0.0.1 use the emulators. Opening the dev server from a phone by the computer's network address would use the live project, so check phone widths with the browser's device toolbar (F12, then the phone icon) instead.
+
+Other local commands:
+- `npm run build` — builds the finished web app into dist/. It warns that the main file is over 500 kB; see Known issues.
+- `npm run preview` — serves the built dist/ at http://localhost:4173; with `npm run emulators` running, it uses the emulators too.
+- Avoid a plain `firebase emulators:start`, `npm --prefix functions run serve` and `npm --prefix functions run shell` for app testing. They run under the real project ID, which the app on localhost doesn't use, and without functions/.secret.local the Functions emulator would then read the live META_API_KEY from Secret Manager.
+- The Functions emulator reads META_API_KEY from functions/.secret.local (gitignored), which Nthabiseng creates herself. Under demo-fola, without that file it logs "Unable to access secret … 403" when a function first runs. That's harmless, but any model call then fails.
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm --prefix functions test` — runs the 45 unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests), all with fakes and no network calls.
+- `npm test` — runs the 4 web unit tests (sign-in error messages).
+- `npm --prefix functions test` — runs the 47 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks), all with fakes and no network calls.
+- `npm run test:rules` — runs the 28 Firestore rules tests. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 30 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
 
 **Extraction scoring (local; calls the Meta API and uses credits)**
@@ -292,8 +352,10 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 
 ## Known issues
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the public repo history. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
-- src/lib/firebase.js only starts the Firebase app: Auth, Firestore, the Functions client and emulator connections aren't wired in, and nothing imports it yet.
-- src/App.jsx is still Vite's starter page: it doesn't use PRODUCT_NAME and has multi-line JSX tags.
+- Nothing from Task 6 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so sign-in on the live site would work but saving a profile would fail until the rules are deployed.
+- firestore.rules keeps its own copies of the role, facility-type and area lists, because rules can't import files. Changing src/config/profileOptions.js or functions/data/places.json means changing firestore.rules too; `npm run test:rules` fails until they match.
+- The web app ships as one JavaScript file of about 840 kB (257 kB compressed), mostly the Firebase libraries. Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
+- Anyone can create an account and choose any role: there's no email verification, and checking clinicians against the SANC and HPCSA registers is out of scope.
 - Hosting has no automatic build before deploy: run `npm run build` first or the deploy sends a stale or missing dist/.
 - Voice Transcribe can silently drop non-English speech. In Task 2, a Sesotho closing phrase appeared in only 2 of 9 calls. Consequence for the design: missing card fields are always asked, and the Report screen tells the clinician to check the transcript.
 - Latency: usually 6 to 8 seconds, with spikes to 51 seconds, plus 3 dropped connections in one run. transcribeWav now retries once (see "Confirmed API formats").
@@ -301,13 +363,14 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - Muse Spark audio can invent text: in Task 3, 1.2 added a sentence that wasn't spoken, and in Task 4, 1.3 invented a disease name. The two-ears comparison and the rule 5 guard kept both off the cards, but the audio ear can't be trusted alone.
 - The cleaned transcript once swapped a name for an unrelated word (Task 4), and once kept a misheard word from one ear. The clinician reviews the transcript before confirming, and the Report screen presents it as "what we heard, please check". Since Task 5 the prompt says never to replace a name with another word.
 - A [?] in one transcript counts as a disagreement, so a weak audio ear can add questions about facts the other ear heard clearly (five questions on one card in Task 4).
-- checkMetaConnection can be called by anyone. It only lists models; add a sign-in check on Day 2 when Auth exists.
-- npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path). Don't run "npm audit fix --force", because it would downgrade firebase.
+- The deployed checkMetaConnection can still be called by anyone (it only lists models). The code has required sign-in since Task 6, and the check goes live with the next Functions deploy.
+- npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path), listed again under @firebase/rules-unit-testing because it depends on firebase. Don't run "npm audit fix --force", because it would downgrade firebase.
 - Local Node is v24 but Functions run nodejs22. It's only a warning.
 - The Firebase CLI sometimes prints its results, then exits with "Timed out". Harmless.
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-27 — Task 6: sign-in (Google, email and password), a one-time profile at users/{uid}, the mobile layout with all five routes (placeholders except Profile), the emulators under demo-fola, src/lib/api.js, Firestore rules for users/{uid} with 28 emulator tests (not deployed), and a sign-in check in checkMetaConnection (not deployed). The Vite starter files are deleted; Java 21 is installed.
 - 2026-10-27 — Extraction prompt: "The day patients came in is not the onset."; Stage 1 now 100% with no confident-wrong values.
 - 2026-10-27 — Task 5: corrected three expected answers, tightened the extraction prompt, added the confident-wrong count and --rescore, added AGENTS.md (CLAUDE.md in step), recorded the Startup track, effort and audio-ear decisions; Stage 1 re-scored and re-run.
 - 2026-10-27 — Two-ears case card extraction: places list, Spark audio ear, extraction with structured output and code guards, processNote (replaces transcribeNote; not deployed), shared retry code, scoring runner and fixtures; Stage 1 and Stage 2 scored.

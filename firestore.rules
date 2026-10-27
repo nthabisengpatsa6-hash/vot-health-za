@@ -2,7 +2,39 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Deny all reads and writes until real rules are written.
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // A profile is exactly these five fields: no name, phone number, ID
+    // number or email. The lists mirror src/config/profileOptions.js and
+    // functions/data/places.json (rules can't import files); the rules tests
+    // in test/rules/ fail if they drift apart.
+    function isValidProfile(data) {
+      return data.keys().hasOnly(['role', 'facilityType', 'area', 'createdAt', 'updatedAt'])
+        && data.keys().hasAll(['role', 'facilityType', 'area', 'createdAt', 'updatedAt'])
+        && data.role in ['nurse', 'doctor', 'physiotherapist', 'pharmacist',
+                         'environmental_health_practitioner', 'health_officer']
+        && data.facilityType in ['clinic', 'hospital', 'pharmacy', 'private_practice', 'health_office']
+        && data.area in ['Thaga Park', 'Leeba View', 'Sefate Extension', 'Nonyana Flats',
+                         'Mmutla Ridge', 'Kgwedi Heights', 'Lebone Gardens']
+        && data.updatedAt == request.time;
+    }
+
+    // Only the signed-in owner can see, change or delete their profile. It is
+    // fetched by its own ID, so "get" rather than "read": no listing at all.
+    match /users/{uid} {
+      allow get: if isSelf(uid);
+      allow create: if isSelf(uid)
+        && isValidProfile(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isSelf(uid)
+        && isValidProfile(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isSelf(uid);
+    }
+
+    // Everything else stays closed until it gets its own rules and tests.
     match /{document=**} {
       allow read, write: if false;
     }
