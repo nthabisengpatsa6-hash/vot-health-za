@@ -1,0 +1,14 @@
+{
+ "n01": {"isReport":true,"cards":[{"g":"diarrhoea_vomiting","n":4,"u":"more","age":"under_5","area":"Thaga Park","onset":"today","exp":["water"],"obs":[],"ask":[]}]},
+ "n02": {"isReport":true,"cards":[{"g":"diarrhoea_vomiting","n":3,"age":"under_5","area":"Nonyana Flats","onset":"last_3_days","exp":["water"],"obs":[],"ask":["comparedWithUsual"]}]},
+ "n03": {"isReport":true,"namesAbsent":["Thabo","Mokoena","Lerato","Karabo","Dlamini"],"cards":[{"g":"diarrhoea_vomiting","n":3,"area":"Sefate Extension","exp":[],"obs":[],"ask":["comparedWithUsual","ageGroup","onset"]}]},
+ "n04": {"isReport":true,"notifiable":"measles","cards":[{"g":"fever_rash","u":"not_sure","onset":"last_3_days","exp":[],"obs":[],"ask":["caseCount","ageGroup","area"]}]},
+ "n05": {"isReport":true,"cards":[{"g":"sudden_after_eating_drinking","n":5,"age":"adult","area":"Leeba View","onset":"today","exp":["food"],"obs":["moreSevere"],"ask":["comparedWithUsual"]}]},
+ "n06": {"isReport":true,"cards":[{"g":"fever_stiff_neck_confusion","n":2,"u":"more","age":"13_17","area":"Kgwedi Heights","onset":"today","exp":["school"],"obs":[],"ask":[]}]},
+ "n07": {"isReport":true,"cards":[{"g":"bloody_diarrhoea","n":6,"age":"60_plus","area":"Mmutla Ridge","onset":"longer","exp":[],"obs":["notResponding","shortOfSupplies"],"ask":["comparedWithUsual"]}]},
+ "n08": {"isReport":true,"adviceRequested":true,"cards":[{"g":"cough_flu","u":"same","age":"adult","area":"Lebone Gardens","exp":[],"obs":[],"ask":["caseCount","onset"]}]},
+ "n09": {"isReport":true,"cards":[{"g":"diarrhoea_vomiting","n":3,"age":"under_5","area":"Thaga Park","onset":"last_3_days","exp":[],"obs":[],"ask":["comparedWithUsual"]},{"g":"red_eyes_itchy_rash","n":2,"age":"5_12","area":"Leeba View","onset":"last_3_days","exp":[],"obs":[],"ask":["comparedWithUsual"]}]},
+ "n10": {"isReport":false,"cards":[]},
+ "all-sesotho": {"isReport":true,"namesAbsent":["Palesa"],"cards":[{"g":"diarrhoea_vomiting","n":5,"u":"more","age":"under_5","exp":["water"],"obs":["moreSevere"],"ask":["area","onset"]}]},
+ "mixed-amanzimtoti": {"isReport":true,"cards":[{"g":"fever_rash","n":2,"u":"not_sure","age":"adult","onset":"last_3_days","exp":["event"],"obs":[],"ask":["area"]}]}
+}

@@ -1,0 +1,12 @@
+{
+  "town": "Kganya",
+  "areas": [
+    { "name": "Thaga Park", "works": "A" },
+    { "name": "Leeba View", "works": "A" },
+    { "name": "Sefate Extension", "works": "A" },
+    { "name": "Nonyana Flats", "works": "A" },
+    { "name": "Mmutla Ridge", "works": "A" },
+    { "name": "Kgwedi Heights", "works": "B" },
+    { "name": "Lebone Gardens", "works": "B" }
+  ]
+}

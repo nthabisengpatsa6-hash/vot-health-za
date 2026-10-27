@@ -87,8 +87,8 @@ These hold in every build, demo, doc and prompt.
 ## 4. The core loop
 
 1. A clinician records a push-to-talk voice note.
-2. Muse Voice Transcribe turns it into a transcript; the audio is dropped.
-3. Muse Spark plus a local word list turns the transcript into a case card: fixes sound-spellings, translates, fills the fields, flags what it's unsure of, strips names.
+2. Two ears, in parallel: Muse Voice Transcribe (with the place list as keywords) and Muse Spark (audio input) each turn the note into a transcript; the audio is dropped.
+3. Muse Spark 1.3 plus the place list builds the case card from both transcripts: fixes sound-spellings, translates, fills the fields, strips names, and flags what it's unsure of, including any card fact the two transcripts disagree on.
 4. The clinician confirms the card; unsure fields must be confirmed. Nothing is saved before this.
 5. Statistics cluster the confirmed cards.
 6. Map overlays test exposure layers (water supply zones, school catchments, shops, events).
@@ -205,11 +205,11 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 | Signal maths | Plain JavaScript in Cloud Functions | Expected counts and zone comparisons are a few lines; the AI never does the maths |
 | Hosting | Firebase Hosting | Live link for the judges |
 | Map | Leaflet, with plain shapes for the demo town | Free, no API key; no real streets |
-| Audio | Browser recording → Cloud Function → Muse Voice Transcribe | Audio is never stored |
+| Audio | Browser recording → Cloud Function → Muse Voice Transcribe and Muse Spark ("two ears") | Audio is never stored |
 
 **Model routing**
-- Voice → transcript: Muse Voice Transcribe (muse-voice-transcribe-1.0) on the Meta Model API, by file upload (POST /v1/asr/transcribe, mode PUSH_TO_TALK) of a 24 kHz mono 16-bit WAV.
-- Transcript → card, ranking sources, drafting notifications: Muse Spark on the Meta Model API. Base URL https://api.meta.ai/v1 (OpenAI-compatible Chat Completions and Responses, plus an Anthropic-style Messages endpoint), Bearer key. Model: muse-spark-1.3 (Standard mode). Never use a "-contributor" model ID: those let Meta train on our prompts and outputs.
+- Voice → transcripts ("two ears", in parallel): Muse Voice Transcribe (muse-voice-transcribe-1.0) on the Meta Model API, by file upload (POST /v1/asr/transcribe, mode PUSH_TO_TALK, place-list keywords) of a 24 kHz mono 16-bit WAV; and Muse Spark audio input on Chat Completions (muse-spark-1.2 or muse-spark-1.3, a single setting chosen by scoring). If one ear fails or is too slow, the card is built from the other and marked single-source.
+- Transcripts → card, ranking sources, drafting notifications: Muse Spark on the Meta Model API. Base URL https://api.meta.ai/v1 (OpenAI-compatible Chat Completions and Responses, plus an Anthropic-style Messages endpoint), Bearer key. Model: muse-spark-1.3 (Standard mode). Never use a "-contributor" model ID: those let Meta train on our prompts and outputs.
 - Open-weights route (P1): Muse Spark Open on Baseten. Base URL https://inference.baseten.co/v1 (OpenAI-compatible). Model name: meta-models/muse-spark-open-1026 (not the docs' default name). This keeps health signals on infrastructure Vault of Time controls and targets the open-weights bonus prize.
 - P1: Muse Spark (vision) reads a photographed municipal notice into a dated event on the map.
 

@@ -150,6 +150,7 @@ for (const file of files) {
       } else {
         const result = await transcribeWav(wav, { apiKey, ...run.transcribe });
         Object.assign(row, { durationMs: result.durationMs, latencyMs: result.latencyMs, attempts: result.attempts, attemptMs: result.attemptMs, transcript: result.transcript });
+        row.retryReasons = result.failures; // kind and HTTP status of each failed attempt before the one that worked
       }
       row.words = row.transcript.split(/\s+/).filter(Boolean).length;
       row.keywordsFound = Object.fromEntries(keywords.map((word) => [word, spelledRight(row.transcript, word)]));

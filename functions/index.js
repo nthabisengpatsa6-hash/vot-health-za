@@ -3,7 +3,15 @@ const {onCall, HttpsError} = require("firebase-functions/https");
 const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const {META_API_BASE_URL, MAX_AUDIO_BYTES} = require("./constants");
-const {AudioFormatError, transcribeWav} = require("./lib/transcribe");
+const {
+  AudioFormatError,
+  checkWav,
+  transcribeWav,
+} = require("./lib/transcribe");
+const {transcribeWithSpark} = require("./lib/sparkAudio");
+const {extractCard} = require("./lib/extractCard");
+const {listenWithTwoEars} = require("./lib/twoEars");
+const {PLACE_KEYWORDS} = require("./lib/cardSchema");
 
 setGlobalOptions({maxInstances: 10});
 
@@ -45,13 +53,59 @@ exports.checkMetaConnection = onCall(
     },
 );
 
-// Turns one push-to-talk voice note (a WAV, base64-encoded by the browser)
-// into text. The audio lives only in memory for this call and is never
-// stored; logs carry timings only, never audio or transcript.
-exports.transcribeNote = onCall(
-    // 150 s fits two 60 s transcription attempts, the pause between them,
-    // and decoding. The browser's callable timeout must be at least this.
-    {region: "africa-south1", secrets: [metaApiKey], timeoutSeconds: 150},
+// Decodes the browser's base64 WAV and checks it before any model call.
+// The size is checked before decoding too, so an oversized upload is never
+// held in memory twice.
+function decodeAudio(data) {
+  const audioBase64 = data && data.audioBase64;
+  if (typeof audioBase64 !== "string" || audioBase64.length === 0) {
+    throw new HttpsError("invalid-argument", "No audio was sent.");
+  }
+  const tooLarge = "The recording is larger than " +
+      `${MAX_AUDIO_BYTES / 1024 / 1024} MB.`;
+  if (audioBase64.length > Math.ceil(MAX_AUDIO_BYTES / 3) * 4) {
+    throw new HttpsError("invalid-argument", tooLarge);
+  }
+  const wav = Buffer.from(audioBase64, "base64");
+  if (wav.length > MAX_AUDIO_BYTES) {
+    throw new HttpsError("invalid-argument", tooLarge);
+  }
+  try {
+    checkWav(wav);
+  } catch (err) {
+    if (err instanceof AudioFormatError) {
+      throw new HttpsError("invalid-argument", err.message);
+    }
+    throw err;
+  }
+  return wav;
+}
+
+// What one ear did, for the logs: timing, attempts and why it failed, never
+// what it heard. Meta's error text is left out because it could echo
+// request details.
+function earLog(result) {
+  if (!result) return null;
+  const detail = (result.ok ? result.value : result.error) || {};
+  return {
+    ok: result.ok,
+    ms: result.ms,
+    attempts: detail.attempts || null,
+    kind: result.ok ? null : detail.kind || "error",
+    status: result.ok ? null : detail.status || null,
+  };
+}
+
+// Turns one push-to-talk voice note (a 24 kHz WAV, base64-encoded by the
+// browser) into draft case cards. Two "ears" transcribe it in parallel and
+// Muse Spark 1.3 builds the cards from both transcripts. Audio and raw
+// transcripts live only in memory for this call; logs carry timings and
+// attempts only.
+exports.processNote = onCall(
+    // Each ear and the card step allow two 60 s attempts, and the ears run
+    // side by side, so 300 s covers both stages plus decoding. The browser's
+    // callable timeout must be at least this.
+    {region: "africa-south1", secrets: [metaApiKey], timeoutSeconds: 300},
     async (request) => {
       // Every function that calls a model requires sign-in, so nobody who
       // merely finds the endpoint can spend the API credits.
@@ -61,51 +115,68 @@ exports.transcribeNote = onCall(
             "Please sign in to send a voice note.",
         );
       }
+      const wav = decodeAudio(request.data);
+      const apiKey = metaApiKey.value();
+      const started = performance.now();
 
-      const audioBase64 = request.data && request.data.audioBase64;
-      if (typeof audioBase64 !== "string" || audioBase64.length === 0) {
-        throw new HttpsError("invalid-argument", "No audio was sent.");
-      }
-      const tooLarge = "The recording is larger than " +
-          `${MAX_AUDIO_BYTES / 1024 / 1024} MB.`;
-      // Checking the text length first avoids decoding an oversized upload.
-      if (audioBase64.length > Math.ceil(MAX_AUDIO_BYTES / 3) * 4) {
-        throw new HttpsError("invalid-argument", tooLarge);
-      }
-      const wav = Buffer.from(audioBase64, "base64");
-      if (wav.length > MAX_AUDIO_BYTES) {
-        throw new HttpsError("invalid-argument", tooLarge);
-      }
-
-      let result;
+      let heard;
       try {
-        // No keywords or language hint: hints made transcripts repeat words
-        // in testing, so they are off by default (decision, 27 Oct).
-        result = await transcribeWav(wav, {apiKey: metaApiKey.value()});
+        heard = await listenWithTwoEars({
+          // Place names are what Voice Transcribe would otherwise mishear
+          // (decision, 27 Oct). No language hint.
+          voice: (signal) => transcribeWav(wav, {
+            apiKey,
+            keywords: PLACE_KEYWORDS,
+            signal,
+          }),
+          spark: (signal) => transcribeWithSpark(wav, {apiKey, signal}),
+        });
       } catch (err) {
-        if (err instanceof AudioFormatError) {
-          throw new HttpsError("invalid-argument", err.message);
-        }
-        // Kind, status and timings only: Meta's error text could echo
-        // request details.
-        logger.error("Transcription failed", {
-          kind: err.kind || null,
-          status: err.status || null,
-          attempts: err.attempts || null,
-          attemptMs: err.attemptMs || null,
+        const ears = err.ears || {};
+        logger.error("Both transcriptions failed", {
+          voice: earLog(ears.voice),
+          spark: earLog(ears.spark),
         });
         throw new HttpsError(
-            "internal",
-            "Transcription failed. Please try again.",
+            "unavailable",
+            "The voice note couldn't be transcribed. Please try again.",
         );
       }
 
-      logger.info("Transcribed a voice note", {
-        durationMs: result.durationMs,
-        latencyMs: result.latencyMs,
-        attempts: result.attempts,
-        attemptMs: result.attemptMs,
+      const {voice, spark} = heard.ears;
+      let extraction;
+      try {
+        extraction = await extractCard({
+          transcriptA: voice.ok ? voice.value.transcript : null,
+          transcriptB: spark.ok ? spark.value.transcript : null,
+        }, {apiKey});
+      } catch (err) {
+        logger.error("Card extraction failed", {
+          voice: earLog(voice),
+          spark: earLog(spark),
+          extraction: {
+            kind: err.kind || "error",
+            status: err.status || null,
+            attempts: err.attempts || null,
+            attemptMs: err.attemptMs || null,
+          },
+        });
+        throw new HttpsError(
+            "internal",
+            "The case card couldn't be built. Please try again.",
+        );
+      }
+
+      logger.info("Processed a voice note", {
+        totalMs: Math.round(performance.now() - started),
+        singleSource: heard.singleSource,
+        voice: earLog(voice),
+        spark: earLog(spark),
+        extraction: {
+          ms: extraction.latencyMs,
+          attempts: extraction.attempts,
+        },
       });
-      return {transcript: result.transcript, durationMs: result.durationMs};
+      return {...extraction.reply, singleSource: heard.singleSource};
     },
 );

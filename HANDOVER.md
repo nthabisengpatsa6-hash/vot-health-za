@@ -1,11 +1,11 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 11:35 SAST
+**Last updated:** 2026-10-27 12:31 SAST
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is public: no keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). Transcription is proven and now retries once on temporary failures (not deployed). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. The Sesotho transcription experiment is done (results below). Next: the case card extraction function and prompt.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 96.8% on the 10 text fixtures, 91.7–95.8% on the two real recordings (results below). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. Next: score the 10 recordings when they arrive, then Day 2's Report screen.
 
 ## Done
 
@@ -36,7 +36,7 @@ Day 1 (Tue 27 Oct). Transcription is proven and now retries once on temporary fa
 - HANDOVER.md, docs/PROJECT_CONTEXT.md and CLAUDE.md created; .gitignore checked.
 - Muse Voice Transcribe file endpoint confirmed working (format below).
 - functions/lib/transcribe.js: checkWav (WAV header check with plain-English errors) and transcribeWav (one note in, transcript and timings out; logs nothing).
-- Callable function transcribeNote (africa-south1, META_API_KEY, sign-in required, 120 s / 6 MB cap, logs timings only). Not deployed.
+- Callable function transcribeNote (africa-south1, META_API_KEY, sign-in required, 120 s / 6 MB cap, logs timings only). Never deployed; replaced by processNote in Task 4.
 - 13 unit tests for the WAV header check (npm --prefix functions test), no network calls.
 - scripts/convert-audio.mjs (phone recordings to 16 and 24 kHz WAVs) and scripts/transcribe-test.mjs (three-way hint test).
 - 2 test voice notes recorded (clear English; fast Sesotho–English mix with background noise), converted, and transcribed in two full runs.
@@ -45,6 +45,15 @@ Day 1 (Tue 27 Oct). Transcription is proven and now retries once on temporary fa
 - 7 retry unit tests with a fake fetch, no network (20 unit tests in total).
 - Test runner: --runs and --files flags, 24 kHz files only, numbered result files that are never overwritten, and Muse Spark audio runs (d: 1.3, e: 1.2) as an experiment. The converter skips files it has already converted.
 - Sesotho experiment: 2 new test notes (all-Sesotho; mixed Sesotho–English with a place name) compared across Voice Transcribe and Muse Spark audio, 11 calls (results below).
+- Task 4, "two ears" case card extraction (not deployed):
+  - functions/data/places.json: the demo town Kganya, its 7 areas and which works feeds each.
+  - functions/lib/metaRequest.js: the shared 60 s-per-attempt, one-retry request code (moved out of transcribe.js), with failure kinds, the reason for each retried attempt, cancelling, and a guard that refuses any "-contributor" model ID.
+  - functions/lib/sparkAudio.js: the Muse Spark audio ear (model from SPARK_AUDIO_MODEL; prompt in functions/prompts/spark-audio.md).
+  - functions/lib/extractCard.js and functions/lib/cardSchema.js: Muse Spark 1.3 (text) with structured output builds the cards from one or two transcripts; the prompt is in functions/prompts/extract-card.md, with the lists filled in from code. Code guards: shape validation, known keys only (stray text such as advice is dropped), allowed values, whole-number counts, off-list areas moved to areaHeard, every required gap marked unsure, one question per unsure field, and a notifiable condition kept only if a transcript says it.
+  - functions/lib/twoEars.js: both ears in parallel; after the first succeeds, at most 30 s more for the other, which is then cancelled; if one fails, the card comes from the other (singleSource: true).
+  - Callable processNote (replaces transcribeNote): sign-in required, africa-south1, META_API_KEY, 300 s timeout; logs timings, attempts and failure kinds only.
+  - 25 new unit tests (45 in total): guards, two ears, and the Spark and extraction requests, all with fakes.
+  - scripts/score-extraction.mjs and the made-up fixtures in test-fixtures/; the Task 3 runner now records why a retried attempt failed.
 
 ## Confirmed API formats
 
@@ -72,6 +81,13 @@ Source: dev.meta.ai (/docs/models, /docs/api-reference/chat-completions/schemas,
 - usage: prompt_tokens, completion_tokens, total_tokens, completion_tokens_details.reasoning_tokens.
 - Confirmed 27 Oct: both muse-spark-1.3 and muse-spark-1.2 accept this audio part with reasoning_effort "low" and max_completion_tokens 4000; every call finished with "stop".
 
+### Muse Spark structured output (confirmed 27 Oct with real calls)
+Source: dev.meta.ai/docs/structured-output.
+- Chat Completions with "response_format": { "type": "json_schema", "json_schema": { "name": "case_cards", "strict": true, "schema": { ... } } }. The reply's choices[0].message.content is a JSON string.
+- strict: true means every object sets additionalProperties: false and lists every key as required; anyOf is allowed below the root, so "can be null" is written as anyOf with { "type": "null" }. JSON mode isn't documented.
+- Works together with reasoning_effort "low" and "medium" on muse-spark-1.3 (64 extraction calls in Task 4, no schema errors).
+- Prices (Standard mode, 27 Oct): Muse Spark 1.3 and 1.2 $1.25 per million input tokens, $4.25 per million output tokens; Muse Voice Transcribe $0.18 per hour of audio. Rate limit 3,000 requests per minute.
+
 ### Transcription test results (27 Oct)
 2 notes (31 s clear English; 24 s fast Sesotho–English with noise) × 2 sample rates × 3 hint settings (none; keywords "Amanzimtoti"; keywords + languageBias "English") × 2 runs = 24 calls. Full results stay in test-audio/results/ (gitignored).
 - The endpoint worked on the first call. 21 of 24 calls succeeded. The 3 failures were network-level ("fetch failed", no API error code), all in run 1, back to back, on one file.
@@ -94,16 +110,36 @@ Source: dev.meta.ai (/docs/models, /docs/api-reference/chat-completions/schemas,
 - The retry fired once in practice: a first attempt failed after 10.7 s and the retry succeeded (63 s in total). The runner doesn't record why the first attempt failed.
 - Tokens (Muse Spark): 334–566 input tokens per note (about 15–17 per second of audio); 600–1,456 output tokens, 91–98% of them reasoning even at "low". No call came near the 4,000 limit.
 
+### Case card extraction results (27 Oct, Task 4)
+Full results stay in test-audio/results/ (score-001 to score-003, gitignored).
+
+Stage 1 (text): the 10 made-up ideal transcripts in test-fixtures/, each given as both transcripts, 3 repeats per effort (60 calls).
+- Effort low: 331 of 342 checks (96.8%); 1.60 questions per card (the expected cards ask 1.30); 9 extra questions in 30 results; extraction 4.8 s on average (1.9–8.7 s, 5 calls at a time); about $0.22.
+- Effort medium: also 96.8%, with the same four misses; 1.63 questions per card, 10 extra questions; 6.7 s on average (2.2–10.9 s); 2.3 times the reasoning tokens; about $0.34.
+- The four misses, the same in every repeat: onset left null when a note only says when the patients came in (n01, n06); a very weak patient not counted as moreSevere (n05); school-age children left without an age group and asked about (n09).
+- Held in every run: names stripped, the notifiable condition captured, the treatment question flagged, the two-group note split into two cards, and no card for the non-report.
+
+Stage 2 (audio): the two Task 3 recordings that have expected cards, both ears for real, each audio model once, effort low (12 calls).
+- Audio ear muse-spark-1.2: 22 of 24 checks (91.7%); 1.0 question per card; no extra questions. Misses: moreSevere, and an onset taken from a date that was about the water, not the illness.
+- Audio ear muse-spark-1.3: 23 of 24 checks (95.8%); 3.5 questions per card; 3 extra questions. Miss: moreSevere. In the mixed note its transcript invented a disease name that wasn't said; the extraction flagged the disagreement and the notifiable field stayed null. On the all-Sesotho note it marked much of the audio [?], which produced five questions on one card.
+- No single-source fallbacks. The Spark ear was the slower one every time, and the second ear finished within 13 s of the first (the wait is 30 s).
+- Latency per note: Voice Transcribe 10–25 s, Spark ear 14–38 s, extraction 6–14 s, total 23–47 s.
+- With the place list as keywords, both ears misspelled the off-list place name, and the area was asked, as the expected cards want.
+- The cleaned transcript twice took a wrong word from one ear (once in place of a name, once a misheard verb). The card fields weren't affected.
+- Whole task: about $0.65.
+- Recommendation (to confirm): keep the audio ear on muse-spark-1.2 and extraction at "low", which are the current settings. 1.2 asked far fewer questions and didn't invent anything; "medium" scored no better and was slower and dearer. One run per model is a small sample, so confirm on the 10 recordings.
+
 ## In progress
 - Nothing.
 
 ## Next steps (in order)
-1. Case card extraction: a Cloud Function and prompt on muse-spark-1.3 that turn a transcript into a card (PROJECT_CONTEXT section 5), scored against the test notes. It must tolerate repeated words, and ask for any field it can't fill, because non-English speech may be missing from the transcript.
-2. Record the remaining test voice notes (fast, noisy, several voices, mixed languages), including more that say demo area names, and more all-Sesotho and mixed notes to repeat the Task 3 comparison.
-3. Day 2: Report screen end to end.
-   - The browser records 24 kHz mono 16-bit WAV for transcribeNote.
-   - Call transcribeNote with a callable timeout of at least 150 s, for example httpsCallable(functions, "transcribeNote", { timeout: 150000 }); the client's default is 70 s, shorter than the function's 150 s.
-   - Show the transcript and tell the clinician to check it.
+1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
+2. Day 2: Report screen end to end.
+   - The browser records 24 kHz mono 16-bit WAV for processNote.
+   - Call processNote with a callable timeout of at least 300 s, for example httpsCallable(functions, "processNote", { timeout: 300000 }); the client's default is 70 s.
+   - Show each card with its unsure fields highlighted and its questions; Confirm stays disabled until they're answered.
+   - Show transcriptClean as "what we heard, please check".
+   - adviceRequested shows fixed text pointing to official guidance (NICD, Poisons Information Centre); notifiableConditionMentioned shows the NMC reminder.
    - Add a sign-in check to checkMetaConnection once Auth exists.
 
 ## Decisions and why
@@ -125,14 +161,18 @@ Source: dev.meta.ai (/docs/models, /docs/api-reference/chat-completions/schemas,
 - 27 Oct — Record at 24 kHz. Why: it's the model's native rate; 16 kHz gave the same words and wasn't faster.
 - 27 Oct — Hints off by default. Language bias is dropped. Keywords get re-tested with place-name notes. Why: in Task 2, hints increased repeated words (a doubled word in 2 of 7 calls without hints, 5 of 7 with keywords, 7 of 7 with keywords plus language).
 - 27 Oct — Transcription retries once on a dropped connection, a timeout, or HTTP 429/500/502/503/504, and never on other 4xx: those are usually temporary, while other 4xx mean the request itself is wrong.
+- 27 Oct — Two ears. Every voice note goes to Muse Voice Transcribe AND to Muse Spark (audio input), in parallel. Muse Spark 1.3 (text) then builds the card from both transcripts. Where they disagree on a card fact, that field is marked unsure and the card asks the clinician. Why: Task 3 showed the two routes fail in different ways. Voice Transcribe keeps every sentence, but spells Sesotho by sound and mishears it in mixed notes (a Sesotho phrase came back as a similar-sounding English word; a Sesotho request was dropped). Muse Spark audio understands mixed speech, but on all-Sesotho speech it either gave up (1.3) or dropped phrases and invented a sentence (1.2).
+- 27 Oct — The audio-ear model (muse-spark-1.2 or muse-spark-1.3, never "-contributor") is chosen by Task 4's Stage 2 scores, and kept as a single setting (SPARK_AUDIO_MODEL in functions/constants.js).
+- 27 Oct — Keywords back ON for the Voice Transcribe ear, using the place list. Why: they fixed "Amanzimtoti" both times, and the extraction step absorbs the doubled words. Language bias stays off. This replaces "hints off by default" for this ear.
+- 27 Oct — The demo town is Kganya. Areas fed by works A: Thaga Park, Leeba View, Sefate Extension, Nonyana Flats, Mmutla Ridge. Areas fed by works B: Kgwedi Heights, Lebone Gardens. On 27 Oct, web searches found no South African place with these exact names. Stored in functions/data/places.json.
+- 27 Oct — Six extraction rules: (1) one note can make more than one card; (2) every personal name is stripped, colleagues' too; (3) vague counts, ages and dates are flagged, never guessed; (4) a treatment question gets no advice: the app shows fixed text pointing to official guidance, and the model never writes advice; (5) a clinician-stated notifiable condition is captured word for word, in the clinician's own words and language, for the NMC reminder, and Fola never adds a diagnosis of its own; (6) a note that isn't a report makes no card.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Product name (before the video is recorded).
 - Licence for the public repo.
-- Fictional area names for the demo town, checked so they aren't real places.
 - How simulation data is kept apart from real data (Day 3).
-- Keywords for place names: keep or drop, based on Task 3's place-name test (results above: the keyword fixed the place name, but that run still doubled words).
-- Transcription route for mixed-language notes: Muse Spark audio did much better than Voice Transcribe on mixed notes in Task 3, but on all-Sesotho audio 1.3 returned nothing and 1.2 invented a sentence. Needs more test notes before choosing.
+- Audio-ear model and extraction effort: Task 4 points to muse-spark-1.2 and "low" (the current settings). Confirm, ideally after scoring the 10 recordings.
+- How the extraction prompt should read four cases from Task 4, before tuning it: is the day patients came in their onset? Does "very weak" count as moreSevere? Is "schoolchildren" 5_12, or should the age be asked? Should a [?] in one transcript count as a disagreement when the other transcript is clear (it adds questions)?
 
 ## File map
 - CLAUDE.md — rules every Claude Code session follows.
@@ -154,17 +194,30 @@ Source: dev.meta.ai (/docs/models, /docs/api-reference/chat-completions/schemas,
 - src/assets/ — starter images (hero.png, react.svg, vite.svg).
 - src/config/product.js — PRODUCT_NAME, the only place the product name is set.
 - src/lib/firebase.js — Firebase web config and app start-up (not imported anywhere yet).
-- functions/index.js — Cloud Functions: checkMetaConnection and transcribeNote (not deployed).
-- functions/constants.js — shared constants (Meta API base URL, transcription model, audio limits).
-- functions/lib/transcribe.js — WAV header check and the Muse Voice Transcribe file client, with one retry.
+- functions/index.js — Cloud Functions: checkMetaConnection and processNote (not deployed).
+- functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears).
+- functions/data/places.json — the demo town Kganya: 7 areas and which works feeds each (Day 3's town file grows from this).
+- functions/prompts/spark-audio.md — the instruction for the Muse Spark audio ear.
+- functions/prompts/extract-card.md — the extraction prompt; {{placeholders}} are filled from cardSchema.js.
+- functions/lib/metaRequest.js — shared Meta API request code: 60 s per attempt, one retry, failure kinds, Standard-model guard.
+- functions/lib/transcribe.js — WAV header check and the Muse Voice Transcribe ear.
+- functions/lib/sparkAudio.js — the Muse Spark audio ear.
+- functions/lib/twoEars.js — runs both ears in parallel with the 30 s wait.
+- functions/lib/cardSchema.js — the card lists, the structured-output schema, the reply validator and the code guards.
+- functions/lib/extractCard.js — builds the cards from one or two transcripts with Muse Spark 1.3.
 - functions/test/transcribe.test.js — unit tests for the WAV header check.
 - functions/test/transcribe-retry.test.js — unit tests for the retry logic, using a fake fetch.
+- functions/test/card-guards.test.js — unit tests for the code guards.
+- functions/test/two-ears.test.js — unit tests for the parallel ears, with fake ears.
+- functions/test/spark-and-extract.test.js — unit tests for the Spark ear and extraction requests, with a fake fetch.
 - functions/test/make-wav.js — builds WAVs in memory for the tests.
 - functions/package.json, functions/package-lock.json — Functions libraries, Node 22, npm scripts.
 - functions/.gitignore — keeps node_modules/ and *.local (including .secret.local) out of git.
 - scripts/convert-audio.mjs — converts test recordings to 16 and 24 kHz WAVs, skipping ones already converted (local tool; needs ffmpeg).
 - scripts/transcribe-test.mjs — sends 24 kHz test WAVs through the chosen runs (a–e) and writes numbered results (local tool; calls the Meta API).
-- test-audio/ — local only, gitignored: raw/ (recordings), wav/ (converted), results/ (run-NNN-summary.md and run-NNN-transcripts.json).
+- scripts/score-extraction.mjs — scores card extraction against test-fixtures/ (Stage 1 text, Stage 2 audio) and writes numbered results (local tool; calls the Meta API).
+- test-fixtures/ — made-up ideal transcripts and expected cards for the scorer (committed on purpose).
+- test-audio/ — local only, gitignored: raw/ (recordings), wav/ (converted), results/ (run-NNN-… from the transcription runner, score-NNN-… from the scorer).
 
 ## How to run, test and deploy (Windows PowerShell)
 Run these from the repo root. `--prefix functions` tells npm to work inside the functions folder, so there's no need to change folders. The Firebase CLI (`firebase`) is installed globally, not as a project library.
@@ -185,7 +238,14 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm --prefix functions test` — runs the unit tests (WAV header check and retry logic, with a fake fetch; no network calls).
+- `npm --prefix functions test` — runs the 45 unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests), all with fakes and no network calls.
+- `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
+
+**Extraction scoring (local; calls the Meta API and uses credits)**
+- Load the key the same way as the transcription test below, in the same one-line command, then:
+  - `node scripts/score-extraction.mjs --stage text --repeat 3 --effort low` — the 10 text fixtures, 3 times each, 5 calls at a time (about 30 s and $0.22).
+  - `node scripts/score-extraction.mjs --stage audio --audio-model both --effort low` — every 24 kHz WAV with an expected card, through both ears and extraction, one at a time (about 2 minutes and $0.09 for 2 notes).
+  - Also: `--notes n01,n04` limits the notes; `--audio-model 1.2` or `1.3` picks one audio ear.
 
 **Transcription test (local; sends test audio to Meta's API and uses credits)**
 - `node scripts/convert-audio.mjs` — converts every new recording in test-audio/raw/ into test-audio/wav/<name>-16k.wav and <name>-24k.wav.
@@ -209,7 +269,9 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - Voice Transcribe can silently drop non-English speech. In Task 2, a Sesotho closing phrase appeared in only 2 of 9 calls. Consequence for the design: missing card fields are always asked, and the Report screen tells the clinician to check the transcript.
 - Latency: usually 6 to 8 seconds, with spikes to 51 seconds, plus 3 dropped connections in one run. transcribeWav now retries once (see "Confirmed API formats").
 - Transcripts sometimes repeat a word, more often when hints are sent; hints are now off by default.
-- Muse Spark audio can invent text: in Task 3, 1.2 added a sentence that wasn't spoken. Any Spark audio route needs a check for this.
+- Muse Spark audio can invent text: in Task 3, 1.2 added a sentence that wasn't spoken, and in Task 4, 1.3 invented a disease name. The two-ears comparison and the rule 5 guard kept both off the cards, but the audio ear can't be trusted alone.
+- transcriptClean can carry a wrong word from one ear (twice in Task 4). It's for the evidence trail, so the Report screen should present it as "what we heard, please check".
+- A [?] in one transcript counts as a disagreement, so a weak audio ear can add questions about facts the other ear heard clearly (five questions on one card in Task 4).
 - checkMetaConnection can be called by anyone. It only lists models; add a sign-in check on Day 2 when Auth exists.
 - npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path). Don't run "npm audit fix --force", because it would downgrade firebase.
 - Local Node is v24 but Functions run nodejs22. It's only a warning.
@@ -217,6 +279,7 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-27 — Two-ears case card extraction: places list, Spark audio ear, extraction with structured output and code guards, processNote (replaces transcribeNote; not deployed), shared retry code, scoring runner and fixtures; Stage 1 and Stage 2 scored.
 - 2026-10-27 — Recorded the Day 0–1 decisions and facts; transcription now retries once on temporary failures; test runner gained run selection, numbered results and Muse Spark audio runs; ran the Sesotho experiment (runs 003–004).
 - 2026-10-27 — Confirmed the Muse Voice Transcribe file endpoint; added functions/lib/transcribe.js, the transcribeNote callable (not deployed), WAV header unit tests, and the audio conversion and transcription test scripts.
 - 2026-10-27 — Added HANDOVER.md, docs/PROJECT_CONTEXT.md and CLAUDE.md; checked .gitignore.
