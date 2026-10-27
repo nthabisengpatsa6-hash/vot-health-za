@@ -208,8 +208,8 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 | Audio | Browser recording → Cloud Function → Muse Voice Transcribe | Audio is never stored |
 
 **Model routing**
-- Voice → transcript: Muse Voice Transcribe (muse-voice-transcribe-1.0) on the Meta Model API.
-- Transcript → card, ranking sources, drafting notifications: Muse Spark on the Meta Model API. Base URL https://api.meta.ai/v1 (OpenAI-compatible Chat Completions and Responses, plus an Anthropic-style Messages endpoint), Bearer key. The exact model ID is picked from what checkMetaConnection returns and recorded in HANDOVER.md.
+- Voice → transcript: Muse Voice Transcribe (muse-voice-transcribe-1.0) on the Meta Model API, by file upload (POST /v1/asr/transcribe, mode PUSH_TO_TALK) of a 24 kHz mono 16-bit WAV.
+- Transcript → card, ranking sources, drafting notifications: Muse Spark on the Meta Model API. Base URL https://api.meta.ai/v1 (OpenAI-compatible Chat Completions and Responses, plus an Anthropic-style Messages endpoint), Bearer key. Model: muse-spark-1.3 (Standard mode). Never use a "-contributor" model ID: those let Meta train on our prompts and outputs.
 - Open-weights route (P1): Muse Spark Open on Baseten. Base URL https://inference.baseten.co/v1 (OpenAI-compatible). Model name: meta-models/muse-spark-open-1026 (not the docs' default name). This keeps health signals on infrastructure Vault of Time controls and targets the open-weights bonus prize.
 - P1: Muse Spark (vision) reads a photographed municipal notice into a dated event on the map.
 
@@ -264,5 +264,6 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 - Event-based surveillance guidelines launched in three countries (Africa CDC): https://yourbotswana.com/southern-africa-enhances-early-warning-systems-as-event-based-surveillance-guidelines-are-launched-in-three-countries/
 - NMC notification SOP (Department of Health): https://knowledgehub.health.gov.za/system/files/elibdownloads/2020-07/NMC_COVID-19-Notification-SOP_7May2020.pdf
 - Meta Global AI Developer Hackathon participant guide (Cerebral Valley): https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details
-- Meta Model API documentation: https://ai.developer.meta.com/docs/
+- Meta Model API documentation: https://dev.meta.ai/docs/
+- Muse Spark models (Meta): https://dev.meta.ai/docs/models
 - Muse Voice Transcribe cookbook (Meta): https://github.com/meta-models/meta-model-cookbook/tree/main/06_muse_voice/01_voice_api_fundamentals

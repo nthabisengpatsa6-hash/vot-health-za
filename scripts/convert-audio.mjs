@@ -6,7 +6,7 @@
 // Usage: node scripts/convert-audio.mjs
 
 import { spawnSync } from "node:child_process";
-import { mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkWav } from "../functions/lib/transcribe.js";
@@ -53,6 +53,11 @@ for (const name of files) {
   const stem = basename(name, extname(name));
   for (const rate of RATES) {
     const outName = `${stem}-${rate / 1000}k.wav`;
+    // Earlier conversions are kept as they are, so only new recordings are done.
+    if (existsSync(join(wavDir, outName))) {
+      console.log(`${name} -> wav/${outName} (already converted, skipped)`);
+      continue;
+    }
     try {
       convert(join(rawDir, name), join(wavDir, outName), rate);
       // Run our own header check so a bad conversion shows up here, not at the API.

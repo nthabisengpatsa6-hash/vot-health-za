@@ -49,7 +49,9 @@ exports.checkMetaConnection = onCall(
 // into text. The audio lives only in memory for this call and is never
 // stored; logs carry timings only, never audio or transcript.
 exports.transcribeNote = onCall(
-    {region: "africa-south1", secrets: [metaApiKey], timeoutSeconds: 90},
+    // 150 s fits two 60 s transcription attempts, the pause between them,
+    // and decoding. The browser's callable timeout must be at least this.
+    {region: "africa-south1", secrets: [metaApiKey], timeoutSeconds: 150},
     async (request) => {
       // Every function that calls a model requires sign-in, so nobody who
       // merely finds the endpoint can spend the API credits.
@@ -77,13 +79,21 @@ exports.transcribeNote = onCall(
 
       let result;
       try {
+        // No keywords or language hint: hints made transcripts repeat words
+        // in testing, so they are off by default (decision, 27 Oct).
         result = await transcribeWav(wav, {apiKey: metaApiKey.value()});
       } catch (err) {
         if (err instanceof AudioFormatError) {
           throw new HttpsError("invalid-argument", err.message);
         }
-        // Only the status: Meta's error text could echo request details.
-        logger.error("Transcription failed", {status: err.status || null});
+        // Kind, status and timings only: Meta's error text could echo
+        // request details.
+        logger.error("Transcription failed", {
+          kind: err.kind || null,
+          status: err.status || null,
+          attempts: err.attempts || null,
+          attemptMs: err.attemptMs || null,
+        });
         throw new HttpsError(
             "internal",
             "Transcription failed. Please try again.",
@@ -93,6 +103,8 @@ exports.transcribeNote = onCall(
       logger.info("Transcribed a voice note", {
         durationMs: result.durationMs,
         latencyMs: result.latencyMs,
+        attempts: result.attempts,
+        attemptMs: result.attemptMs,
       });
       return {transcript: result.transcript, durationMs: result.durationMs};
     },
