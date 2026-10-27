@@ -1,8 +1,8 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 18:02 SAST
+**Last updated:** 2026-10-27 18:12 SAST
 
-**Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is public: no keys, passwords or personal data in this file.
+**Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
 Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Nothing from Tasks 6 and 7 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: a separate deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
@@ -62,7 +62,7 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - Stage 1 re-scored and re-run (results below).
   - Follow-up: the onset guidance now also says "The day patients came in is not the onset."; Stage 1 re-run once.
 
-### Day 2 work — Task 6: sign-in, profile and app layout (built Tue 27 Oct; nothing deployed)
+### Day 2 work — Task 6: sign-in, profile and app layout (done Tue 27 Oct; nothing deployed)
 - Sign-in screen: "Continue with Google" (a popup; no Google logo), plus email and password with Sign in, Create account and Forgot your password. Show/Hide password. Plain-English errors from src/lib/authErrors.js; a wrong password and an unknown email get the same message.
 - One-time profile at users/{uid}: role, facilityType, area, createdAt and updatedAt (both server timestamps), and nothing else. Role is a list of radio buttons (long role names were cut off in a dropdown at 360 px); facility type and area are dropdowns. Editable later on the Profile screen, which also shows the signed-in email (read from Auth, never stored) and Sign out. There is no delete button yet, although the rules allow the owner to delete.
 - App layout: a header with the product name (from src/config/product.js), Replay and Profile. Bottom navigation: Report, Today and Near me. Routes: /report, /today, /near-me, /signals/:signalId, /replay and /profile; any other address goes to /report. Placeholders say when each screen arrives: Report Day 2, Replay Day 3, Near me Day 4, Signal detail and Today Day 6. Near me and Today show the user's area and the Watch/Signal/Alert key.
@@ -87,7 +87,7 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - at 360 px: no sideways scrolling, every tap target at least 44 px, smallest text 14.5 px
   - no unexpected console errors
 
-### Day 2 work — Task 7: the Report screen, from recording to a saved card (built Tue 27 Oct; nothing deployed)
+### Day 2 work — Task 7: the Report screen, from recording to a saved card (done Tue 27 Oct; nothing deployed)
 - Recording (src/lib/recorder.js, src/components/RecordButton.jsx):
   - One large round button: hold it while speaking and let go to stop, or tap to start and tap again to stop. Keyboard and screen readers work like a tap. Long-press menus and text selection are switched off on the button.
   - A timer out of 1:30, "10 seconds left" from 1:20, and an automatic stop at 90 s. A note under 1 s gets "That was too short".
@@ -250,6 +250,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
    - Made-up notes only. A note that asks about treatment, one that mentions a notifiable condition, and a two-group note.
    - Watch the processNote logs for timings, and the daily counter in Firestore (noteUsage).
 4. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
+5. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser.
 
 ## Decisions and why
 - 26 Oct — Firestore and Functions in africa-south1: data stays in South Africa. Firestore's location can never be changed.
@@ -443,7 +444,7 @@ Other local commands:
 - `firebase deploy --only firestore:rules` — publishes the Firestore security rules.
 
 ## Known issues
-- src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the public repo history. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
+- src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the repo history, which becomes public on Day 8. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
 - Nothing from Tasks 6 and 7 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
 - iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
 - processNote's memory and concurrency are still the defaults (256 MiB, up to 80 requests per instance) and each note uses about 30 MB; decide in the deploy task (see Next steps).
@@ -467,6 +468,7 @@ Other local commands:
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-27 — Docs: the repo is private until Day 8 (Tue 3 Nov), then made public, and is treated as public now; Day 8 step added to make it public and check it from a logged-out browser; Tasks 6 and 7 marked done.
 - 2026-10-27 — Task 7: the Report screen end to end (hold-or-tap recording, 24 kHz WAV in the browser, playback, streamed progress stages, the card screen with unsure fields empty and highlighted, fixed advice/NMC/single-source/not-a-report notices, saving to cards/{cardId}); cards rules with 60 emulator tests and a break-the-rule check; processNote's daily limit (40 per SAST day), maxInstances 5 and emulator-only practice mode with 5 made-up results; official hotline numbers checked. Nothing deployed.
 - 2026-10-27 — Task 6: sign-in (Google, email and password), a one-time profile at users/{uid}, the mobile layout with all five routes (placeholders except Profile), the emulators under demo-fola, src/lib/api.js, Firestore rules for users/{uid} with 28 emulator tests (not deployed), and a sign-in check in checkMetaConnection (not deployed). The Vite starter files are deleted; Java 21 is installed.
 - 2026-10-27 — Extraction prompt: "The day patients came in is not the onset."; Stage 1 now 100% with no confident-wrong values.

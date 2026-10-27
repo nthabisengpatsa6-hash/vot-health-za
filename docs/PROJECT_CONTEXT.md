@@ -1,7 +1,7 @@
 # Project context: Fola (codename vot-health-za)
 
 > This file changes only when a decision changes. Day-to-day state lives in HANDOVER.md.
-> This repo is public. Never put keys, passwords, tokens or personal data here.
+> This repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Never put keys, passwords, tokens or personal data here.
 > Last decision change: 27 Oct 2026.
 
 ## 1. The hackathon
@@ -28,7 +28,7 @@
 | 16 Nov | Community vote winner announced |
 
 **Rules that shape the code**
-- The repo is public. Teams of up to 4; this is a solo build.
+- Private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Teams of up to 4; this is a solo build.
 - Must use Meta's models.
 - New work only. The demo may show only what was built during the hackathon, with new work clearly identified, or the project is disqualified. Don't copy code from any other project, including Nthabiseng's earlier products.
 - No code, data or assets we don't have the rights to. Check a dependency's licence before adding it (MIT, Apache-2.0, BSD and ISC are fine).
