@@ -87,7 +87,7 @@ Source: dev.meta.ai (/docs/models, /docs/api-reference/chat-completions/schemas,
 - All-Sesotho note: no route was reliable.
   - Voice Transcribe (a, b) kept every sentence but spelled Sesotho by sound and garbled key facts: the case count (run a), the symptom word (run b) and a day of the week (both). A spoken name came back split into two words.
   - Muse Spark 1.3 returned only "[?]", in line with Meta's warning that its audio support is incomplete.
-  - Muse Spark 1.2 had the best Sesotho spelling where it heard the words, but silently dropped three facts, marked two others (one of them the name) as [?], and added a sentence that wasn't spoken.
+  - Muse Spark 1.2 had the best Sesotho spelling where it heard the words, but silently dropped two parts (one of them a day of the week), marked two others (one of them the name) as [?], and added a sentence that wasn't spoken.
 - Mixed notes: both Muse Spark versions were close to word-perfect, kept two Sesotho phrases that Voice Transcribe dropped from the Task 2 note, and doubled no words. Voice Transcribe turned one Sesotho phrase into a plausible English word that changes the meaning, and doubled words in both runs.
 - Keyword: with no hint, Voice Transcribe misspelled "Amanzimtoti" both times (as on 26 Oct); with the keyword (run b) it was right both times. Muse Spark got it right both times with no hint.
 - Latency: Voice Transcribe 6.6–8.4 s on the mixed notes and 51–63 s on the all-Sesotho note; Muse Spark 9.6–16.2 s on the mixed notes and 25–27 s on the all-Sesotho note.
