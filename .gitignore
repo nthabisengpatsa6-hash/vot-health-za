@@ -44,3 +44,6 @@ application_default_credentials.json
 *.njsproj
 *.sln
 *.sw?
+
+# Test voice notes (never commit)
+test-audio/
