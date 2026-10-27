@@ -1,11 +1,11 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 12:31 SAST
+**Last updated:** 2026-10-27 13:35 SAST
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is public: no keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 96.8% on the 10 text fixtures, 91.7–95.8% on the two real recordings (results below). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. Next: score the 10 recordings when they arrive, then Day 2's Report screen.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 99.1% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with 3 confident-wrong values left; 91.7–95.8% on the two real recordings in Task 4 (results below). The live Hosting URL is https://vot-health-za.web.app; it still shows the Vite starter page. Next: score the 10 recordings when they arrive, then Day 2's Report screen.
 
 ## Done
 
@@ -54,6 +54,12 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - Callable processNote (replaces transcribeNote): sign-in required, africa-south1, META_API_KEY, 300 s timeout; logs timings, attempts and failure kinds only.
   - 25 new unit tests (45 in total): guards, two ears, and the Spark and extraction requests, all with fakes.
   - scripts/score-extraction.mjs and the made-up fixtures in test-fixtures/; the Task 3 runner now records why a retried attempt failed.
+- Task 5 (not deployed):
+  - Corrected three expected answers in test-fixtures/expected-cards.json: n01 and n06 onset (now asked), n09 second card's age group (now asked).
+  - Extraction prompt: what counts as moreSevere (in any language), time phrases about other things aren't the onset, and a name only ever becomes [name].
+  - Scorer: a "confident wrong" count per note and overall, and --rescore to score a saved run against the current fixtures with no API calls.
+  - AGENTS.md added with the same rules as CLAUDE.md; both gained three rules (no "-contributor" models; no transcript text, real names, keys or personal folder paths in the repo; keep the two files in step).
+  - Stage 1 re-scored and re-run (results below).
 
 ## Confirmed API formats
 
@@ -129,12 +135,27 @@ Stage 2 (audio): the two Task 3 recordings that have expected cards, both ears f
 - Whole task: about $0.65.
 - Recommendation (to confirm): keep the audio ear on muse-spark-1.2 and extraction at "low", which are the current settings. 1.2 asked far fewer questions and didn't invent anything; "medium" scored no better and was slower and dearer. One run per model is a small sample, so confirm on the 10 recordings.
 
+### Stage 1 after Task 5's corrections (27 Oct)
+Three expected answers were wrong (n01 and n06 onset, n09's school-age group) and the prompt changed (moreSevere, onset, names). To separate the two effects, Task 4's saved low-effort run was first re-scored against the corrected fixtures (no API calls), then Stage 1 ran again with the new prompt (--repeat 3 --effort low, 30 calls, about $0.22). Results in test-audio/results/ (score-004 is the re-score, score-005 the new run).
+
+| | Task 4 as scored | Fixtures corrected, old prompt | Fixtures corrected, new prompt |
+|---|---|---|---|
+| Checks passed | 96.8% | 98.8% | 99.1% |
+| Questions per card | 1.60 (expected 1.30) | 1.60 (expected 1.60) | 1.50 (expected 1.60) |
+| Extra questions | 9 | 1 | 0 |
+| Confident wrong | not counted | 4 | 3 |
+
+- The new prompt fixed moreSevere for the very weak patient (n05: 3 of 3, was 0 of 3), and n06's onset is now always asked.
+- New confident-wrong problem: n01's onset is now filled in as "today" in all 3 repeats instead of being asked. The note only says when the patients came in; the new onset sentence covers other events (water, gatherings) but not the day patients came in.
+- Extraction 4.8 s on average (1.5–9.0 s).
+
 ## In progress
 - Nothing.
 
 ## Next steps (in order)
-1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. Day 2: Report screen end to end.
+1. Extraction prompt (needs Nthabiseng's approval): say that the day patients came in isn't the onset, since n01 still fills onset in with confidence (3 of 3); then re-run Stage 1 (`--stage text --repeat 3 --effort low`) and check the confident-wrong count.
+2. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
+3. Day 2: Report screen end to end.
    - The browser records 24 kHz mono 16-bit WAV for processNote.
    - Call processNote with a callable timeout of at least 300 s, for example httpsCallable(functions, "processNote", { timeout: 300000 }); the client's default is 70 s.
    - Show each card with its unsure fields highlighted and its questions; Confirm stays disabled until they're answered.
@@ -166,16 +187,21 @@ Stage 2 (audio): the two Task 3 recordings that have expected cards, both ears f
 - 27 Oct — Keywords back ON for the Voice Transcribe ear, using the place list. Why: they fixed "Amanzimtoti" both times, and the extraction step absorbs the doubled words. Language bias stays off. This replaces "hints off by default" for this ear.
 - 27 Oct — The demo town is Kganya. Areas fed by works A: Thaga Park, Leeba View, Sefate Extension, Nonyana Flats, Mmutla Ridge. Areas fed by works B: Kgwedi Heights, Lebone Gardens. On 27 Oct, web searches found no South African place with these exact names. Stored in functions/data/places.json.
 - 27 Oct — Six extraction rules: (1) one note can make more than one card; (2) every personal name is stripped, colleagues' too; (3) vague counts, ages and dates are flagged, never guessed; (4) a treatment question gets no advice: the app shows fixed text pointing to official guidance, and the model never writes advice; (5) a clinician-stated notifiable condition is captured word for word, in the clinician's own words and language, for the NMC reminder, and Fola never adds a diagnosis of its own; (6) a note that isn't a report makes no card.
+- 27 Oct — Startup track confirmed. Organisers said solo founders qualify if they're incorporated in their home country, and Vault of Time (Pty) Ltd is incorporated in South Africa.
+- 27 Oct — Extraction effort: low (EXTRACT_EFFORT). Why: in Task 4, medium scored the same as low and was slower and dearer.
+- 27 Oct — Audio ear: muse-spark-1.2 for now (SPARK_AUDIO_MODEL); the final choice comes after the 10 recordings. Why: 1.3 invented a disease name, which was caught, and 1.2 gave one confident wrong onset.
+- 27 Oct — How three Task 4 cases are read: the day patients came in isn't the onset, so it's asked; very weak, unable to walk, collapsed, unconscious, badly dehydrated, admitted or a death counts as moreSevere, in any language; schoolchildren can be 5 to 17, so their age group is asked.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Product name (before the video is recorded).
 - Licence for the public repo.
 - How simulation data is kept apart from real data (Day 3).
-- Audio-ear model and extraction effort: Task 4 points to muse-spark-1.2 and "low" (the current settings). Confirm, ideally after scoring the 10 recordings.
-- How the extraction prompt should read four cases from Task 4, before tuning it: is the day patients came in their onset? Does "very weak" count as moreSevere? Is "schoolchildren" 5_12, or should the age be asked? Should a [?] in one transcript count as a disagreement when the other transcript is clear (it adds questions)?
+- Audio-ear model: the final choice comes after scoring the 10 recordings (now muse-spark-1.2).
+- Should a [?] in one transcript count as a disagreement when the other transcript is clear? It adds questions (five on one card in Task 4). Decide after the 10 recordings are scored. (The other three Task 4 questions were closed in Task 5; see "Decisions and why".)
 
 ## File map
 - CLAUDE.md — rules every Claude Code session follows.
+- AGENTS.md — the same rules for any other coding agent (Codex reads it automatically). Keep the two files in step.
 - HANDOVER.md — current state of the build (this file).
 - docs/PROJECT_CONTEXT.md — the brief and the decisions.
 - README.md — public project summary.
@@ -246,6 +272,8 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
   - `node scripts/score-extraction.mjs --stage text --repeat 3 --effort low` — the 10 text fixtures, 3 times each, 5 calls at a time (about 30 s and $0.22).
   - `node scripts/score-extraction.mjs --stage audio --audio-model both --effort low` — every 24 kHz WAV with an expected card, through both ears and extraction, one at a time (about 2 minutes and $0.09 for 2 notes).
   - Also: `--notes n01,n04` limits the notes; `--audio-model 1.2` or `1.3` picks one audio ear.
+  - `node scripts/score-extraction.mjs --rescore test-audio/results/score-001-results.json` — re-scores a saved run against the current fixtures, for example after correcting an expected answer. No API calls and no key needed.
+  - Every run reports the pass rate, questions per card, extra questions and "confident wrong" (wrong values the card doesn't flag as unsure, the most dangerous kind of error).
 
 **Transcription test (local; sends test audio to Meta's API and uses credits)**
 - `node scripts/convert-audio.mjs` — converts every new recording in test-audio/raw/ into test-audio/wav/<name>-16k.wav and <name>-24k.wav.
@@ -270,7 +298,7 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - Latency: usually 6 to 8 seconds, with spikes to 51 seconds, plus 3 dropped connections in one run. transcribeWav now retries once (see "Confirmed API formats").
 - Transcripts sometimes repeat a word, more often when hints are sent; hints are now off by default.
 - Muse Spark audio can invent text: in Task 3, 1.2 added a sentence that wasn't spoken, and in Task 4, 1.3 invented a disease name. The two-ears comparison and the rule 5 guard kept both off the cards, but the audio ear can't be trusted alone.
-- transcriptClean can carry a wrong word from one ear (twice in Task 4). It's for the evidence trail, so the Report screen should present it as "what we heard, please check".
+- The cleaned transcript once swapped a name for an unrelated word (Task 4), and once kept a misheard word from one ear. The clinician reviews the transcript before confirming, and the Report screen presents it as "what we heard, please check". Since Task 5 the prompt says never to replace a name with another word.
 - A [?] in one transcript counts as a disagreement, so a weak audio ear can add questions about facts the other ear heard clearly (five questions on one card in Task 4).
 - checkMetaConnection can be called by anyone. It only lists models; add a sign-in check on Day 2 when Auth exists.
 - npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path). Don't run "npm audit fix --force", because it would downgrade firebase.
@@ -279,6 +307,7 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-27 — Task 5: corrected three expected answers, tightened the extraction prompt, added the confident-wrong count and --rescore, added AGENTS.md (CLAUDE.md in step), recorded the Startup track, effort and audio-ear decisions; Stage 1 re-scored and re-run.
 - 2026-10-27 — Two-ears case card extraction: places list, Spark audio ear, extraction with structured output and code guards, processNote (replaces transcribeNote; not deployed), shared retry code, scoring runner and fixtures; Stage 1 and Stage 2 scored.
 - 2026-10-27 — Recorded the Day 0–1 decisions and facts; transcription now retries once on temporary failures; test runner gained run selection, numbered results and Muse Spark audio runs; ran the Sesotho experiment (runs 003–004).
 - 2026-10-27 — Confirmed the Muse Voice Transcribe file endpoint; added functions/lib/transcribe.js, the transcribeNote callable (not deployed), WAV header unit tests, and the audio conversion and transcription test scripts.

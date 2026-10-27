@@ -7,12 +7,15 @@
 // Prints a pass/fail table per note and field, the overall pass rate, and
 // the questions asked per card, with "extra questions" (fields marked unsure
 // that the expected card is confident about), because too many questions
-// will annoy nurses. Full results, transcripts included, go to
-// test-audio/results/ (gitignored).
+// will annoy nurses, and "confident wrong" fields (wrong values the card
+// doesn't flag as unsure), the most dangerous kind of error. Full results,
+// transcripts included, go to test-audio/results/ (gitignored).
 //
 // Usage: node scripts/score-extraction.mjs --stage text --repeat 3 --effort low [--concurrency 5] [--notes n01,n04]
 //        node scripts/score-extraction.mjs --stage audio --audio-model both --effort low [--repeat 1]
-// Needs META_API_KEY set for this terminal session. It is never printed.
+//        node scripts/score-extraction.mjs --rescore test-audio/results/score-001-results.json
+// Needs META_API_KEY set for this terminal session, except with --rescore,
+// which makes no API calls. The key is never printed.
 
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -42,6 +45,7 @@ const { values } = parseArgs({
     "audio-model": { type: "string", default: "1.2" },
     concurrency: { type: "string", default: "5" },
     notes: { type: "string", default: "" },
+    rescore: { type: "string", default: "" },
   },
 });
 
@@ -50,29 +54,38 @@ function fail(message) {
   process.exit(1);
 }
 
-const stage = values.stage;
+const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
+// --rescore scores a saved results file against the current fixtures, with
+// no API calls: after an expected answer is corrected, it shows how much of
+// a score change came from the fixtures rather than from the prompt.
+const saved = values.rescore ? readJson(values.rescore) : null;
+
+const stage = saved ? saved.settings.stage : values.stage;
 if (stage !== "text" && stage !== "audio") fail('Choose --stage text or --stage audio.');
-const effort = values.effort;
+const effort = saved ? saved.settings.effort : values.effort;
 if (!EFFORTS.includes(effort)) fail(`--effort must be one of: ${EFFORTS.join(", ")}.`);
-const repeat = Number(values.repeat);
+const repeat = saved ? saved.settings.repeat : Number(values.repeat);
 if (!Number.isInteger(repeat) || repeat < 1 || repeat > 20) fail("--repeat must be a whole number from 1 to 20.");
-const audioModels = AUDIO_MODELS[values["audio-model"]] ?? fail("--audio-model must be 1.2, 1.3 or both.");
+const audioModels = saved ? (saved.settings.audioModels ?? []) : (AUDIO_MODELS[values["audio-model"]] ?? fail("--audio-model must be 1.2, 1.3 or both."));
 // Stage 2 runs one note at a time so its latencies measure single requests.
 const concurrency = stage === "audio" ? 1 : Number(values.concurrency);
 if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 10) fail("--concurrency must be a whole number from 1 to 10.");
 
 const apiKey = process.env.META_API_KEY;
-if (!apiKey) fail("META_API_KEY isn't set for this terminal session.");
-// A key never contains whitespace. If this one does, whatever loaded it
-// printed something extra, so stop rather than send a broken header.
-if (/\s/.test(apiKey)) fail("META_API_KEY looks wrong (it contains spaces or line breaks), so it won't be used.");
+if (!saved) {
+  if (!apiKey) fail("META_API_KEY isn't set for this terminal session.");
+  // A key never contains whitespace. If this one does, whatever loaded it
+  // printed something extra, so stop rather than send a broken header.
+  if (/\s/.test(apiKey)) fail("META_API_KEY looks wrong (it contains spaces or line breaks), so it won't be used.");
+}
 
-const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
 const ideal = readJson(join(root, "test-fixtures", "ideal-transcripts.json"));
 const expected = readJson(join(root, "test-fixtures", "expected-cards.json"));
 
 const list = (text) => text.split(",").map((item) => item.trim()).filter(Boolean);
-let notes = stage === "text" ? Object.keys(ideal).filter((note) => expected[note]) : listWavNotes();
+let notes;
+if (saved) notes = saved.settings.notes.filter((note) => expected[note]);
+else notes = stage === "text" ? Object.keys(ideal).filter((note) => expected[note]) : listWavNotes();
 const wanted = list(values.notes);
 if (wanted.length > 0) notes = notes.filter((note) => wanted.includes(note));
 if (notes.length === 0) fail(stage === "text" ? "No ideal transcripts match." : "No 24 kHz WAV in test-audio/wav/ has an expected card.");
@@ -175,7 +188,10 @@ function pairCards(wantCards, gotCards) {
 
 function scoreNote(want, got) {
   const checks = [];
-  const check = (field, pass, wantValue, gotValue) => checks.push({ field, pass, want: show(wantValue), got: show(gotValue) });
+  // A failed top-level check is always confident wrong: a card can't mark
+  // isReport, the card count, the notifiable condition, the advice flag or
+  // a leaked name as unsure, so nobody would be asked about it.
+  const check = (field, pass, wantValue, gotValue, confidentWrong = !pass) => checks.push({ field, pass, confidentWrong, want: show(wantValue), got: show(gotValue) });
   const cards = Array.isArray(got.cards) ? got.cards : [];
   const condition = got.notifiableConditionMentioned ?? null;
 
@@ -194,18 +210,28 @@ function scoreNote(want, got) {
     const prefix = want.cards.length > 1 ? `card${i + 1}.` : "";
     const card = paired[i];
     const unsure = card?.unsureFields ?? [];
+    // Confident wrong on a card: a wrong value the card doesn't flag as
+    // unsure. A missing card counts once, through the card count.
+    const flagged = (field) => !card || unsure.includes(field);
     for (const [key, field] of Object.entries(FIELDS)) {
-      if (key in wantCard) check(prefix + field, card ? card[field] === wantCard[key] : false, wantCard[key], card ? card[field] : "no card");
+      if (!(key in wantCard)) continue;
+      const pass = card ? card[field] === wantCard[key] : false;
+      check(prefix + field, pass, wantCard[key], card ? card[field] : "no card", !pass && !flagged(field));
     }
     if ("exp" in wantCard) {
       const types = card ? [...(card.exposure?.types ?? [])].sort() : null;
-      check(prefix + "exposure", card !== null && JSON.stringify(types) === JSON.stringify([...wantCard.exp].sort()), wantCard.exp, types ?? "no card");
+      const pass = card !== null && JSON.stringify(types) === JSON.stringify([...wantCard.exp].sort());
+      check(prefix + "exposure", pass, wantCard.exp, types ?? "no card", !pass && !flagged("exposure"));
     }
     for (const flag of wantCard.obs ?? []) {
-      check(`${prefix}obs.${flag}`, card?.observations?.[flag] === true, true, card ? card.observations?.[flag] : "no card");
+      const pass = card?.observations?.[flag] === true;
+      check(`${prefix}obs.${flag}`, pass, true, card ? card.observations?.[flag] : "no card", !pass && !flagged("observations"));
     }
+    // A field that must be asked but was filled in without a question is
+    // confident wrong too.
     for (const field of wantCard.ask ?? []) {
-      check(`${prefix}ask.${field}`, unsure.includes(field), "unsure", card ? (unsure.includes(field) ? "unsure" : card[field]) : "no card");
+      const pass = unsure.includes(field);
+      check(`${prefix}ask.${field}`, pass, "unsure", card ? (pass ? "unsure" : card[field]) : "no card", !pass && Boolean(card) && card[field] !== null && card[field] !== undefined);
     }
     // Over-asking: fields marked unsure that the expected card is confident
     // about. Only fields the expected card states count as confident.
@@ -218,21 +244,26 @@ function scoreNote(want, got) {
     }
   });
   const questions = cards.reduce((sum, card) => sum + (card.questions?.length ?? 0), 0);
-  return { checks, extraQuestions, questions, cards: cards.length };
+  const confidentWrong = checks.filter((item) => item.confidentWrong).map((item) => item.field);
+  return { checks, extraQuestions, questions, cards: cards.length, confidentWrong };
 }
 
 // --- Run ---------------------------------------------------------------------
 
 const jobs = [];
-for (let run = 1; run <= repeat; run += 1) {
+for (let run = 1; run <= repeat && !saved; run += 1) {
   for (const note of notes) {
     if (stage === "text") jobs.push(() => textJob(note, run));
     else for (const model of audioModels) jobs.push(() => audioJob(note, model, run));
   }
 }
-console.log(`Stage ${stage === "text" ? "1 (text)" : `2 (audio, ${audioModels.join(" and ")})`}: ${notes.length} notes x ${repeat} repeat(s), effort ${effort}, ${jobs.length} jobs, concurrency ${concurrency}.`);
+const stageLabel = `Stage ${stage === "text" ? "1 (text)" : `2 (audio, ${audioModels.join(" and ")})`}`;
+if (saved) console.log(`Re-scoring ${values.rescore} (${stageLabel}, effort ${effort}, run at ${saved.ranAt}) against the current fixtures. No API calls.`);
+else console.log(`${stageLabel}: ${notes.length} notes x ${repeat} repeat(s), effort ${effort}, ${jobs.length} jobs, concurrency ${concurrency}.`);
 const started = performance.now();
-const rows = await runPool(jobs, concurrency);
+const rows = saved ?
+  saved.rows.filter((row) => notes.includes(row.note)).map((row) => ({ ...row, score: undefined })) :
+  await runPool(jobs, concurrency);
 const wallMs = Math.round(performance.now() - started);
 
 // --- Score -------------------------------------------------------------------
@@ -244,13 +275,14 @@ let passed = 0;
 let total = 0;
 let questionTotal = 0;
 let cardTotal = 0;
+let confidentWrongTotal = 0;
 
 for (const row of rows) {
   const want = expected[row.note];
   const scored = row.output ? scoreNote(want, row.output) : null;
   row.score = scored;
   const group = groupOf(row);
-  const stats = noteStats.get(group) ?? { group, passed: 0, total: 0, questions: 0, cards: 0, extra: [], errors: 0, singleSource: 0, disagreements: 0 };
+  const stats = noteStats.get(group) ?? { group, passed: 0, total: 0, questions: 0, cards: 0, extra: [], confidentWrong: [], errors: 0, singleSource: 0, disagreements: 0 };
   noteStats.set(group, stats);
   if (!scored) {
     stats.errors += 1;
@@ -258,9 +290,10 @@ for (const row of rows) {
   }
   for (const item of scored.checks) {
     const key = `${group} | ${item.field}`;
-    const field = fieldStats.get(key) ?? { group, field: item.field, want: item.want, passed: 0, total: 0, gotWhenFailed: new Set() };
+    const field = fieldStats.get(key) ?? { group, field: item.field, want: item.want, passed: 0, total: 0, confidentWrong: 0, gotWhenFailed: new Set() };
     fieldStats.set(key, field);
     field.total += 1;
+    if (item.confidentWrong) field.confidentWrong += 1;
     total += 1;
     stats.total += 1;
     if (item.pass) {
@@ -274,6 +307,8 @@ for (const row of rows) {
   stats.questions += scored.questions;
   stats.cards += scored.cards;
   stats.extra.push(...scored.extraQuestions);
+  stats.confidentWrong.push(...scored.confidentWrong);
+  confidentWrongTotal += scored.confidentWrong.length;
   if (row.output.singleSource) stats.singleSource += 1;
   stats.disagreements += row.output.disagreements?.length ?? 0;
   questionTotal += scored.questions;
@@ -297,6 +332,7 @@ const fieldRows = [...fieldStats.values()].map((field) => ({
   field: field.field,
   want: field.want,
   passed: `${field.passed}/${field.total}`,
+  "confident wrong": field.confidentWrong || "",
   "got (when failed)": [...field.gotWhenFailed].join(" ; "),
 }));
 const noteRows = [...noteStats.values()].map((stats) => ({
@@ -305,6 +341,7 @@ const noteRows = [...noteStats.values()].map((stats) => ({
   cards: stats.cards,
   "questions/card": stats.cards ? (stats.questions / stats.cards).toFixed(2) : "",
   "extra questions": countList(stats.extra),
+  "confident wrong": countList(stats.confidentWrong),
   ...(stage === "audio" ? { "single source": stats.singleSource, disagreements: stats.disagreements } : {}),
   errors: stats.errors || "",
 }));
@@ -322,6 +359,7 @@ const timings = Object.fromEntries(["voiceMs", "sparkMs", "earsMs", "extractionM
 console.table(fieldRows);
 console.table(noteRows);
 console.log(`Overall: ${passed}/${total} checks passed (${percent(passed, total)}).`);
+console.log(`Confident wrong: ${confidentWrongTotal} across ${rows.length} results (wrong values the card doesn't flag as unsure, so nobody is asked).`);
 console.log(`Questions per card: ${cardTotal ? (questionTotal / cardTotal).toFixed(2) : "n/a"} (the expected cards ask ${(expectedAsks / expectedCards).toFixed(2)}). Extra questions: ${rows.reduce((sum, row) => sum + (row.score?.extraQuestions.length ?? 0), 0)} across ${rows.length} results.`);
 console.log(`Errors: ${rows.filter((row) => row.error).length}. ${rows.filter((row) => row.error).map((row) => `${groupOf(row)}: ${row.error}`).join(" | ")}`);
 console.log(`Latency (ms, average / min / max): ${Object.entries(timings).map(([name, t]) => `${name} ${t.average} / ${t.min} / ${t.max}`).join("; ")}. Wall time ${(wallMs / 1000).toFixed(0)} s.`);
@@ -333,8 +371,8 @@ mkdirSync(resultsDir, { recursive: true });
 const used = readdirSync(resultsDir).map((name) => name.match(/^score-(\d+)-/)).filter(Boolean).map((match) => Number(match[1]));
 const number = String(Math.max(0, ...used) + 1).padStart(3, "0");
 const ranAt = new Date().toISOString();
-const settings = { stage, effort, repeat, audioModels: stage === "audio" ? audioModels : undefined, concurrency, notes };
-writeFileSync(join(resultsDir, `score-${number}-results.json`), JSON.stringify({ ranAt, settings, passed, total, timings, tokens, costUsd, rows }, null, 2));
+const settings = { stage, effort, repeat, audioModels: stage === "audio" ? audioModels : undefined, concurrency, notes, rescoreOf: values.rescore || undefined };
+writeFileSync(join(resultsDir, `score-${number}-results.json`), JSON.stringify({ ranAt, settings, passed, total, confidentWrongTotal, timings, tokens, costUsd, rows }, null, 2));
 
 const cell = (text) => String(text ?? "").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
 const table = (items) => {
@@ -345,9 +383,10 @@ const table = (items) => {
 const summary = [
   `# Extraction scores, run ${number}`,
   "",
+  ...(saved ? [`Re-score of ${values.rescore} against the current fixtures (no API calls).`, ""] : []),
   `Run at ${ranAt}. Stage ${stage}, effort ${effort}, ${repeat} repeat(s)${stage === "audio" ? `, audio models ${audioModels.join(", ")}` : ""}.`,
   "",
-  `Overall: ${passed}/${total} checks passed (${percent(passed, total)}). Questions per card: ${cardTotal ? (questionTotal / cardTotal).toFixed(2) : "n/a"}.`,
+  `Overall: ${passed}/${total} checks passed (${percent(passed, total)}). Questions per card: ${cardTotal ? (questionTotal / cardTotal).toFixed(2) : "n/a"}. Confident wrong: ${confidentWrongTotal}.`,
   "",
   "## Per note",
   "",

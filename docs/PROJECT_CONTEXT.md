@@ -8,7 +8,7 @@
 
 **Event.** Meta Global AI Developer Hackathon, run with Cerebral Valley. Virtual, $1M in prizes. Theme: **Build for Your World**.
 
-**Who.** Built solo by Nthabiseng Patsa for Vault of Time (Pty) Ltd, a South African product studio. Track: **Startup** (the track can be changed until submission).
+**Who.** Built solo by Nthabiseng Patsa for Vault of Time (Pty) Ltd, a South African product studio. Track: **Startup**, confirmed 27 Oct: organisers said solo founders qualify if they're incorporated in their home country, and Vault of Time (Pty) Ltd is incorporated in South Africa.
 
 **Time zone.** Everything in this repo uses SAST (UTC+2). The organisers use US Eastern Time. US clocks go back on Sun 1 Nov, so Eastern Time is 6 hours behind SAST until 31 Oct and 7 hours behind from 1 Nov.
 

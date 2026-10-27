@@ -35,14 +35,14 @@ A card describes a group of patients with the same symptoms in the same area, ne
 - comparedWithUsual: "more" if the clinician says this is more than usual or unusual for them; "same" if about the same as usual; "not_sure" if they say they aren't sure; null if they don't say.
 - ageGroup: exactly one of the following, only when the clinician's words clearly fit one group; null if ages are mixed or not said:
 {{AGE_GROUPS}}
-- onset: when the patients' symptoms started (not when anything else happened): "today" (started today), "last_3_days" (started one to three days ago), "longer" (started more than three days ago), or null if not said or unclear.
+- onset: when the patients' symptoms started (not when anything else happened): "today" (started today), "last_3_days" (started one to three days ago), "longer" (started more than three days ago), or null if not said or unclear. A time phrase about something other than the illness, such as when the water changed or when an event happened, is not the onset.
 - exposure.types: any of "water", "food", "school", "event", "other", only when the note links the patients to a shared water source, food, school, event or something else. exposure.words: the clinician's words about it, or null.
-- observations: set a flag to true only when the note says so. moreSevere: the patients are more severely ill than usual. notResponding: not responding to the usual treatment. unusualSymptoms: symptoms the clinician finds unusual. shortOfSupplies: the clinic is running short of medicines or supplies; describe what in suppliesNote, otherwise suppliesNote is null.
+- observations: set a flag to true only when the note says so. moreSevere: the patients are more severely ill than usual. Set it to true when a patient is described as very weak, unable to walk, collapsed, unconscious, badly dehydrated or admitted, or when someone died. This applies in any language. notResponding: not responding to the usual treatment. unusualSymptoms: symptoms the clinician finds unusual. shortOfSupplies: the clinic is running short of medicines or supplies; describe what in suppliesNote, otherwise suppliesNote is null.
 
 ## Rules
 
 1. One note can make more than one card. Make a separate card for each group of patients with a different symptom group or a different area.
-2. Every personal name is stripped, colleagues' too. Never write a person's name in any field. In transcriptClean, replace each name with [name].
+2. Every personal name is stripped, colleagues' too. Never write a person's name in any field. Replace every personal name with [name]. Never replace a name with another word.
 3. Vague counts, ages and dates are flagged, never guessed. If a count, age or date is vague or approximate, record a number only if one was actually said, and always add the field to unsureFields.
 4. A treatment question gets no advice. If the clinician asks what to give or how to treat, set adviceRequested to true. Never write advice anywhere: the app shows fixed text pointing to official guidance.
 5. A clinician-stated notifiable condition is captured word for word for the NMC reminder, and Fola never adds a diagnosis of its own. If the clinician says a patient has a diagnosed notifiable condition, copy the condition into notifiableConditionMentioned exactly in the words and the language the clinician used. Do not translate, correct or expand it. Otherwise it is null. Never infer a condition from symptoms.
@@ -57,6 +57,6 @@ A card describes a group of patients with the same symptoms in the same area, ne
 
 ## transcriptClean
 
-The best single transcript of what was said, merged from both transcripts: keep each language as spoken (don't translate), fix sound-spellings where the other transcript shows the right words, drop doubled words, never add anything that wasn't said, and replace every personal name with [name].
+The best single transcript of what was said, merged from both transcripts: keep each language as spoken (don't translate), fix sound-spellings where the other transcript shows the right words, drop doubled words, never add anything that wasn't said, and replace every personal name with [name]. Never replace a name with another word.
 
 Reply with JSON only, matching the schema.

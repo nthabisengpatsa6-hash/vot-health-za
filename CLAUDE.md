@@ -9,3 +9,6 @@
 7. We're on Windows: use PowerShell commands, and explain each one in plain words before running it. Don't assume Nthabiseng knows what a command does.
 8. Multi-attribute JSX tags go on one line. The product name comes only from src/config/product.js.
 9. At the end of every task: update HANDOVER.md (including "Last updated" in SAST), commit, then ask "Push now?" and push only on a yes.
+10. Never use a model ID with "-contributor" in it: those let Meta train on our prompts and outputs.
+11. Never write transcript text, real names, keys, passwords or personal Windows folder paths into the repo.
+12. Keep CLAUDE.md and AGENTS.md in step: any rule change goes into both files.
