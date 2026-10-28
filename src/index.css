@@ -108,9 +108,9 @@ textarea {
 }
 
 /* The wordmark (docs/DESIGN.md, Logo): lowercase, Hanken Grotesk 700, with
-   the ring as its "o". The ring's box size and shift are the mock-up's,
-   which line it up with the letters. One colour only: indigo, or white on
-   indigo. */
+   the ring as its "o". The ring's box size and shift put its top and bottom
+   level with the tops and bottoms of "e" and "a" (measured at 4x, at 24 to
+   50 px). One colour only: indigo, or white on indigo. */
 .wordmark {
   display: inline-block;
   font-family: var(--font-ui);
@@ -132,10 +132,10 @@ textarea {
 
 .wordmark-o {
   display: inline-block;
-  width: 0.72em;
-  height: 0.72em;
+  width: 0.61em;
+  height: 0.61em;
   margin: 0 1px;
-  vertical-align: -0.083em;
+  vertical-align: -0.0625em;
 }
 
 .lead {
