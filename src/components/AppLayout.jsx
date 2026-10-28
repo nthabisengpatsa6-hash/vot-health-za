@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
-import { PRODUCT_NAME } from "../config/product";
 import { CalendarIcon, MicIcon, PersonIcon, PinIcon, ReplayIcon } from "./Icons";
+import Wordmark from "./Wordmark";
 
 // Header and bottom navigation around every signed-in screen. NavLink marks
 // the current screen with aria-current, which the styles also use, so the
@@ -17,7 +17,7 @@ export default function AppLayout() {
   return (
     <div className="app">
       <header className="app-header">
-        <Link to="/report" className="wordmark">{PRODUCT_NAME}</Link>
+        <Link to="/report" className="header-wordmark"><Wordmark /></Link>
         <nav className="header-links" aria-label="More">
           <NavLink to="/replay" className="header-link">
             <ReplayIcon />

@@ -2,6 +2,8 @@ import { AGE_GROUPS, CASE_COUNT_MAX, COMPARED_WITH_USUAL, EXPOSURE_TYPES, OBSERV
 import { fieldsToFix, isFilled } from "../lib/cardDraft";
 import { AREA_NAMES, TOWN } from "../lib/places";
 
+const SYMPTOM_PROMPT = "Choose a symptom group";
+
 // One case card for the clinician to check. Every field can be changed where
 // it stands. Fields the AI was unsure of are question blocks, with the card's
 // question above them and a "Please check" tag that becomes "Answered".
@@ -48,6 +50,7 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
 
   const showDescription = draft.symptomGroup === "something_unusual" || unsure.has("unusualDescription");
   const count = draft.caseCount;
+  const symptomLabel = SYMPTOM_GROUPS.find((option) => option.value === draft.symptomGroup)?.label ?? SYMPTOM_PROMPT;
   // What was heard is the clinician's own words, so it's set in their serif.
   const areaQuestion = draft.areaHeard ? <>You said ‘<span className="voice-inline">{draft.areaHeard}</span>’. Which area is it?</> : undefined;
 
@@ -55,10 +58,14 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
     <section className="panel case-card" aria-labelledby={`${prefix}-title`}>
       <h2 id={`${prefix}-title`}>{title}</h2>
 
+      {/* The labels are too long for a closed select on a narrow phone, so
+          the chosen one is shown as wrapping text with the real select laid
+          invisibly over it (docs/DESIGN.md, Long option labels). */}
       {field("symptomGroup", "Symptom group", ({ labelId, describedBy }) => (
         <span className="select">
-          <select className="input" value={draft.symptomGroup} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ symptomGroup: e.target.value })}>
-            <option value="" disabled>Choose a symptom group</option>
+          <span className="input select-face" aria-hidden="true">{symptomLabel}</span>
+          <select className="select-native" value={draft.symptomGroup} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ symptomGroup: e.target.value })}>
+            <option value="" disabled>{SYMPTOM_PROMPT}</option>
             {SYMPTOM_GROUPS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </span>

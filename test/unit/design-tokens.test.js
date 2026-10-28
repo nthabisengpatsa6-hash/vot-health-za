@@ -13,6 +13,18 @@ const tokensCss = read("src/styles/tokens.css");
 
 const HEX = /#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g;
 
+// Outside tokens.css, only these brand files and index.html's theme colour
+// may write a colour, and only a token's value. PNGs are pictures, not text,
+// so they aren't read.
+const BRAND_FILES = [
+  "src/assets/brand/mark.svg",
+  "src/assets/brand/mark-white.svg",
+  "src/assets/brand/mark-small.svg",
+  "public/favicon.svg",
+  "public/manifest.webmanifest",
+];
+const TEXT_FILE = /\.(css|jsx?|svg|html|json|webmanifest)$/;
+
 function tokenColours() {
   return Object.fromEntries([...tokensCss.matchAll(/(--color-[a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)].map(([, name, value]) => [name, value.toUpperCase()]));
 }
@@ -68,20 +80,29 @@ test("every contrast pair in DESIGN.md is at least 4.5:1", () => {
   }
 });
 
-test("no colour is written anywhere in src/ except tokens.css", () => {
+test("no colour is written anywhere in src/ except tokens.css and the brand files", () => {
   for (const file of filesUnder("src/")) {
-    if (file === "src/styles/tokens.css" || !/\.(css|jsx?)$/.test(file)) continue;
+    if (file === "src/styles/tokens.css" || BRAND_FILES.includes(file) || !TEXT_FILE.test(file)) continue;
     const text = read(file);
     assert.deepEqual(text.match(HEX), null, `${file} has a hex colour`);
     assert.doesNotMatch(text, /\b(rgba?|hsla?)\(/, `${file} has an rgb or hsl colour`);
   }
 });
 
-test("outside src/, only the theme colour and the favicon have colours, both from the tokens", () => {
+test("outside src/, only index.html's theme colour and the brand files have colours, all from the tokens", () => {
   const colours = tokenColours();
   assert.deepEqual(read("index.html").match(HEX), [colours["--color-ground"]]);
+  for (const file of filesUnder("public/")) {
+    if (BRAND_FILES.includes(file) || !TEXT_FILE.test(file)) continue;
+    assert.deepEqual(read(file).match(HEX), null, `${file} has a hex colour`);
+  }
   const tokenValues = new Set(Object.values(colours));
-  for (const value of read("public/favicon.svg").match(HEX)) assert.ok(tokenValues.has(value.toUpperCase()), `favicon colour ${value}`);
+  for (const file of BRAND_FILES) {
+    const found = read(file).match(HEX);
+    assert.ok(found, `${file} was found, with its colours`);
+    for (const value of found) assert.ok(tokenValues.has(value.toUpperCase()), `${file}: ${value} isn't a token colour`);
+    assert.doesNotMatch(read(file), /\b(rgba?|hsla?)\(/, `${file} has an rgb or hsl colour`);
+  }
 });
 
 test("fonts come only from the tokens: no font family is named in the app's styles", () => {

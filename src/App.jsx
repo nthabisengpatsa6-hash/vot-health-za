@@ -4,7 +4,7 @@ import { Link, Navigate, Route, Routes, useParams } from "react-router";
 import AppLayout from "./components/AppLayout";
 import { LevelKey } from "./components/LevelBadge";
 import Message from "./components/Message";
-import { PRODUCT_NAME } from "./config/product";
+import Wordmark from "./components/Wordmark";
 import { auth, onLocalEmulators } from "./lib/firebase";
 import { useSession } from "./lib/useSession";
 import PlaceholderScreen from "./screens/PlaceholderScreen";
@@ -75,7 +75,7 @@ function LoadingScreen() {
 
   return (
     <main className="center-screen" aria-busy="true">
-      <p className="wordmark">{PRODUCT_NAME}</p>
+      <p className="auth-wordmark"><Wordmark size="large" /></p>
       <p role="status">{slow ? "Still connecting. Check your internet connection." : "Loading…"}</p>
     </main>
   );
@@ -84,7 +84,7 @@ function LoadingScreen() {
 function ProfileErrorScreen() {
   return (
     <main className="center-screen">
-      <p className="wordmark">{PRODUCT_NAME}</p>
+      <p className="auth-wordmark"><Wordmark size="large" /></p>
       <Message kind="error" role="alert">Your profile couldn't be loaded. Please try again.</Message>
       <button type="button" className="button button-primary" onClick={() => window.location.reload()}>Try again</button>
       <button type="button" className="text-button" onClick={() => signOut(auth)}>Sign out</button>

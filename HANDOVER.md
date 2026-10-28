@@ -1,11 +1,13 @@
 # HANDOVER
 
-**Last updated:** 2026-10-28 05:00 SAST
+**Last updated:** 2026-10-28 06:45 SAST
+
+The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). Dated entries below keep the name used at the time. The domain lemoha.co.za was bought on 28 Oct 2026 and isn't connected yet. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Nothing from Tasks 6 to 8 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 9, the deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Task 9 (Wed 28 Oct) renamed the product to Lemoha, added the logo (the ring: wordmark in the header and on the sign-in and set-up screens, favicon, app icons and a web app manifest), added a Logo section to DESIGN.md, and fixed the cut-off symptom-group dropdown. Nothing from Tasks 6 to 9 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 10, the deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
 
 ## Done
 
@@ -163,6 +165,26 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - The only console errors were the deliberate "disconnected" ones from the blocked requests.
   - `npm run test:rules` afterwards: 88 of 88, so the rules swap left nothing behind.
 
+### Day 2 work — Task 9: rename to Lemoha, the logo, the symptom-group dropdown (done Wed 28 Oct; nothing deployed)
+- The name: PRODUCT_NAME is "Lemoha", so every name a person sees changes with it (tab title, wordmarks, privacy lines, the transcript and advice notices, the microphone message, the profile note). index.html's title and the manifest hold "Lemoha" themselves, because static files can't read product.js; test/unit/brand.test.js fails if either drifts.
+- functions/ is untouched. functions/prompts/extract-card.md still says "Fola" (line 1 twice, line 48), and so does a comment in functions/lib/metaRequest.js; see Open decisions.
+- The logo, "the ring" (logo C): a dot circled by hand, which is also the "o" in the wordmark.
+  - Master SVGs in src/assets/brand/: mark.svg (indigo), mark-white.svg, mark-small.svg (the closed ring for 32 px and below), wordmark-o.svg (the heavier ring for the wordmark, in currentColor). Nothing imports them yet; the wordmark draws its ring inline, and a test checks it matches wordmark-o.svg.
+  - In public/: favicon.svg (indigo rounded square, rx 22 of 100, small mark in white at 64%), favicon-32.png (the same), icon-192.png and icon-512.png (indigo square, white mark at 62%), icon-maskable-512.png (mark at 50%, inside Android's circle crop), apple-touch-icon.png (180 px, mark at 60%, no transparency), manifest.webmanifest. The PNGs are 1–12 kB each.
+  - The PNGs were rendered from the SVGs in headless Edge (DevTools protocol, sRGB, exact pixel size) by a one-off script outside the repo, then read back: right sizes, exact indigo, see-through corners only on favicon-32. To redo them, rebuild the same compositions from the numbers above.
+  - index.html links favicon-32.png, favicon.svg, apple-touch-icon.png and the manifest; theme-color stays #F6F7FB.
+- src/components/Wordmark.jsx: lowercase name with the ring as its "o" (letters from PRODUCT_NAME, split at the first "o"), Hanken Grotesk 700, letter-spacing -0.025em, ring box 0.72em with a 0.083em drop and 1 px either side; colour "indigo" (default) or "white". Screen readers get one image named "Lemoha". Used in the header (24 px) and, at 40 px, on sign-in, the first-time profile, the loading screen and the profile error screen. The sign-in line under it moved from 8 to 16 px for clear space. Sizes are tokens in rem, so they follow the phone's text size.
+- Symptom-group dropdown: the chosen group shows as wrapping text in the same 50 px-minimum box (it grows to two lines for the longest labels), with the real select laid invisibly over the whole box, so a tap anywhere opens the phone's own list. The select keeps its label, value, onChange and stored values; the focus ring shows on the box (:focus-within). No other dropdown needed it: at 360 px and 125% text the widest other label, "Choose a facility type", is 194 px in 227 px of room.
+- docs/DESIGN.md: the product line at the top, the Logo section, "Long option labels", the voice note row once the recording is gone, and {PRODUCT_NAME} in both privacy lines. README, PROJECT_CONTEXT, CLAUDE.md and AGENTS.md say Lemoha; rule 8 in both now names the two copies of the name.
+- Tests: the design-token test now reads every text file in src/ and public/ (SVGs included) and allows colours only in tokens.css, the three coloured master SVGs, favicon.svg, the manifest and index.html's theme colour, all token values. New test/unit/brand.test.js: manifest names and icons (PNG sizes read from the files), index.html's title and links, the wordmark's ring against wordmark-o.svg. Web unit tests: 31.
+- Checked in headless Edge against the emulators in practice mode at 360 × 740, 390 × 844 and 360 × 740 with 125% text (the browser's default text size set to 20 px): 475 of 475 checks.
+  - Sign-in, first-time profile, loading (Firestore held back), the profile error (a deny rule in the local emulator's memory, then firestore.rules again), card review, and the header on Report, Today, Near me, Signal detail, Replay and Profile: no sideways scrolling, every tap target at least 44 px, smallest text 14 px (17.5 px at 125%), only Hanken Grotesk and Source Serif 4.
+  - The wordmark: Edge reports the letters drawn from the Hanken Grotesk web font at weight 700; ring box 0.72em square. The ring's lowest pixel, from a 4x screenshot, is within 0.25 px of the flat letters' baseline at 24 and 30 px, and 1–1.25 px below it at 40 and 50 px (within 0.75 px of the round letters "e" and "a"), so the shift was kept. Clear space under the large wordmark: 16.8–23 px against the 14.4–18 px needed.
+  - All eight symptom groups chosen in turn with the keyboard at each size: shown in full, at most two lines (at 125%: "Fever with a stiff neck or confusion", "Sudden illness after eating or drinking" and "Red eyes or itchy skin rash"). A touch tap at five points of the box (centre, corners, chevron, start of the text) lands on the select and focuses it. Headless Edge can't show or drive the phone's own list, so after the tap the choice was made with the list's keys.
+  - The saved card has exactly the 18 fields, with symptomGroup "sudden_after_eating_drinking".
+  - The built app (vite preview) serves favicon.svg, favicon-32.png, the three manifest icons, apple-touch-icon.png and the manifest (application/manifest+json) with status 200; Edge reads the manifest with no errors and reports no installability errors.
+  - The only console error was the expected "Could not reach Cloud Firestore backend" while Firestore was held back on purpose.
+
 ## Official hotlines (checked 27 Oct 2026, on each organisation's own pages)
 Shown, with tap-to-call links, when a note asks about treatment (src/config/hotlines.js).
 - NICD: 0800 212 552, "a 24-hour service for healthcare professionals only". Source: NICD, situational update on the Ebola disease outbreak caused by Bundibugyo virus, 29 June 2026, https://www.nicd.ac.za/situational-update-on-the-ebola-disease-outbreak-caused-by-bundibugyo-virus/ (several other 2025–2026 NICD pages give the same number; older NICD pages give other numbers).
@@ -264,7 +286,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 
 ## Next steps (in order)
 1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. Task 9: the deploy task, each deploy its own STOP:
+2. Task 10: the deploy task, each deploy its own STOP:
    - Functions: checkMetaConnection gets its sign-in check live; processNote with the daily limit and maxInstances 5.
      - Decide processNote's memory and concurrency first. Each note holds about 30 MB in memory (the base64 upload, the decoded WAV and the Spark ear's base64 copy). A 2nd-gen function defaults to 256 MiB and up to 80 requests at once per instance, so a busy instance could run out of memory. Options: concurrency 10 at 256 MiB, or 512 MiB.
    - The Firestore rules (users and cards).
@@ -272,14 +294,22 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 3. Then a real end-to-end test on phones, against the live project with real Meta calls:
    - Android Chrome and iPhone Safari. iPhone Safari has never been tested: there's no Safari on Windows. Check that it records (audio/mp4), decodes, plays back, sends, shows the stages and saves; check the microphone permission steps; check that holding the button doesn't open a long-press menu.
    - Made-up notes only. A note that asks about treatment, one that mentions a notifiable condition, and a two-group note.
+   - On a real Android phone and an iPhone: tapping anywhere on the symptom-group box opens the phone's own list, and the chosen label shows in full.
+   - Add to the home screen on both: the icon and the name "Lemoha" look right (the maskable icon on Android, apple-touch-icon on iPhone).
    - Watch the processNote logs for timings, and the daily counter in Firestore (noteUsage).
-4. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
-5. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser.
+4. Nthabiseng, in the consoles (by hand; no code): the name people see outside the app.
+   - Firebase console → the cog next to "Project overview" → Project settings → General → "Public-facing name" → the pencil → "Lemoha" → Save. Firebase's help page says it fills %APP_NAME% in the sign-in emails (password reset); setup guides say Google sign-in uses it as the app name too.
+   - Firebase console → Authentication → Templates → Password reset: check the sender name and the subject; change any "Fola" to "Lemoha".
+   - Google Cloud console (same project) → Google Auth Platform → Branding → "App name": check it says Lemoha, and change it if it says Fola. Google shows this name on its account chooser only after the app's branding is verified; until then the chooser shows the domain, vot-health-za.firebaseapp.com (see step 5).
+   - Don't rename the Firebase project itself (display name "Fola").
+5. After the Task 10 deploy, its own STOP: Connect lemoha.co.za to Firebase Hosting (DNS records), then decide whether to move the sign-in authDomain to it, so Google's account chooser stops showing vot-health-za.firebaseapp.com.
+6. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
+7. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser.
 
 ## Decisions and why
 - 26 Oct — Firestore and Functions in africa-south1: data stays in South Africa. Firestore's location can never be changed.
 - 26 Oct — Statistics do all counting; Muse Spark reads, weighs and explains: the numbers stay checkable and the AI can't invent counts.
-- 26 Oct — Symptom groups, not diseases, and TB excluded: diagnosis stays the clinician's job, slow lab-tracked diseases have their own registers, and Fola stays clear of the "medical advice" anti-project.
+- 26 Oct — Symptom groups, not diseases, and TB excluded: diagnosis stays the clinician's job, slow lab-tracked diseases have their own registers, and Lemoha stays clear of the "medical advice" anti-project.
 - 26 Oct — Made-up data only: content sent on Meta's free credits may be used for product improvement.
 - 26 Oct — Baseten (not Modal) for Muse Spark Open: OpenAI-compatible with generous credits and throughput; keeps health signals on infrastructure we control and targets the open-weights bonus prize.
 - 26 Oct — A fictional town drawn as plain shapes, not a real map: it can't be mistaken for a real place, and the demo stays non-political.
@@ -290,7 +320,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 27 Oct — Every function that calls a model requires sign-in: nobody who merely finds the endpoint can spend the API credits.
 - 27 Oct — Audio capped at 120 s and 6 MB per note: voice notes are short, and this keeps one upload well inside a callable function's memory and time budget.
 - 27 Oct — Model IDs returned by checkMetaConnection: muse-wonder-1.0, sam-3.1, muse-spark-1.3-contributor, muse-voice-transcribe-1.0, muse-spark-1.3, muse-image-1.0, muse-spark-1.2-contributor, muse-spark-1.2, muse-spark-1.1.
-- 27 Oct — Muse Spark model: muse-spark-1.3 (Standard mode). Never a "-contributor" model ID. Why: contributor models let Meta train on our prompts and outputs, which contradicts Fola's privacy story, and 1.3 is Meta's recommended version for new work.
+- 27 Oct — Muse Spark model: muse-spark-1.3 (Standard mode). Never a "-contributor" model ID. Why: contributor models let Meta train on our prompts and outputs, which contradicts Lemoha's privacy story, and 1.3 is Meta's recommended version for new work.
 - 27 Oct — Transcription by file upload (POST /v1/asr/transcribe, mode PUSH_TO_TALK), not streaming. Why: it worked first time, push-to-talk notes are short, and streaming would need a websocket proxy.
 - 27 Oct — Record at 24 kHz. Why: it's the model's native rate; 16 kHz gave the same words and wasn't faster.
 - 27 Oct — Hints off by default. Language bias is dropped. Keywords get re-tested with place-name notes. Why: in Task 2, hints increased repeated words (a doubled word in 2 of 7 calls without hints, 5 of 7 with keywords, 7 of 7 with keywords plus language).
@@ -299,7 +329,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 27 Oct — The audio-ear model (muse-spark-1.2 or muse-spark-1.3, never "-contributor") is chosen by Task 4's Stage 2 scores, and kept as a single setting (SPARK_AUDIO_MODEL in functions/constants.js).
 - 27 Oct — Keywords back ON for the Voice Transcribe ear, using the place list. Why: they fixed "Amanzimtoti" both times, and the extraction step absorbs the doubled words. Language bias stays off. This replaces "hints off by default" for this ear.
 - 27 Oct — The demo town is Kganya. Areas fed by works A: Thaga Park, Leeba View, Sefate Extension, Nonyana Flats, Mmutla Ridge. Areas fed by works B: Kgwedi Heights, Lebone Gardens. On 27 Oct, web searches found no South African place with these exact names. Stored in functions/data/places.json.
-- 27 Oct — Six extraction rules: (1) one note can make more than one card; (2) every personal name is stripped, colleagues' too; (3) vague counts, ages and dates are flagged, never guessed; (4) a treatment question gets no advice: the app shows fixed text pointing to official guidance, and the model never writes advice; (5) a clinician-stated notifiable condition is captured word for word, in the clinician's own words and language, for the NMC reminder, and Fola never adds a diagnosis of its own; (6) a note that isn't a report makes no card.
+- 27 Oct — Six extraction rules: (1) one note can make more than one card; (2) every personal name is stripped, colleagues' too; (3) vague counts, ages and dates are flagged, never guessed; (4) a treatment question gets no advice: the app shows fixed text pointing to official guidance, and the model never writes advice; (5) a clinician-stated notifiable condition is captured word for word, in the clinician's own words and language, for the NMC reminder, and Lemoha never adds a diagnosis of its own; (6) a note that isn't a report makes no card.
 - 27 Oct — Startup track confirmed. Organisers said solo founders qualify if they're incorporated in their home country, and Vault of Time (Pty) Ltd is incorporated in South Africa.
 - 27 Oct — Extraction effort: low (EXTRACT_EFFORT). Why: in Task 4, medium scored the same as low and was slower and dearer.
 - 27 Oct — Audio ear: muse-spark-1.2 for now (SPARK_AUDIO_MODEL); the final choice comes after the 10 recordings. Why: 1.3 invented a disease name, which was caught, and 1.2 gave one confident wrong onset.
@@ -319,13 +349,19 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 27 Oct — Hotline numbers come only from the organisations' own pages, and hours aren't shown because the official pages disagree on them.
 - 27 Oct — Visual direction: "Shweshwe" (Nthabiseng's choice). docs/DESIGN.md is the single source of truth for all UI; every colour goes through src/styles/tokens.css. Why: a look that is distinctive and crafted, from here, and never reads like a generic AI-built app.
 - 28 Oct — The case card is restyled in place: every field keeps its own control. Tap-to-change fields (DESIGN.md's first idea) are parked, with no task for them. Why: tap-to-change changes how editing works, and Task 8 was presentation only.
-- 28 Oct — Privacy lines promise only what the app does: "Leave out patients' names. Fola doesn't keep the recording." and "Check there are no names, then save. Fola doesn't keep the recording." Why: "The recording is deleted" went too far (the audio goes to Meta's API, and on the free credits Meta may keep content), and so did "Names are removed" (the model can miss a name).
+- 28 Oct — Privacy lines promise only what the app does: "Leave out patients' names. {PRODUCT_NAME} doesn't keep the recording." and "Check there are no names, then save. {PRODUCT_NAME} doesn't keep the recording." Why: "The recording is deleted" went too far (the audio goes to Meta's API, and on the free credits Meta may keep content), and so did "Names are removed" (the model can miss a name).
 - 28 Oct — The voice note row replaces the browser's audio player, with bars from the recording's real loudness. Why: the native player is a default look that can't be styled. The loudness values are only drawn, never saved or sent.
 - 28 Oct — DESIGN.md's motion rules win over Task 8's "no other animation" line: the recording ring pulses and state changes take 120 ms, both off with reduced motion.
 - 28 Oct — Fonts self-hosted with Fontsource, latin and latin-ext only, pinned exactly; OFL-1.1 is allowed for fonts only. Why: nothing is fetched from Google at runtime (speed on mobile data, and the privacy story), and latin-ext covers letters used in some South African languages.
+- 28 Oct — Product name: Lemoha (Sesotho for "to notice", lowercase in the logo), chosen by Nthabiseng; "Fola" was the working name. Logo C, "the ring": a dot circled by hand, which is also the "o" in the wordmark. Only what a person sees changes; the codename, Firebase project, function names, collections and stored values stay.
+- 28 Oct — Domain lemoha.co.za bought by Nthabiseng. Connecting it to Hosting, and maybe moving the sign-in authDomain to it, comes after the Task 10 deploy, as its own STOP.
+- 28 Oct — index.html's title and the manifest hold the product name themselves (static files can't read product.js), guarded by test/unit/brand.test.js; the manifest is on the colour allow-list for its two #F6F7FB values (approved).
+- 28 Oct — The wordmark also replaces the plain-text name on the loading, profile error and first-time profile screens, at the sign-in size (approved).
+- 28 Oct — The extraction prompt keeps "Fola" for now: changing a prompt changes what the model does, so it changes with a re-score (see Open decisions).
+- 28 Oct — Long dropdown labels: the chosen label is shown as wrapping text with the real select laid invisibly over it (DESIGN.md, "Long option labels"). Why: a closed select can't wrap, and the phone's own list is the most familiar picker. Only the symptom group needs it today.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
-- Product name (before the video is recorded).
+- Change 'Fola' to 'Lemoha' in the extraction prompt during the next scoring run, and re-score in that same run.
 - Licence for the public repo.
 - How simulation data is kept apart from real data (Day 3).
 - Audio-ear model: the final choice comes after scoring the 10 recordings (now muse-spark-1.2).
@@ -338,7 +374,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - docs/PROJECT_CONTEXT.md — the brief and the decisions.
 - docs/DESIGN.md — the Shweshwe design direction: colours, type, spacing, components, motion, copy and accessibility rules. Every screen follows it.
 - README.md — public project summary.
-- index.html — the page shell Vite builds from (the tab title is set from src/config/product.js when the app starts).
+- index.html — the page shell Vite builds from: the title "Lemoha" (kept equal to PRODUCT_NAME by a test; main.jsx also sets it from product.js), the favicon, iPhone icon and manifest links, and theme-color.
 - vite.config.js — Vite settings (React plugin only).
 - package.json, package-lock.json — web app libraries and npm scripts.
 - .oxlintrc.json — linter rules.
@@ -347,7 +383,13 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Not deployed.
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
-- public/favicon.svg — the browser-tab icon (three rising bars on indigo).
+- Brand folders (docs/DESIGN.md, Logo):
+  - src/assets/brand/ — the master SVGs: mark.svg (indigo, for light backgrounds), mark-white.svg (for indigo), mark-small.svg (32 px and below), wordmark-o.svg (the wordmark's ring, in currentColor).
+  - public/favicon.svg — the browser-tab icon: indigo rounded square, the small mark in white.
+  - public/favicon-32.png — the same as a PNG, for browsers without SVG icons.
+  - public/icon-192.png, public/icon-512.png, public/icon-maskable-512.png — the app icons in the manifest.
+  - public/apple-touch-icon.png — the iPhone home-screen icon (180 px, no transparency).
+  - public/manifest.webmanifest — the web app manifest (name, colours, icons).
 - src/main.jsx — starts the React app inside the router and sets the tab title.
 - src/App.jsx — chooses what to show (loading, sign-in, first-time profile, or the app) and holds the routes and the placeholders' text.
 - src/index.css — the app's stylesheet: layout, forms, navigation, level badges, motion. It uses only the tokens; no colour is written in it.
@@ -367,9 +409,10 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - src/lib/places.js — the town and area names, read from functions/data/places.json.
 - src/lib/profile.js — watchProfile and saveProfile for users/{uid}.
 - src/lib/useSession.js — the hook that says who's signed in and whether their profile is set up.
-- src/components/AppLayout.jsx — header and bottom navigation around the signed-in screens.
+- src/components/AppLayout.jsx — header (with the wordmark) and bottom navigation around the signed-in screens.
+- src/components/Wordmark.jsx — the wordmark: the lowercase name with the ring as its "o", one image to screen readers.
 - src/components/RecordButton.jsx — the hold-or-tap record button.
-- src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions.
+- src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions; the symptom group shows as wrapping text over an invisible select.
 - src/components/NoteNotices.jsx — the transcript and the fixed notices under the cards (single source, advice and hotlines, NMC reminder).
 - src/components/LevelBadge.jsx — the Watch, Signal and Alert badges (40 px swatch with the print, and the word) and their key.
 - src/components/Icons.jsx — the line icons (drawn for this app).
@@ -384,7 +427,8 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - test/unit/wav.test.js — unit tests for the WAV encoder, checked against the server's own WAV check.
 - test/unit/card-options.test.js — checks the card screen's lists match functions/lib/cardSchema.js.
 - test/unit/cards.test.js — unit tests for card drafts and the saved document, using the practice results.
-- test/unit/design-tokens.test.js — tokens match docs/DESIGN.md, every listed contrast pair is at least 4.5:1, and no colour or font name is written outside the tokens.
+- test/unit/design-tokens.test.js — tokens match docs/DESIGN.md, every listed contrast pair is at least 4.5:1, no font name is written outside the tokens, and colours appear only in the tokens and the allowed brand files.
+- test/unit/brand.test.js — the manifest and index.html carry PRODUCT_NAME, every icon is there at its stated size, and the wordmark's ring matches wordmark-o.svg.
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
 - test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
@@ -452,7 +496,7 @@ Other local commands:
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 27 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the saved document, and the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens).
+- `npm test` — runs the 31 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the saved document, the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; and the brand: manifest, icons, title, the wordmark's ring).
 - `npm --prefix functions test` — runs the 61 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit), all with fakes and no network calls.
 - `npm run test:rules` — runs the 88 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
@@ -481,19 +525,21 @@ Other local commands:
 - `firebase deploy --only firestore:rules` — publishes the Firestore security rules.
 
 ## Known issues
-- A closed dropdown can't wrap, so the longest symptom-group labels are cut off with "…" in the case card's Symptom group box (the open list shows them in full). At normal text size: "Fever with a stiff neck or confusion" and "Sudden illness after eating or drinking" at 360 px, the second one also at 390 px; at 125% text, also "Red eyes or itchy skin rash" and the "Choose a symptom group" prompt at 360 px. It was the same before Task 8. Options for Nthabiseng: shorter labels (copy only; the stored values stay), or a stacked list like the roles.
+- Google's account chooser shows "vot-health-za.firebaseapp.com" (the sign-in authDomain), not the app name, until the app's branding is verified by Google or the authDomain moves to lemoha.co.za (Next steps 4 and 5).
+- The wordmark's ring lands within about 1 px of the letters' baseline, a little above or below depending on the size, because of pixel rounding. Checked by eye in the 4x crops of Task 9.
+- The symptom-group box's tap-to-open has only been checked in headless Edge (taps land on the select); the phones' own lists are in the Task 10 phone test.
 - The case card's arrival motion plays again when a removed card is brought back with Undo.
 - Source Serif 4 is loaded at its default optical size (14), to keep the files small; the clinician's words are set at 20 px.
-- Starting the emulators from a terminal opened before Java was installed fails with "Could not spawn java -version"; stopping `npm run emulators` from a tool can leave its Java and Node processes holding ports 8080, 9099 and 5001 until they're ended.
+- Starting the emulators from a terminal opened before Java was installed fails with "Could not spawn java -version" (in that window, `$env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")` reloads the saved path so Java is found); stopping `npm run emulators` from a tool can leave its Java and Node processes holding ports 8080, 9099 and 5001 until they're ended.
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the repo history, which becomes public on Day 8. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
-- Nothing from Tasks 6 and 7 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
+- Nothing from Tasks 6 to 9 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
 - iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
 - processNote's memory and concurrency are still the defaults (256 MiB, up to 80 requests per instance) and each note uses about 30 MB; decide in the deploy task (see Next steps).
 - firestore.rules also keeps its own copy of the card lists (symptom groups, age groups, compared with usual, onset, exposure types, areas). Changing src/config/cardOptions.js, functions/lib/cardSchema.js or functions/data/places.json means changing firestore.rules too; the unit and rules tests fail until they match.
 - The browser check and the break-the-rule check are local scripts, not part of the repo (they need a local test recording and Edge). Re-running them means rewriting them; HANDOVER lists what they checked.
 - Practice mode's turn is held in the Functions emulator's memory, so it starts again at the first result whenever the emulator restarts or reloads the code.
 - firestore.rules keeps its own copies of the role, facility-type and area lists, because rules can't import files. Changing src/config/profileOptions.js or functions/data/places.json means changing firestore.rules too; `npm run test:rules` fails until they match.
-- The web app ships as one JavaScript file of about 876 kB (269 kB compressed), mostly the Firebase libraries, plus 25 kB of CSS and four font files (147 kB in all; an English-only screen downloads the two latin files, about 86 kB). Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
+- The web app ships as one JavaScript file of about 877 kB (269 kB compressed), mostly the Firebase libraries, plus 26 kB of CSS and four font files (147 kB in all; an English-only screen downloads the two latin files, about 86 kB). Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
 - Anyone can create an account and choose any role: there's no email verification, and checking clinicians against the SANC and HPCSA registers is out of scope.
 - Hosting has no automatic build before deploy: run `npm run build` first or the deploy sends a stale or missing dist/.
 - Voice Transcribe can silently drop non-English speech. In Task 2, a Sesotho closing phrase appeared in only 2 of 9 calls. Consequence for the design: missing card fields are always asked, and the Report screen tells the clinician to check the transcript.
@@ -509,6 +555,7 @@ Other local commands:
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-28 — Task 9: renamed to Lemoha (working name Fola until 28 Oct); the ring logo: Wordmark component (header, sign-in, set-up, loading and error screens), brand SVGs, favicon, app icons and the web app manifest; DESIGN.md Logo section, "Long option labels" and the voice-note-row case; the symptom-group dropdown shows its label in full; brand test and a tighter colour allow-list (31 web unit tests). Checked in Edge at 360 and 390 px and at 125% text (475 of 475). lemoha.co.za recorded. Nothing deployed; deploy is now Task 10.
 - 2026-10-28 — Task 8: the Shweshwe design system. docs/DESIGN.md (with six approved amendments), design tokens in src/styles/tokens.css, self-hosted Hanken Grotesk and Source Serif 4 (Fontsource, latin and latin-ext, pinned), every screen restyled with no change to behaviour, data or rules; voice note row with a real-loudness waveform; privacy lines; three copy changes; rule 13 in CLAUDE.md and AGENTS.md; design-token and contrast tests (27 web unit tests). Checked in Edge at 360 and 390 px, with reduced motion and at 125% text. Nothing deployed; deploy moves to Task 9.
 - 2026-10-27 — Docs: the repo is private until Day 8 (Tue 3 Nov), then made public, and is treated as public now; Day 8 step added to make it public and check it from a logged-out browser; Tasks 6 and 7 marked done.
 - 2026-10-27 — Task 7: the Report screen end to end (hold-or-tap recording, 24 kHz WAV in the browser, playback, streamed progress stages, the card screen with unsure fields empty and highlighted, fixed advice/NMC/single-source/not-a-report notices, saving to cards/{cardId}); cards rules with 60 emulator tests and a break-the-rule check; processNote's daily limit (40 per SAST day), maxInstances 5 and emulator-only practice mode with 5 made-up results; official hotline numbers checked. Nothing deployed.

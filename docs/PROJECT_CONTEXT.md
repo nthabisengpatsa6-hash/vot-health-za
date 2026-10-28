@@ -1,8 +1,9 @@
-# Project context: Fola (codename vot-health-za)
+# Project context: Lemoha (codename vot-health-za)
 
+> The product is Lemoha, Sesotho for "to notice" (working name Fola until 28 Oct 2026). Domain: lemoha.co.za, bought 28 Oct 2026, not connected yet.
 > This file changes only when a decision changes. Day-to-day state lives in HANDOVER.md.
 > This repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Never put keys, passwords, tokens or personal data here.
-> Last decision change: 27 Oct 2026.
+> Last decision change: 28 Oct 2026.
 
 ## 1. The hackathon
 
@@ -34,7 +35,7 @@
 - No code, data or assets we don't have the rights to. Check a dependency's licence before adding it (MIT, Apache-2.0, BSD and ISC are fine; OFL-1.1, for fonts only).
 - Coding tools such as Claude Code are allowed.
 
-**Banned project types ("anti-projects").** AI that gives medical advice; basic RAG; simple image analysers; simple AI education chatbots; job screeners; nutrition coaches; personality analysers; sports coaches; anything political or involving war. Fola must never drift toward medical advice or politics; hard rules 6 and 9 exist for this.
+**Banned project types ("anti-projects").** AI that gives medical advice; basic RAG; simple image analysers; simple AI education chatbots; job screeners; nutrition coaches; personality analysers; sports coaches; anything political or involving war. Lemoha must never drift toward medical advice or politics; hard rules 6 and 9 exist for this.
 
 **Submission** (one representative, on the Cerebral Valley platform): the public repo, a 3-minute demo video, the live product, and everyone who worked on it listed. The video, the code and the live product are all judged.
 
@@ -49,7 +50,7 @@
 
 ## 2. What we're building and why
 
-**One line.** Fola turns clinicians' quick voice notes into an early-warning map of illness clusters, so environmental health practitioners can find a common source (like a water treatment works) days sooner.
+**One line.** Lemoha turns clinicians' quick voice notes into an early-warning map of illness clusters, so environmental health practitioners can find a common source (like a water treatment works) days sooner.
 
 **The problem.** The signs of an illness cluster usually exist days before anyone joins them up. Clinicians notice unusual patients, but those observations stay in separate clinics, notebooks and WhatsApp groups.
 - Bronkhorstspruit, 2026: a treatment works supplied unchlorinated water from 24 September to 14 October. Between 7 and 18 October, 408 cases of stomach illness were recorded across five areas, mostly in children under four. Residents learnt the cause about a week or more after cases began.
@@ -57,14 +58,14 @@
 
 What was missing was not information but connection: something that sees many clinicians' reports together and asks what they share.
 
-**Why Fola is different**
+**Why Lemoha is different**
 - The gap is officially named. A 2024 Department of Health presentation said many foodborne outbreaks were reported by the media but poorly recorded, and that event-based surveillance still needs a reporting platform.
 - Official systems start later. The NMC (Notifiable Medical Conditions) system starts at diagnosis and needs registration and authorisation. The early "something's off" moment lives in WhatsApp, where about 90% of surveyed health workers already discuss work.
-- The approach is proven. In Mpumalanga, hospital nurses faxing a weekly syndrome form helped contain cholera. Fola is that idea with voice notes instead of a fax.
+- The approach is proven. In Mpumalanga, hospital nurses faxing a weekly syndrome form helped contain cholera. Lemoha is that idea with voice notes instead of a fax.
 - It travels. Africa CDC's event-based surveillance framework is spreading; Botswana, Namibia and Zimbabwe launched national guidelines in 2025.
-- Fola's edge: voice notes the way clinicians already talk, mixed languages included; no names, so no facility has to approve it before a nurse starts; likely sources explained, not just cases counted; a human sends every notification.
+- Lemoha's edge: voice notes the way clinicians already talk, mixed languages included; no names, so no facility has to approve it before a nurse starts; likely sources explained, not just cases counted; a human sends every notification.
 
-**Users.** All health professionals; patients never use Fola.
+**Users.** All health professionals; patients never use Lemoha.
 - Clinic nurses, doctors, physios and pharmacists: send a voice note, confirm the case card, tap "Seeing this too". They get back "what's going around near me".
 - Environmental health practitioners (HPCSA-registered): review signals, check the suggested sources, decide what to investigate. They get possible common sources, ranked, with the evidence behind each.
 - District or municipal health offices: receive notifications a human chose to send, as a short, evidence-backed summary.
@@ -79,9 +80,9 @@ These hold in every build, demo, doc and prompt.
 3. **Signals, never outbreaks.** Three levels: Watch, Signal, Alert. The word "outbreak" never appears in the UI. In code, the event planted in the simulation is called the "seeded cluster".
 4. **Every signal shows its evidence,** and every fact links back to the card it came from.
 5. **Unsure means ask.** If the AI isn't sure about a field, the card asks the clinician instead of guessing.
-6. **No medical advice.** Fola never suggests a diagnosis or treatment. Treatment questions point to official hotlines (NICD, Poisons Information Centre).
-7. **A human sends every notification.** Fola never alerts the public.
-8. **Not a replacement for the law.** Clinicians still notify notifiable medical conditions through the NMC system, and Fola reminds them to.
+6. **No medical advice.** Lemoha never suggests a diagnosis or treatment. Treatment questions point to official hotlines (NICD, Poisons Information Centre).
+7. **A human sends every notification.** Lemoha never alerts the public.
+8. **Not a replacement for the law.** Clinicians still notify notifiable medical conditions through the NMC system, and Lemoha reminds them to.
 9. **Non-political.** No officials named, no blame. The demo is modelled on real events, not a claim about them.
 
 ## 4. The core loop
@@ -130,7 +131,7 @@ A hybrid: statistics find the clusters and do all the maths, map overlays test t
 
 Observations change the reasoning: sudden onset plus "not responding to usual treatment" points to a possible non-infectious cause for laboratory testing. The check runs on every confirmed card and once a day.
 
-**Limits, stated plainly.** Fola points to where to look; it can't see inside a plant or a shop. Linking illness to a water works needs a map of which works feeds which areas: made up for the demo, a municipal partnership in real use. Affected areas often share more than one thing, so competing explanations are always shown, and laboratories confirm.
+**Limits, stated plainly.** Lemoha points to where to look; it can't see inside a plant or a shop. Linking illness to a water works needs a map of which works feeds which areas: made up for the demo, a municipal partnership in real use. Affected areas often share more than one thing, so competing explanations are always shown, and laboratories confirm.
 
 ## 7. Screens
 
@@ -143,15 +144,15 @@ Five screens, mobile-first, in any phone browser, nothing to install.
 
 ## 8. Demo simulation
 
-The demo is a simulation: a fictional town, a normal background of illness, and a seeded cluster timed like Bronkhorstspruit. Fola only ever sees cards up to the current replay day, so it has to find the cluster itself.
+The demo is a simulation: a fictional town, a normal background of illness, and a seeded cluster timed like Bronkhorstspruit. Lemoha only ever sees cards up to the current replay day, so it has to find the cluster itself.
 
 1. **The town:** one data file with about 7 areas (made-up names checked so they aren't real places, populations, shapes). Water works A feeds 5 areas; works B feeds 2 comparison areas. A few clinics and a hospital, two schools, a couple of shops. Drawn as plain shapes, not on a real street map, so it can't be mistaken for a real place.
 2. **Normal days:** a script generates everyday background cards across the clinics, with a fixed random seed so every replay is identical.
 3. **The seeded cluster:** on day 0, chlorination stops at works A, and nothing about it appears in the data. From day 13, under-5 diarrhoea climbs in works A's areas and some cards mention tap water; works B's areas stay normal.
-4. **A red herring:** a couple of cards mention a school event; Fola must weigh it and rank it below the water works.
+4. **A red herring:** a couple of cards mention a school event; Lemoha must weigh it and rank it below the water works.
 5. **Real voice notes at the key moments:** 4 to 6 recordings of people reading short mixed-language scripts go through the live pipeline; every other card is generated.
 6. **The replay:** Play and a date slider release each day's cards and run the signal check; the map updates; simulation data is kept apart from anything real.
-7. **The scorecard:** the day Fola raised Watch, Signal and Alert; whether works A ranked first; results across 10 replays with different random noise; and a no-cluster run in which Fola should stay quiet.
+7. **The scorecard:** the day Lemoha raised Watch, Signal and Alert; whether works A ranked first; results across 10 replays with different random noise; and a no-cluster run in which Lemoha should stay quiet.
 
 **3-minute video** (shows only what was built during the hackathon):
 
@@ -215,7 +216,7 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 
 **Keys.** Only Cloud Functions hold keys, as the Firebase secrets META_API_KEY and BASETEN_API_KEY. Nthabiseng sets them herself at a terminal prompt (firebase functions:secrets:set NAME). The browser never sees a key. For the emulator, local values go in functions/.secret.local, which is gitignored. Never ask for, print, log or commit a key.
 
-**Firebase.** Display name "Fola" (project ID: see .firebaserc). Blaze plan with a budget alert. Firestore in africa-south1 (permanent) and Functions in africa-south1. Firestore rules stay deny-all until each collection gets its own rules with emulator tests.
+**Firebase.** Display name "Fola", the working name; the project isn't renamed (project ID: see .firebaserc). Blaze plan with a budget alert. Firestore in africa-south1 (permanent) and Functions in africa-south1. Firestore rules stay deny-all until each collection gets its own rules with emulator tests.
 
 **Simulation data** is kept apart from anything real; the exact mechanism is decided on Day 3.
 

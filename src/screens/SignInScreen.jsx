@@ -7,7 +7,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import Message from "../components/Message";
-import { PRODUCT_NAME } from "../config/product";
+import Wordmark from "../components/Wordmark";
 import { authErrorMessage } from "../lib/authErrors";
 import { auth } from "../lib/firebase";
 
@@ -75,7 +75,7 @@ export default function SignInScreen() {
   return (
     <main className="auth">
       <div className="auth-brand">
-        <h1 className="wordmark">{PRODUCT_NAME}</h1>
+        <h1 className="auth-wordmark"><Wordmark size="large" /></h1>
         <p className="lead">Quick voice reports from health workers, joined up into early signals for your area.</p>
       </div>
 

@@ -46,6 +46,11 @@
   --type-label: 400 0.875rem/1.25rem var(--font-ui);       /* 14/20, the smallest text */
   --hanging-quote: -0.42em;
 
+  /* The wordmark (docs/DESIGN.md, Logo) */
+  --tracking-wordmark: -0.025em;
+  --wordmark-header: 1.5rem;                                /* 24, the app header */
+  --wordmark-large: 2.5rem;                                 /* 40, sign-in and set-up */
+
   /* Space */
   --space-1: 4px;
   --space-2: 8px;

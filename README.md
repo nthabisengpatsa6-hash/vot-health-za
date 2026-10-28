@@ -1,6 +1,6 @@
-# Fola
+# Lemoha
 
-Fola (codename vot-health-za) is a health project for South Africa, being built for the Meta Global AI Developer Hackathon. It is a React + Vite web app on Firebase (Hosting, Firestore and Cloud Functions in africa-south1) that uses the Meta Model API.
+Lemoha (Sesotho for "to notice"; codename vot-health-za; working name Fola until 28 Oct 2026) is a health project for South Africa, being built for the Meta Global AI Developer Hackathon. It is a React + Vite web app on Firebase (Hosting, Firestore and Cloud Functions in africa-south1) that uses the Meta Model API.
 
 Built during the Meta Global AI Developer Hackathon. Building started 26 October 2026; all code in this repository was written during the hackathon.
 

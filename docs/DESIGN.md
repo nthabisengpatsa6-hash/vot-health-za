@@ -1,14 +1,14 @@
 # Design: the Shweshwe direction
 
-Chosen on 27 Oct 2026. Every screen follows this file. If a case isn't covered, follow the principles below and flag it in your plan.
+The product is Lemoha (working name Fola until 28 Oct 2026). Chosen on 27 Oct 2026. Every screen follows this file. If a case isn't covered, follow the principles below and flag it in your plan.
 
 ## The idea
 
-Fola is built for South African clinicians, so its look comes from here. The indigo of shweshwe cloth carries the identity. The cloth's printed pattern appears in one place only: it marks areas under a signal on the map, and the level badge that names them. Everything else stays calm, plain and easy to read on a cheap phone in bright light.
+Lemoha is built for South African clinicians, so its look comes from here. The indigo of shweshwe cloth carries the identity. The cloth's printed pattern appears in one place only: it marks areas under a signal on the map, and the level badge that names them. Everything else stays calm, plain and easy to read on a cheap phone in bright light.
 
 Two voices:
 - The clinician's own words are set in a serif, Source Serif 4. They are a person speaking.
-- Everything Fola says or structures is set in Hanken Grotesk.
+- Everything Lemoha says or structures is set in Hanken Grotesk.
 
 Boldness is spent in one place: the indigo map. The rest of the app is quiet.
 
@@ -105,18 +105,32 @@ Text never sits directly on Signal orange or Watch ochre (it fails contrast). La
 - **Disabled button:** indigo-disabled background, ink-disabled text. Its label says what's missing, for example "Answer 1 more to save".
 - **Segmented control** (one answer out of 2 to 4): a white container with a 1.5 px indigo border and radius 12; 1 px indigo-divider lines between options; the selected option is filled indigo with white text and a check icon, and has aria-pressed="true". Give the longest option more width rather than letting it wrap. Options that don't fit in one row at 360 px wide stack one under another, in the same style.
 - **Inputs and dropdowns:** white, 1.5 px ink-muted border, radius 12, 50 px tall.
+- **Long option labels:** A dropdown whose labels can be long shows the chosen label as full text that wraps, with the real dropdown laid invisibly over it. Tapping still opens the phone's own list.
 - **Question block** (an unsure field): wash background, radius 16, the question in Question style, an optional hint in ink-muted-on-wash, then a segmented control.
 - **Case card fields:** a white card with a 1 px line border and radius 16. One column, in reading order: each field has its label (14, ink-muted) above its own control (a dropdown, a segmented control, chips, tick boxes or a text box), so every value can be changed where it stands. An unsure field is a question block in its place.
 - **Voice note row:** a 44 px indigo circle play button, waveform bars (3 px wide, 3 px apart, indigo-soft), duration in 14 px tabular figures.
+  - Once the recording is gone (card review), the row shows a still waveform and the duration, with no play button.
 - **Privacy line**, under the main action on the Report flow: a lock icon, then one of these, 14 px, ink-muted, centred:
-  - under the record button (also while recording) and under Send: "Leave out patients' names. Fola doesn't keep the recording."
-  - under the save button on card review: "Check there are no names, then save. Fola doesn't keep the recording."
+  - under the record button (also while recording) and under Send: "Leave out patients' names. {PRODUCT_NAME} doesn't keep the recording."
+  - under the save button on card review: "Check there are no names, then save. {PRODUCT_NAME} doesn't keep the recording."
 - **Simulation pill:** indigo background, white text 14/20 weight 600, radius 8. Shown on every screen in simulation mode. Practice mode uses the same pill style.
 - **Level badge:** a 40 px square, radius 10, in the level colour with its print (Watch: indigo with the dashed ochre border), beside the level word and "Raised today, 09:40" in 14 px ink-muted.
 - **Information and error messages:** a wash block with an icon, ink text that says what happened and what to do, and an action button if there is one. Never red: red means Alert.
 - **Record button:** an 88 px indigo circle with a white microphone icon. While recording, a 3 px indigo ring pulses around it. The timer sits above it in 32/36 tabular figures.
 - **Bottom navigation:** surface background, 1 px line on top, icon plus a 14 px label for each item. Active: indigo, weight 700. Inactive: ink-muted.
 - **Icons:** inline stroke SVG, stroke 2 to 2.2, round caps. Never emoji. If the repo already has an icon set, keep using it.
+
+## Logo
+
+Lemoha means "to notice" in Sesotho. The mark is a dot circled by hand: something a clinician noticed. The same ring is the "o" in the wordmark.
+
+- One colour only: indigo on light backgrounds, white on indigo. Never a level colour, never a gradient, never an effect.
+- Never add a red dot or badge to the mark: on a phone it reads as an unread notification.
+- The wordmark is lowercase "lemoha" in Hanken Grotesk 700, letter-spacing -0.025em, with the "o" replaced by the ring. Never set the name in another typeface.
+- At 32 px and below, use the small mark (the ring closes). Smallest size: 16 px.
+- Clear space around the mark or wordmark: at least half the mark's height.
+- Don't stretch, rotate, outline or recolour it, and don't put it on a busy background.
+- Files: the brand folders listed in HANDOVER.md.
 
 ## The map (Day 4)
 
@@ -175,7 +189,7 @@ With prefers-reduced-motion: nothing moves. Things appear in their final state.
 
 - Sentence case, plain verbs.
 - A button says what happens: "Save card", "Seeing this too", "Open signal". The same action keeps the same name throughout.
-- Errors say what happened and what to do next, in Fola's voice. They don't apologise and they're never vague.
+- Errors say what happened and what to do next, in Lemoha's voice. They don't apologise and they're never vague.
 - "Signal", never "outbreak". No medical advice: only the fixed text that points to official hotlines.
 - No invented placeholder text in shipped screens.
 

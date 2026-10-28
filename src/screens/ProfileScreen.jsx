@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { signOut } from "firebase/auth";
 import Message from "../components/Message";
+import Wordmark from "../components/Wordmark";
 import { PRODUCT_NAME } from "../config/product";
 import { FACILITY_TYPES, ROLES } from "../config/profileOptions";
 import { auth } from "../lib/firebase";
@@ -52,7 +53,7 @@ export default function ProfileScreen({ user, profile, firstTime = false }) {
 
   return (
     <Wrapper className={firstTime ? "auth" : "screen"}>
-      {firstTime && <p className="wordmark">{PRODUCT_NAME}</p>}
+      {firstTime && <p className="auth-wordmark"><Wordmark size="large" /></p>}
       <h1>{firstTime ? "Set up your profile" : "Profile"}</h1>
       <p className="lead">
         {firstTime

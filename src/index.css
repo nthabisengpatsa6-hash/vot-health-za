@@ -107,12 +107,35 @@ textarea {
   font-weight: 600;
 }
 
+/* The wordmark (docs/DESIGN.md, Logo): lowercase, Hanken Grotesk 700, with
+   the ring as its "o". The ring's box size and shift are the mock-up's,
+   which line it up with the letters. One colour only: indigo, or white on
+   indigo. */
 .wordmark {
-  margin: 0;
-  font: var(--type-title);
-  font-weight: 800;
-  letter-spacing: var(--tracking-title);
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--wordmark-header);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: var(--tracking-wordmark);
   color: var(--color-indigo);
+  white-space: nowrap;
+}
+
+.wordmark.is-large {
+  font-size: var(--wordmark-large);
+}
+
+.wordmark.is-white {
+  color: var(--color-white);
+}
+
+.wordmark-o {
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin: 0 1px;
+  vertical-align: -0.083em;
 }
 
 .lead {
@@ -280,6 +303,31 @@ textarea {
   -webkit-mask: var(--icon-chevron) center / contain no-repeat;
   mask: var(--icon-chevron) center / contain no-repeat;
   pointer-events: none;
+}
+
+/* A closed select can't wrap, so a dropdown with long labels shows the
+   chosen label as text that wraps (the box grows taller), and the real
+   select lies invisibly over the whole box: a tap anywhere opens the phone's
+   own list, and screen readers meet a plain select. */
+.select-face {
+  display: flex;
+  align-items: center;
+}
+
+.select-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:focus-within .select-face {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
 }
 
 .password-row {
@@ -556,11 +604,17 @@ textarea {
   margin-bottom: var(--space-6);
 }
 
+/* Clear space under the wordmark: at least half the ring's height. */
 .auth-brand .lead {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-4) 0 0;
 }
 
-.auth > .wordmark {
+.auth-wordmark {
+  margin: 0;
+  line-height: 1;
+}
+
+.auth > .auth-wordmark {
   margin-bottom: var(--space-4);
 }
 
@@ -626,14 +680,11 @@ textarea {
   border-bottom: 1px solid var(--color-line);
 }
 
-.app-header .wordmark {
+.header-wordmark {
   display: inline-flex;
   align-items: center;
   min-width: var(--tap-min);
   min-height: var(--tap-min);
-  font: var(--type-section);
-  font-weight: 800;
-  letter-spacing: var(--tracking-title);
   text-decoration: none;
 }
 

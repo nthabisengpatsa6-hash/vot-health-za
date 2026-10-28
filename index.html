@@ -2,11 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- The PNG is the fallback for browsers that can't show an SVG icon. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#F6F7FB" />
-    <!-- The product name is set from src/config/product.js when the app starts. -->
-    <title>vot-health-za</title>
+    <!-- Keep this title (and the names in public/manifest.webmanifest) the
+         same as PRODUCT_NAME in src/config/product.js; test/unit/brand.test.js
+         checks. -->
+    <title>Lemoha</title>
   </head>
   <body>
     <div id="root"></div>
