@@ -1,6 +1,6 @@
-const {initializeApp, getApps} = require("firebase-admin/app");
-const {FieldValue, getFirestore} = require("firebase-admin/firestore");
+const {FieldValue} = require("firebase-admin/firestore");
 const {DAILY_NOTE_LIMIT} = require("../constants");
+const {defaultDb} = require("./admin");
 
 const SAST_OFFSET_MS = 2 * 60 * 60 * 1000;
 
@@ -16,13 +16,6 @@ function nextUsage(current, today, limit) {
   const used = current && current.day === today ? current.count : 0;
   if (used >= limit) return null;
   return {day: today, count: used + 1};
-}
-
-// Opened on first use, so tests that only load index.js never start the
-// Admin SDK.
-function defaultDb() {
-  if (getApps().length === 0) initializeApp();
-  return getFirestore();
 }
 
 // Counts one note against the caller's daily limit. A transaction, so two
