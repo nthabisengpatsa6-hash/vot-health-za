@@ -1,11 +1,11 @@
 # HANDOVER
 
-**Last updated:** 2026-10-27 18:12 SAST
+**Last updated:** 2026-10-28 05:00 SAST
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Nothing from Tasks 6 and 7 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: a separate deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Nothing from Tasks 6 to 8 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 9, the deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
 
 ## Done
 
@@ -139,6 +139,30 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
   - no unexpected console errors (the one expected error is the check's own fetch of the revoked link)
 - iPhone Safari itself wasn't tested (there's no Safari on Windows); it's in the deploy task.
 
+### Day 2 work — Task 8: design system, the Shweshwe direction (done Wed 28 Oct; nothing deployed)
+- docs/DESIGN.md: the design direction Nthabiseng chose on 27 Oct, word for word, with six amendments she approved: --color-white in the colour table; case card fields restyled in place (every field keeps its own control; tap-to-change is parked); options that don't fit in one row at 360 px stack in the same style; an "Inputs and dropdowns" bullet; the two privacy lines; the processing line ("This usually takes under a minute. Please keep this screen open.").
+- src/styles/tokens.css: every colour, font, type role, space, radius, shadow, size and motion time from DESIGN.md as CSS custom properties on :root. It's the only file with colour values. Text sizes are in rem (1rem = 16 px), so they match DESIGN.md at the default text size and follow a phone's larger-text setting. Body text is now 16 px (was 17) and the side gutter 20 px (was 16).
+- Fonts, self-hosted with Fontsource (src/styles/fonts.css), so nothing is fetched from Google: Hanken Grotesk for everything Fola says, Source Serif 4 for the clinician's own words (symptoms, "What is unusual?", exposure and supplies words, the transcript, the area they said, the words in the NMC reminder). Only the latin and latin-ext files, weight axis, normal style, font-display swap. Packages @fontsource-variable/hanken-grotesk 5.3.0 and @fontsource-variable/source-serif-4 5.3.1, pinned exactly (OFL-1.1, now allowed for fonts in PROJECT_CONTEXT). Hanken Grotesk's figures are tabular by default.
+- src/index.css rewritten on the tokens; the teal palette and system fonts are gone. Every screen restyled: sign-in (Google, email, create account, reset, errors), the first-time profile and Profile screen, the header and bottom navigation, the placeholders, and the whole Report flow.
+- New pieces: Message (the wash block with an icon for every information and error message; never red), Waveform, VoiceNoteRow, eight more line icons, and the level badge with the shweshwe print (Watch: indigo with a dashed ochre border; Signal: orange with the sparse print; Alert: crimson with the dense print), each with its word.
+- Report screen:
+  - The record button is an 88 px indigo circle with its label under it (still one button), the timer above it, and a 3 px ring that pulses while recording.
+  - The review screen's browser audio player is replaced by DESIGN.md's voice note row: a play/pause button, waveform bars drawn from the recording's real loudness (wavePeaks in src/lib/wav.js, 32 bars, RMS), and the length. The audio still stays in memory only; the loudness values are only drawn, never saved or sent. Once the cards arrive the playback link is revoked as before, and card review shows the waveform and length as a still summary with no play button.
+  - Processing shows the rising and falling waveform (no spinner), the wait line and the stages. All three stages are real events: Listening is the finished recording, Reading starts when the note is sent, Building the card comes from processNote's own message; none runs on a timer.
+  - Card review: unsure fields are wash question blocks in their place ("Please check" becomes "Answered"); single answers are segmented controls (Compared with usual and Age group stacked); the case card's parts fade in and rise 6 px in reading order.
+  - Privacy lines (lock icon, 14 px, centred): under the record button (also while recording) and under Send, "Leave out patients' names. Fola doesn't keep the recording."; under the save button, "Check there are no names, then save. Fola doesn't keep the recording." The product name comes from src/config/product.js.
+- Motion: only the processing waveform, the card arriving, the recording ring and 120 ms state changes; with prefers-reduced-motion nothing moves.
+- Copy changes (approved): "This card isn't right" is now "Remove this card"; the disabled save button says "Answer N more to save", or "No cards to save" when every card is removed (the "N more answers needed" line stays as a screen-reader announcement while the button says it); the sign-in fallback error is now "Sign-in didn't work. Check your connection, then try again."
+- Also: theme-color #F6F7FB (the ground) and the favicon in indigo, the only colours outside tokens.css; a long email on the Profile screen now wraps instead of running off the screen; focus scrolls clear of the sticky header and the bottom navigation (scroll-padding).
+- CLAUDE.md and AGENTS.md gained rule 13 (every screen follows docs/DESIGN.md). README.md has a Fonts credit.
+- Tests: test/unit/design-tokens.test.js checks that tokens.css has exactly DESIGN.md's colours, that every contrast pair DESIGN.md lists is at least 4.5:1 (lowest today 6.05:1), that no colour appears in src/ outside tokens.css, that only index.html's theme colour and the favicon have colours outside src/ (both token values), and that no font family is named outside the tokens. Two new wav.js tests for the waveform. Web unit tests: 27.
+- Checked in headless Edge against the emulators in practice mode (fake microphone, a speech-like test tone), on every screen and state: sign-in and its errors, reset, create account, the first-time profile and its error, the Report screen idle, the three microphone messages, too short, recording, the last ten seconds, review and playback, a failed send and Try again, both processing stages, all five practice results (area heard with single source, two cards with Remove, Undo and "No cards to save", advice with both tel: links, the NMC reminder, not a report), answered cards, a save error (a deny rule loaded into the local emulator's memory for a moment, then firestore.rules again), "Still saving" (Firestore traffic blocked, then let through), saved, the daily limit, Profile and saved, Today, Near me, Signal detail, Replay, and the profile load error.
+  - 360 × 740 with reduced motion throughout: 351 of 351 checks; 390 × 844: 316 of 316; 390 × 844 with reduced motion from the first frame (recording, processing, the card arriving): 22 of 22. No sideways scrolling, every tap target at least 44 px, smallest text 14 px, every computed font Hanken Grotesk or (only for the clinician's words) Source Serif 4, and both drawn from the web fonts (no system font). With reduced motion nothing moves and the card's parts are in their final state at once.
+  - The saved Firestore documents (5 cards in each pass) each have exactly the 18 fields.
+  - 360 × 740 with the text at 125% (root 20 px): nothing overlaps or scrolls sideways. What wraps: the practice pill, both privacy lines, the hotline names, the local test strip, "Last 3 days" when chosen, and the long role and observation options. What's cut off: the closed symptom-group dropdown (see Known issues).
+  - The only console errors were the deliberate "disconnected" ones from the blocked requests.
+  - `npm run test:rules` afterwards: 88 of 88, so the rules swap left nothing behind.
+
 ## Official hotlines (checked 27 Oct 2026, on each organisation's own pages)
 Shown, with tap-to-call links, when a note asks about treatment (src/config/hotlines.js).
 - NICD: 0800 212 552, "a 24-hour service for healthcare professionals only". Source: NICD, situational update on the Ebola disease outbreak caused by Bundibugyo virus, 29 June 2026, https://www.nicd.ac.za/situational-update-on-the-ebola-disease-outbreak-caused-by-bundibugyo-virus/ (several other 2025–2026 NICD pages give the same number; older NICD pages give other numbers).
@@ -240,7 +264,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 
 ## Next steps (in order)
 1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. A separate deploy task, each deploy its own STOP:
+2. Task 9: the deploy task, each deploy its own STOP:
    - Functions: checkMetaConnection gets its sign-in check live; processNote with the daily limit and maxInstances 5.
      - Decide processNote's memory and concurrency first. Each note holds about 30 MB in memory (the base64 upload, the decoded WAV and the Spark ear's base64 copy). A 2nd-gen function defaults to 256 MiB and up to 80 requests at once per instance, so a busy instance could run out of memory. Options: concurrency 10 at 256 MiB, or 512 MiB.
    - The Firestore rules (users and cards).
@@ -293,6 +317,12 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 27 Oct — Progress stages come from processNote itself (one streamed message when the transcripts are in), not from timers. Why: the stages must be honest, and Firebase callables can stream with no new library.
 - 27 Oct — MediaRecorder gets no format; each browser records in its own default. Why: a browser can always decode its own default, while a chosen format can be one the browser lists but can't decode.
 - 27 Oct — Hotline numbers come only from the organisations' own pages, and hours aren't shown because the official pages disagree on them.
+- 27 Oct — Visual direction: "Shweshwe" (Nthabiseng's choice). docs/DESIGN.md is the single source of truth for all UI; every colour goes through src/styles/tokens.css. Why: a look that is distinctive and crafted, from here, and never reads like a generic AI-built app.
+- 28 Oct — The case card is restyled in place: every field keeps its own control. Tap-to-change fields (DESIGN.md's first idea) are parked, with no task for them. Why: tap-to-change changes how editing works, and Task 8 was presentation only.
+- 28 Oct — Privacy lines promise only what the app does: "Leave out patients' names. Fola doesn't keep the recording." and "Check there are no names, then save. Fola doesn't keep the recording." Why: "The recording is deleted" went too far (the audio goes to Meta's API, and on the free credits Meta may keep content), and so did "Names are removed" (the model can miss a name).
+- 28 Oct — The voice note row replaces the browser's audio player, with bars from the recording's real loudness. Why: the native player is a default look that can't be styled. The loudness values are only drawn, never saved or sent.
+- 28 Oct — DESIGN.md's motion rules win over Task 8's "no other animation" line: the recording ring pulses and state changes take 120 ms, both off with reduced motion.
+- 28 Oct — Fonts self-hosted with Fontsource, latin and latin-ext only, pinned exactly; OFL-1.1 is allowed for fonts only. Why: nothing is fetched from Google at runtime (speed on mobile data, and the privacy story), and latin-ext covers letters used in some South African languages.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Product name (before the video is recorded).
@@ -306,6 +336,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - AGENTS.md — the same rules for any other coding agent (Codex reads it automatically). Keep the two files in step.
 - HANDOVER.md — current state of the build (this file).
 - docs/PROJECT_CONTEXT.md — the brief and the decisions.
+- docs/DESIGN.md — the Shweshwe design direction: colours, type, spacing, components, motion, copy and accessibility rules. Every screen follows it.
 - README.md — public project summary.
 - index.html — the page shell Vite builds from (the tab title is set from src/config/product.js when the app starts).
 - vite.config.js — Vite settings (React plugin only).
@@ -316,10 +347,12 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Not deployed.
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
-- public/favicon.svg — the browser-tab icon (three rising bars on teal).
+- public/favicon.svg — the browser-tab icon (three rising bars on indigo).
 - src/main.jsx — starts the React app inside the router and sets the tab title.
 - src/App.jsx — chooses what to show (loading, sign-in, first-time profile, or the app) and holds the routes and the placeholders' text.
-- src/index.css — the app's only stylesheet: colours, sizes, layout, forms, navigation, level badges.
+- src/index.css — the app's stylesheet: layout, forms, navigation, level badges, motion. It uses only the tokens; no colour is written in it.
+- src/styles/tokens.css — the design tokens from docs/DESIGN.md; the only file with colour values.
+- src/styles/fonts.css — the self-hosted fonts (Hanken Grotesk and Source Serif 4, latin and latin-ext).
 - src/config/product.js — PRODUCT_NAME, the only place the product name is set.
 - src/config/profileOptions.js — the role and facility-type lists (stored value and label).
 - src/config/cardOptions.js — the case card lists (stored value and label) and the text limits; mirrors functions/lib/cardSchema.js.
@@ -327,7 +360,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - src/lib/firebase.js — Firebase web config; Auth, Firestore and Functions (africa-south1); on localhost, the emulators under demo-fola.
 - src/lib/api.js — callFunction(name, data) and streamFunction(name, data, onProgress): call a callable function with a 310 s timeout; streamFunction also passes on progress messages.
 - src/lib/recorder.js — the microphone and MediaRecorder, with the 90 s limit and plain error kinds.
-- src/lib/wav.js — decode and resample a recording to 24 kHz mono, the WAV encoder and base64.
+- src/lib/wav.js — decode and resample a recording to 24 kHz mono, the WAV encoder, base64, and the waveform's bar heights.
 - src/lib/cardDraft.js — a card while it's being checked (unsure fields empty), what still needs answering, and the exact document that's saved.
 - src/lib/cards.js — saveCards: one cards/{cardId} document per card, in one batch.
 - src/lib/authErrors.js — plain-English messages for sign-in errors.
@@ -338,8 +371,11 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - src/components/RecordButton.jsx — the hold-or-tap record button.
 - src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions.
 - src/components/NoteNotices.jsx — the transcript and the fixed notices under the cards (single source, advice and hotlines, NMC reminder).
-- src/components/LevelBadge.jsx — the Watch, Signal and Alert badges and their key.
-- src/components/Icons.jsx — the five line icons (drawn for this app).
+- src/components/LevelBadge.jsx — the Watch, Signal and Alert badges (40 px swatch with the print, and the word) and their key.
+- src/components/Icons.jsx — the line icons (drawn for this app).
+- src/components/Message.jsx — an information or error message: a wash block with an icon.
+- src/components/Waveform.jsx — waveform bars: a still picture of a note, or the processing waveform.
+- src/components/VoiceNoteRow.jsx — the recorded note: play button, waveform and length (a still summary once the audio is dropped).
 - src/screens/SignInScreen.jsx — Google, email sign-in, create account, password reset.
 - src/screens/ProfileScreen.jsx — the first-time set-up and the Profile screen.
 - src/screens/PlaceholderScreen.jsx — "Arrives on Day N" for screens not built yet.
@@ -348,6 +384,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - test/unit/wav.test.js — unit tests for the WAV encoder, checked against the server's own WAV check.
 - test/unit/card-options.test.js — checks the card screen's lists match functions/lib/cardSchema.js.
 - test/unit/cards.test.js — unit tests for card drafts and the saved document, using the practice results.
+- test/unit/design-tokens.test.js — tokens match docs/DESIGN.md, every listed contrast pair is at least 4.5:1, and no colour or font name is written outside the tokens.
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
 - test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
@@ -393,7 +430,7 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 **Run the app locally with the emulators (nothing touches the live project)**
 Use two PowerShell windows, both in the repo folder.
 1. Window 1: `npm run emulators`. This starts local copies of Auth (9099), Firestore (8080) and Functions (5001) under the made-up project ID demo-fola. Wait for "All emulators ready", then leave it running. Ctrl+C stops it, and that wipes every test account and profile.
-2. Window 2: `npm run dev`. This starts the web app with live reload. Open http://localhost:5173. The dark strip at the top, "Local test mode: emulators, nothing is live", confirms the app is using the emulators.
+2. Window 2: `npm run dev`. This starts the web app with live reload. Open http://localhost:5173. The indigo strip at the top, "Local test mode: emulators, nothing is live", confirms the app is using the emulators.
 3. Optional: the Emulator UI at http://127.0.0.1:4000 shows the test accounts (Authentication tab) and saved profiles and cards (Firestore tab, collections "users", "cards" and "noteUsage").
 
 Trying the Report screen locally (practice mode):
@@ -415,7 +452,7 @@ Other local commands:
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 20 web unit tests (sign-in error messages, the WAV encoder, card lists, card drafts and the saved document).
+- `npm test` — runs the 27 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the saved document, and the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens).
 - `npm --prefix functions test` — runs the 61 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit), all with fakes and no network calls.
 - `npm run test:rules` — runs the 88 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
@@ -444,6 +481,10 @@ Other local commands:
 - `firebase deploy --only firestore:rules` — publishes the Firestore security rules.
 
 ## Known issues
+- A closed dropdown can't wrap, so the longest symptom-group labels are cut off with "…" in the case card's Symptom group box (the open list shows them in full). At normal text size: "Fever with a stiff neck or confusion" and "Sudden illness after eating or drinking" at 360 px, the second one also at 390 px; at 125% text, also "Red eyes or itchy skin rash" and the "Choose a symptom group" prompt at 360 px. It was the same before Task 8. Options for Nthabiseng: shorter labels (copy only; the stored values stay), or a stacked list like the roles.
+- The case card's arrival motion plays again when a removed card is brought back with Undo.
+- Source Serif 4 is loaded at its default optical size (14), to keep the files small; the clinician's words are set at 20 px.
+- Starting the emulators from a terminal opened before Java was installed fails with "Could not spawn java -version"; stopping `npm run emulators` from a tool can leave its Java and Node processes holding ports 8080, 9099 and 5001 until they're ended.
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the repo history, which becomes public on Day 8. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
 - Nothing from Tasks 6 and 7 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
 - iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
@@ -452,7 +493,7 @@ Other local commands:
 - The browser check and the break-the-rule check are local scripts, not part of the repo (they need a local test recording and Edge). Re-running them means rewriting them; HANDOVER lists what they checked.
 - Practice mode's turn is held in the Functions emulator's memory, so it starts again at the first result whenever the emulator restarts or reloads the code.
 - firestore.rules keeps its own copies of the role, facility-type and area lists, because rules can't import files. Changing src/config/profileOptions.js or functions/data/places.json means changing firestore.rules too; `npm run test:rules` fails until they match.
-- The web app ships as one JavaScript file of about 870 kB (267 kB compressed), mostly the Firebase libraries. Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
+- The web app ships as one JavaScript file of about 876 kB (269 kB compressed), mostly the Firebase libraries, plus 25 kB of CSS and four font files (147 kB in all; an English-only screen downloads the two latin files, about 86 kB). Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
 - Anyone can create an account and choose any role: there's no email verification, and checking clinicians against the SANC and HPCSA registers is out of scope.
 - Hosting has no automatic build before deploy: run `npm run build` first or the deploy sends a stale or missing dist/.
 - Voice Transcribe can silently drop non-English speech. In Task 2, a Sesotho closing phrase appeared in only 2 of 9 calls. Consequence for the design: missing card fields are always asked, and the Report screen tells the clinician to check the transcript.
@@ -468,6 +509,7 @@ Other local commands:
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-28 — Task 8: the Shweshwe design system. docs/DESIGN.md (with six approved amendments), design tokens in src/styles/tokens.css, self-hosted Hanken Grotesk and Source Serif 4 (Fontsource, latin and latin-ext, pinned), every screen restyled with no change to behaviour, data or rules; voice note row with a real-loudness waveform; privacy lines; three copy changes; rule 13 in CLAUDE.md and AGENTS.md; design-token and contrast tests (27 web unit tests). Checked in Edge at 360 and 390 px, with reduced motion and at 125% text. Nothing deployed; deploy moves to Task 9.
 - 2026-10-27 — Docs: the repo is private until Day 8 (Tue 3 Nov), then made public, and is treated as public now; Day 8 step added to make it public and check it from a logged-out browser; Tasks 6 and 7 marked done.
 - 2026-10-27 — Task 7: the Report screen end to end (hold-or-tap recording, 24 kHz WAV in the browser, playback, streamed progress stages, the card screen with unsure fields empty and highlighted, fixed advice/NMC/single-source/not-a-report notices, saving to cards/{cardId}); cards rules with 60 emulator tests and a break-the-rule check; processNote's daily limit (40 per SAST day), maxInstances 5 and emulator-only practice mode with 5 made-up results; official hotline numbers checked. Nothing deployed.
 - 2026-10-27 — Task 6: sign-in (Google, email and password), a one-time profile at users/{uid}, the mobile layout with all five routes (placeholders except Profile), the emulators under demo-fola, src/lib/api.js, Firestore rules for users/{uid} with 28 emulator tests (not deployed), and a sign-in check in checkMetaConnection (not deployed). The Vite starter files are deleted; Java 21 is installed.

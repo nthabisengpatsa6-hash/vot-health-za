@@ -2,9 +2,9 @@ import { AGE_GROUPS, CASE_COUNT_MAX, COMPARED_WITH_USUAL, EXPOSURE_TYPES, OBSERV
 import { fieldsToFix, isFilled } from "../lib/cardDraft";
 import { AREA_NAMES, TOWN } from "../lib/places";
 
-// One case card for the clinician to check. Every field can be changed.
-// Fields the AI was unsure of are highlighted, with the card's question
-// above them, until they're answered.
+// One case card for the clinician to check. Every field can be changed where
+// it stands. Fields the AI was unsure of are question blocks, with the card's
+// question above them and a "Please check" tag that becomes "Answered".
 export default function CaseCardForm({ draft, number, total, onChange }) {
   const prefix = `card-${number}`;
   const unsure = new Set(draft.unsureFields);
@@ -30,7 +30,7 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
     const labelId = `${prefix}-${name}-label`;
     const questionId = `${prefix}-${name}-question`;
     let className = "card-field";
-    if (isUnsure) className += answered ? " card-field-unsure is-answered" : " card-field-unsure";
+    if (isUnsure) className += answered ? " is-unsure is-answered" : " is-unsure";
     return (
       <div className={className} role="group" aria-labelledby={isUnsure ? `${labelId} ${questionId}` : labelId}>
         {isUnsure && (
@@ -48,25 +48,28 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
 
   const showDescription = draft.symptomGroup === "something_unusual" || unsure.has("unusualDescription");
   const count = draft.caseCount;
-  const areaQuestion = draft.areaHeard ? `You said ‘${draft.areaHeard}’. Which area is it?` : undefined;
+  // What was heard is the clinician's own words, so it's set in their serif.
+  const areaQuestion = draft.areaHeard ? <>You said ‘<span className="voice-inline">{draft.areaHeard}</span>’. Which area is it?</> : undefined;
 
   return (
     <section className="panel case-card" aria-labelledby={`${prefix}-title`}>
       <h2 id={`${prefix}-title`}>{title}</h2>
 
       {field("symptomGroup", "Symptom group", ({ labelId, describedBy }) => (
-        <select className="input" value={draft.symptomGroup} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ symptomGroup: e.target.value })}>
-          <option value="" disabled>Choose a symptom group</option>
-          {SYMPTOM_GROUPS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-        </select>
+        <span className="select">
+          <select className="input" value={draft.symptomGroup} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ symptomGroup: e.target.value })}>
+            <option value="" disabled>Choose a symptom group</option>
+            {SYMPTOM_GROUPS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+        </span>
       ))}
 
       {showDescription && field("unusualDescription", "What is unusual?", ({ labelId, describedBy }) => (
-        <textarea className="input textarea" rows={3} maxLength={TEXT_LIMITS.unusualDescription} value={draft.unusualDescription} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ unusualDescription: e.target.value })} />
+        <textarea className="input textarea voice" rows={3} maxLength={TEXT_LIMITS.unusualDescription} value={draft.unusualDescription} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ unusualDescription: e.target.value })} />
       ))}
 
       {field("symptomsInWords", "Symptoms, in your words", ({ labelId, describedBy }) => (
-        <textarea className="input textarea" rows={2} maxLength={TEXT_LIMITS.symptomsInWords} value={draft.symptomsInWords} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ symptomsInWords: e.target.value })} />
+        <textarea className="input textarea voice" rows={2} maxLength={TEXT_LIMITS.symptomsInWords} value={draft.symptomsInWords} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ symptomsInWords: e.target.value })} />
       ))}
 
       {field("caseCount", "Number of cases", ({ labelId, describedBy }) => (
@@ -81,18 +84,20 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
       ))}
 
       {field("comparedWithUsual", "Compared with usual", () => (
-        <ChoiceButtons options={COMPARED_WITH_USUAL} value={draft.comparedWithUsual} onChoose={(value) => set({ comparedWithUsual: value })} />
+        <ChoiceButtons options={COMPARED_WITH_USUAL} value={draft.comparedWithUsual} stacked onChoose={(value) => set({ comparedWithUsual: value })} />
       ))}
 
       {field("ageGroup", "Age group", () => (
-        <ChoiceButtons options={AGE_GROUPS} value={draft.ageGroup} onChoose={(value) => set({ ageGroup: value })} />
+        <ChoiceButtons options={AGE_GROUPS} value={draft.ageGroup} stacked onChoose={(value) => set({ ageGroup: value })} />
       ))}
 
       {field("area", `Area in ${TOWN}`, ({ labelId, describedBy }) => (
-        <select className="input" value={draft.area ?? ""} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ area: e.target.value })}>
-          <option value="" disabled>Choose the area</option>
-          {AREA_NAMES.map((name) => <option key={name} value={name}>{name}</option>)}
-        </select>
+        <span className="select">
+          <select className="input" value={draft.area ?? ""} aria-labelledby={labelId} aria-describedby={describedBy} onChange={(e) => set({ area: e.target.value })}>
+            <option value="" disabled>Choose the area</option>
+            {AREA_NAMES.map((name) => <option key={name} value={name}>{name}</option>)}
+          </select>
+        </span>
       ), { question: unsure.has("area") ? areaQuestion : undefined })}
 
       {field("onset", "When it started", () => (
@@ -111,7 +116,7 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
           </div>
           <label className="sub-field">
             <span className="sub-label">In your words</span>
-            <input className="input" type="text" maxLength={TEXT_LIMITS.exposureWords} value={draft.exposure.words} aria-describedby={labelId} onChange={(e) => set({ exposure: { ...draft.exposure, words: e.target.value } })} />
+            <input className="input voice" type="text" maxLength={TEXT_LIMITS.exposureWords} value={draft.exposure.words} aria-describedby={labelId} onChange={(e) => set({ exposure: { ...draft.exposure, words: e.target.value } })} />
           </label>
         </>
       ))}
@@ -135,13 +140,13 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
           {draft.observations.shortOfSupplies && (
             <label className="sub-field">
               <span className="sub-label">What is running short?</span>
-              <input className="input" type="text" maxLength={TEXT_LIMITS.suppliesNote} value={draft.observations.suppliesNote} onChange={(e) => set({ observations: { ...draft.observations, suppliesNote: e.target.value } })} />
+              <input className="input voice" type="text" maxLength={TEXT_LIMITS.suppliesNote} value={draft.observations.suppliesNote} onChange={(e) => set({ observations: { ...draft.observations, suppliesNote: e.target.value } })} />
             </label>
           )}
         </>
       ))}
 
-      <button type="button" className="text-button" onClick={() => set({ removed: true })}>This card isn't right</button>
+      <button type="button" className="text-button" onClick={() => set({ removed: true })}>Remove this card</button>
     </section>
   );
 }
@@ -155,13 +160,15 @@ function noFlags() {
   return Object.fromEntries(OBSERVATIONS.map((option) => [option.value, false]));
 }
 
-// One-tap answers. aria-pressed marks the chosen one for screen readers, and
-// the styles use it too, so the choice isn't shown by colour alone.
-function ChoiceButtons({ options, value, onChoose }) {
+// One-tap answers as a segmented control. aria-pressed marks the chosen one
+// for screen readers, and the styles use it too (filled, with a check), so the
+// choice isn't shown by colour alone. Options too long for one row at 360 px
+// are stacked.
+function ChoiceButtons({ options, value, onChoose, stacked = false }) {
   return (
-    <div className="choice-buttons">
+    <div className={stacked ? "segmented is-stacked" : "segmented"}>
       {options.map((option) => (
-        <button key={option.value} type="button" className="choice-button" aria-pressed={value === option.value} onClick={() => onChoose(option.value)}>{option.label}</button>
+        <button key={option.value} type="button" aria-pressed={value === option.value} onClick={() => onChoose(option.value)}>{option.label}</button>
       ))}
     </div>
   );

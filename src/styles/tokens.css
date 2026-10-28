@@ -1,0 +1,107 @@
+/* Design tokens: the Shweshwe direction (docs/DESIGN.md). Every colour,
+   font, size, space, radius and shadow in the app comes from here, so this is
+   the only file with colour values in it (test/unit/design-tokens.test.js
+   checks that, and that the colours match DESIGN.md). Text sizes are in rem
+   (1rem = 16 px) so they match DESIGN.md at the default text size and still
+   follow a phone's larger-text setting. */
+
+:root {
+  /* Colour */
+  --color-indigo: #1C2A63;
+  --color-indigo-pressed: #14204F;
+  --color-indigo-map: #283A80;
+  --color-indigo-map-line: #5466AE;
+  --color-indigo-soft: #8E99C7;
+  --color-indigo-divider: #9AA4CF;
+  --color-indigo-disabled: #C9CEE3;
+  --color-wash: #E7EAF6;
+  --color-line: #DCE0EE;
+  --color-ground: #F6F7FB;
+  --color-surface: #FFFFFF;
+  --color-white: #FFFFFF;
+  --color-ink: #1A2040;
+  --color-ink-muted: #535A78;
+  --color-ink-muted-on-wash: #464C69;
+  --color-ink-disabled: #3D4466;
+  --color-map-label-muted: #C3CBEA;
+  --color-level-watch: #E8B53A;
+  --color-level-signal: #E0652B;
+  --color-level-alert: #B7202E;
+  --color-focus: #1C2A63;
+
+  /* Type: two voices. The clinician's own words are in the serif. */
+  --font-ui: 'Hanken Grotesk Variable', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-voice: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
+
+  --type-title: 700 1.875rem/2.25rem var(--font-ui);       /* 30/36 */
+  --tracking-title: -0.015em;
+  --type-section: 700 1.3125rem/1.6875rem var(--font-ui);  /* 21/27 */
+  --type-number: 800 2rem/2.25rem var(--font-ui);          /* 32/36, tabular */
+  --type-value: 700 1.1875rem/1.5rem var(--font-ui);       /* 19/24 */
+  --type-voice: 400 1.25rem/1.75rem var(--font-voice);     /* 20/28 */
+  --type-question: 700 1.0625rem/1.375rem var(--font-ui);  /* 17/22 */
+  --type-body: 400 1rem/1.375rem var(--font-ui);           /* 16/22 */
+  --type-button: 700 1.0625rem/1.375rem var(--font-ui);    /* 17, main actions */
+  --type-button-small: 700 1rem/1.375rem var(--font-ui);   /* 16, everything else */
+  --type-label: 400 0.875rem/1.25rem var(--font-ui);       /* 14/20, the smallest text */
+  --hanging-quote: -0.42em;
+
+  /* Space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --gutter: 20px;
+  --content-width: 640px;
+
+  /* Radius follows hierarchy */
+  --radius-sheet: 22px;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --radius-badge: 10px;
+  --radius-tag: 8px;
+  --radius-chip: 6px;
+  --radius-square: 2px;
+
+  /* Elevation: only the bottom sheet has a shadow. */
+  --shadow-sheet: 0 -6px 24px rgba(28, 42, 99, 0.18);
+
+  /* Sizes */
+  --tap-min: 44px;
+  --button-height: 54px;
+  --button-height-sheet: 50px;
+  --input-height: 50px;
+  --border-control: 1.5px;
+  --focus-width: 3px;
+  --focus-offset: 2px;
+  --record-size: 88px;
+  --record-ring: 3px;
+  --play-size: 44px;
+  --badge-size: 40px;
+  --wave-bar: 3px;
+  --wave-gap: 3px;
+  --header-height: 56px;
+  --tab-bar-height: 64px;
+
+  /* The daily chart (Day 6) */
+  --chart-square: 10px;
+  --chart-gap: 2px;
+
+  /* The map (Day 4) */
+  --map-area-line: 1.5px;
+  --map-watch-outline: 3px;
+  --map-watch-dash: 8 5;
+  --map-zone-line: 2.5px;
+  --map-zone-dash: 0.5 7;
+  --map-zone-opacity: 0.85;
+
+  /* Motion. All of it is switched off with prefers-reduced-motion. */
+  --motion-state: 120ms;
+  --motion-reveal: 180ms;
+  --motion-reveal-step: 60ms;
+  --motion-reveal-rise: 6px;
+  --motion-level: 300ms;
+}

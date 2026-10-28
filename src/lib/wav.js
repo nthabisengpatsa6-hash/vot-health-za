@@ -36,6 +36,24 @@ export function encodeWav(samples, sampleRate = WAV_SAMPLE_RATE) {
   return bytes;
 }
 
+// The recording's loudness as `count` bar heights from 0 to 1, for drawing
+// its waveform on screen: the RMS of each slice, scaled so the loudest bar is
+// 1. Only ever drawn: never saved or sent.
+export function wavePeaks(samples, count = 32) {
+  const bars = new Array(count).fill(0);
+  if (!samples || samples.length === 0) return bars;
+  const slice = samples.length / count;
+  for (let bar = 0; bar < count; bar += 1) {
+    const start = Math.floor(bar * slice);
+    const end = Math.max(start + 1, Math.min(samples.length, Math.floor((bar + 1) * slice)));
+    let sum = 0;
+    for (let i = start; i < end; i += 1) sum += samples[i] * samples[i];
+    bars[bar] = Math.sqrt(sum / (end - start));
+  }
+  const loudest = Math.max(...bars);
+  return loudest > 0 ? bars.map((value) => value / loudest) : bars;
+}
+
 // Base64 in slices: one String.fromCharCode call over a 4 MB recording would
 // overflow the call stack.
 export function bytesToBase64(bytes) {

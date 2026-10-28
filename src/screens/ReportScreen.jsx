@@ -1,13 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import CaseCardForm from "../components/CaseCardForm";
+import { LockIcon } from "../components/Icons";
+import Message from "../components/Message";
 import NoteNotices from "../components/NoteNotices";
 import RecordButton from "../components/RecordButton";
+import VoiceNoteRow from "../components/VoiceNoteRow";
+import Waveform from "../components/Waveform";
 import { PRODUCT_NAME } from "../config/product";
 import { streamFunction } from "../lib/api";
 import { draftFromCard, fieldsToFix } from "../lib/cardDraft";
 import { saveCards } from "../lib/cards";
 import { MAX_SECONDS, MicrophoneError, startRecording } from "../lib/recorder";
-import { bytesToBase64, encodeWav, recordingToSamples } from "../lib/wav";
+import { bytesToBase64, encodeWav, recordingToSamples, wavePeaks } from "../lib/wav";
+
+// The privacy line under the main action. It promises only what the app
+// does: the model can miss a name, so the clinician is asked to leave names
+// out and to check before saving.
+const PRIVACY_RECORDING = `Leave out patients' names. ${PRODUCT_NAME} doesn't keep the recording.`;
+const PRIVACY_SAVING = `Check there are no names, then save. ${PRODUCT_NAME} doesn't keep the recording.`;
 
 const MIN_SECONDS = 1;
 const WARN_SECONDS = MAX_SECONDS - 10;
@@ -151,7 +161,7 @@ export default function ReportScreen({ user, profile }) {
         dropAudio();
         wav.current = bytes;
         audioUrl.current = URL.createObjectURL(new Blob([bytes], { type: "audio/wav" }));
-        setReview({ url: audioUrl.current, seconds: result.seconds });
+        setReview({ url: audioUrl.current, seconds: result.seconds, peaks: wavePeaks(result.samples) });
         setPhase("review");
         return;
       }
@@ -180,7 +190,9 @@ export default function ReportScreen({ user, profile }) {
     }
     if (!live.current) return;
     dropAudio();
-    setReview(null);
+    // Card review keeps only a still picture of the note: its waveform and
+    // length, with no playback link.
+    setReview((current) => current && { seconds: current.seconds, peaks: current.peaks });
     setNote(reply);
     setDrafts(reply.cards.map(draftFromCard));
     setTranscript(reply.transcriptClean || "");
@@ -207,6 +219,7 @@ export default function ReportScreen({ user, profile }) {
     try {
       await saveCards({ drafts: drafts.filter((draft) => !draft.removed), note, transcript, profile, uid: user.uid });
       if (!live.current) return;
+      setReview(null);
       setNote(null);
       setDrafts([]);
       setTranscript("");
@@ -227,7 +240,7 @@ export default function ReportScreen({ user, profile }) {
     return (
       <section className="screen">
         <h1>Report</h1>
-        <p className="message message-error" role="alert">{sendError.text}</p>
+        <Message kind="error" role="alert">{sendError.text}</Message>
         {sendError.kind === "retry" && <button type="button" className="button button-primary" onClick={send}>Try again</button>}
         <button type="button" className="button button-secondary stacked" onClick={startOver}>{sendError.kind === "limit" ? "OK" : "Record again"}</button>
       </section>
@@ -238,7 +251,7 @@ export default function ReportScreen({ user, profile }) {
     return (
       <section className="screen">
         <h1>Report</h1>
-        <p className="message message-ok" role="status">Saved. Thank you.</p>
+        <Message kind="ok" role="status" centred>Saved. Thank you.</Message>
         <button type="button" className="button button-primary" onClick={startOver}>Record another</button>
       </section>
     );
@@ -249,18 +262,28 @@ export default function ReportScreen({ user, profile }) {
     const active = drafts.filter((draft) => !draft.removed);
     const needed = active.reduce((sum, draft) => sum + fieldsToFix(draft).length, 0);
     let status = "Everything is answered.";
-    if (active.length === 0) status = "Every card has been removed. Undo one, or record again.";
-    else if (needed > 0) status = `${needed} more ${needed === 1 ? "answer" : "answers"} needed before you can save.`;
+    let saveLabel = "Confirm and save";
+    if (active.length === 0) {
+      status = "Every card has been removed. Undo one, or record again.";
+      saveLabel = "No cards to save";
+    } else if (needed > 0) {
+      status = `${needed} more ${needed === 1 ? "answer" : "answers"} needed before you can save.`;
+      saveLabel = `Answer ${needed} more to save`;
+    }
+    // While the disabled button says what's missing, the same words are only
+    // announced to screen readers, so they don't show twice.
+    const statusOnButton = !saving && active.length > 0 && needed > 0;
 
     return (
       <section className="screen">
         <h1>Check your report</h1>
-        {note.practice && <p className="message message-practice">Practice result: made up, not from your recording.</p>}
+        {note.practice && <p className="pill">Practice result: made up, not from your recording.</p>}
+        {review && <VoiceNoteRow peaks={review.peaks} duration={formatTime(Math.round(review.seconds))} />}
         {!note.isReport && (
-          <div className="panel">
+          <Message kind="info">
             <p>This didn't sound like a report. Record again?</p>
             <button type="button" className="button button-primary" onClick={startOver}>Record again</button>
-          </div>
+          </Message>
         )}
         {note.isReport && (
           <fieldset className="plain-fieldset" disabled={saving}>
@@ -272,9 +295,10 @@ export default function ReportScreen({ user, profile }) {
         <NoteNotices note={note} transcript={transcript} onTranscriptChange={setTranscript} readOnly={!note.isReport || saving} />
         {note.isReport && (
           <div className="confirm-area">
-            {saveError && <p className="message message-error" role="alert">{saveError}</p>}
-            <p className="note" role="status">{saving && slowSave ? "Still saving. Waiting for a connection…" : status}</p>
-            <button type="button" className="button button-primary" disabled={saving || active.length === 0 || needed > 0} onClick={confirm}>{saving ? "Saving…" : "Confirm and save"}</button>
+            {saveError && <Message kind="error" role="alert">{saveError}</Message>}
+            <p className={statusOnButton ? "visually-hidden" : "note"} role="status">{saving && slowSave ? "Still saving. Waiting for a connection…" : status}</p>
+            <button type="button" className="button button-primary" disabled={saving || active.length === 0 || needed > 0} onClick={confirm}>{saving ? "Saving…" : saveLabel}</button>
+            <PrivacyLine text={PRIVACY_SAVING} />
             <button type="button" className="button button-secondary stacked" disabled={saving} onClick={startOver}>Record again</button>
           </div>
         )}
@@ -287,8 +311,9 @@ export default function ReportScreen({ user, profile }) {
       <section className="screen">
         <h1>Report</h1>
         <p className="lead">Your note: {formatTime(Math.round(review.seconds))}. Play it back if you like, then send it.</p>
-        <audio className="playback" controls controlsList="nodownload" src={review.url} />
+        <VoiceNoteRow url={review.url} peaks={review.peaks} duration={formatTime(Math.round(review.seconds))} />
         <button type="button" className="button button-primary" onClick={send}>Send</button>
+        <PrivacyLine text={PRIVACY_RECORDING} />
         <button type="button" className="button button-secondary stacked" onClick={startOver}>Record again</button>
       </section>
     );
@@ -300,29 +325,47 @@ export default function ReportScreen({ user, profile }) {
     <section className="screen">
       <h1>Report</h1>
       <p className="lead">Say what you're seeing: the symptoms, how many patients, their ages, the area and when it started. Don't say anyone's name.</p>
+      <p className="record-hint">{isRecording ? "Listening…" : "Hold while you speak, or tap to start and tap again to stop."}</p>
       <div className="recorder">
+        <p className="timer" role="timer" aria-live="off">{formatTime(isRecording ? elapsed : 0)}<span className="timer-limit"> / {formatTime(MAX_SECONDS)}</span></p>
         <RecordButton recording={isRecording} busy={phase === "starting" || phase === "preparing"} onStart={start} onStop={stop} />
-        <p className="record-hint">{isRecording ? "Listening…" : "Hold while you speak, or tap to start and tap again to stop."}</p>
-        <p className="timer" role="timer" aria-live="off">{formatTime(isRecording ? elapsed : 0)} / {formatTime(MAX_SECONDS)}</p>
-        {isRecording && elapsed >= WARN_SECONDS && <p className="message message-check" role="status">{Math.max(0, Math.ceil(MAX_SECONDS - elapsed))} seconds left</p>}
-        {phase === "preparing" && <p role="status">Preparing your note…</p>}
+        <PrivacyLine text={PRIVACY_RECORDING} />
       </div>
+      {/* Below the button, so nothing moves under a finger that's holding it. */}
+      {isRecording && elapsed >= WARN_SECONDS && <Message kind="info" role="status" centred>{Math.max(0, Math.ceil(MAX_SECONDS - elapsed))} seconds left</Message>}
+      {phase === "preparing" && <p className="status-line" role="status">Preparing your note…</p>}
       {help && (
-        <div className="message message-error" role="alert">
+        <Message kind="error" role="alert">
           <p>{help.text}</p>
           {help.steps && <ul className="help-steps">{help.steps.map((step) => <li key={step}>{step}</li>)}</ul>}
-        </div>
+          {micProblem !== "too-short" && micProblem !== "unreadable" && <button type="button" className="button button-secondary" onClick={start}>Try again</button>}
+        </Message>
       )}
-      {help && micProblem !== "too-short" && micProblem !== "unreadable" && <button type="button" className="button button-secondary" onClick={start}>Try again</button>}
     </section>
   );
 }
 
+function PrivacyLine({ text }) {
+  return (
+    <p className="privacy-line">
+      <LockIcon />
+      {text}
+    </p>
+  );
+}
+
+// No spinner: the waveform rises and falls while the note is processed. Each
+// stage is real: Listening is the finished recording, Reading starts when the
+// note is sent, and Building the card comes from processNote's own message.
 function SendingView({ stage }) {
   const current = STAGES.findIndex((item) => item.id === stage);
   return (
     <section className="screen">
       <h1>Report</h1>
+      <div className="processing">
+        <Waveform />
+        <p className="wait-line">This usually takes under a minute. Please keep this screen open.</p>
+      </div>
       <ol className="stages" aria-live="polite">
         {STAGES.map((item, index) => {
           let state = "is-waiting";
@@ -331,7 +374,6 @@ function SendingView({ stage }) {
           return <li key={item.id} className={state} aria-current={index === current ? "step" : undefined}>{item.label}</li>;
         })}
       </ol>
-      <p className="note">This usually takes under a minute. Please keep this screen open.</p>
     </section>
   );
 }

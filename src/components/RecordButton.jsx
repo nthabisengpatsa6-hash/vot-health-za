@@ -52,10 +52,13 @@ export default function RecordButton({ recording, busy, onStart, onStop }) {
   if (busy) label = "Starting…";
   else if (recording) label = holding ? "Let go to stop" : "Tap to stop";
 
+  // The circle and its label are one button, so the label stays its name.
   return (
     <button type="button" className={`record-button${recording ? " is-recording" : ""}`} onPointerDown={handlePointerDown} onPointerUp={handlePointerEnd} onPointerCancel={handlePointerEnd} onClick={handleClick} onContextMenu={(event) => event.preventDefault()}>
-      <MicIcon />
-      <span>{label}</span>
+      <span className="record-circle">
+        <MicIcon />
+      </span>
+      <span className="record-label">{label}</span>
     </button>
   );
 }

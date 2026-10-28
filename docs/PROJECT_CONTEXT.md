@@ -31,7 +31,7 @@
 - Private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Teams of up to 4; this is a solo build.
 - Must use Meta's models.
 - New work only. The demo may show only what was built during the hackathon, with new work clearly identified, or the project is disqualified. Don't copy code from any other project, including Nthabiseng's earlier products.
-- No code, data or assets we don't have the rights to. Check a dependency's licence before adding it (MIT, Apache-2.0, BSD and ISC are fine).
+- No code, data or assets we don't have the rights to. Check a dependency's licence before adding it (MIT, Apache-2.0, BSD and ISC are fine; OFL-1.1, for fonts only).
 - Coding tools such as Claude Code are allowed.
 
 **Banned project types ("anti-projects").** AI that gives medical advice; basic RAG; simple image analysers; simple AI education chatbots; job screeners; nutrition coaches; personality analysers; sports coaches; anything political or involving war. Fola must never drift toward medical advice or politics; hard rules 6 and 9 exist for this.

@@ -12,3 +12,4 @@
 10. Never use a model ID with "-contributor" in it: those let Meta train on our prompts and outputs.
 11. Never write transcript text, real names, keys, passwords or personal Windows folder paths into the repo.
 12. Keep CLAUDE.md and AGENTS.md in step: any rule change goes into both files.
+13. UI: every screen follows docs/DESIGN.md (the Shweshwe direction). Read it before any UI work. Use the tokens, never hard-coded colours. If a case isn't covered, follow its principles and flag it in your plan. Never fall back to default component-library looks.

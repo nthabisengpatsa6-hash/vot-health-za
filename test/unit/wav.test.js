@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { test } from "node:test";
-import { bytesToBase64, encodeWav, WAV_SAMPLE_RATE } from "../../src/lib/wav.js";
+import { bytesToBase64, encodeWav, WAV_SAMPLE_RATE, wavePeaks } from "../../src/lib/wav.js";
 
 // The server's own WAV check, so these tests prove the browser's WAV is one
 // processNote accepts.
@@ -62,4 +62,22 @@ test("base64 matches Node's, including for recordings bigger than one slice", ()
   for (const bytes of [new Uint8Array(0), Uint8Array.from([1, 2, 3, 250]), encodeWav(tone(3))]) {
     assert.equal(bytesToBase64(bytes), Buffer.from(bytes).toString("base64"));
   }
+});
+
+test("the waveform follows the recording's loudness, scaled so the loudest bar is 1", () => {
+  // One quiet second, then one loud second.
+  const samples = new Float32Array([...tone(1, WAV_SAMPLE_RATE, 0.1), ...tone(1, WAV_SAMPLE_RATE, 0.8)]);
+  const peaks = wavePeaks(samples, 8);
+  assert.equal(peaks.length, 8);
+  assert.ok(Math.max(...peaks) === 1);
+  for (const quiet of peaks.slice(0, 4)) assert.ok(Math.abs(quiet - 0.125) < 0.01, `${quiet}`);
+  for (const loud of peaks.slice(4)) assert.ok(Math.abs(loud - 1) < 0.01, `${loud}`);
+});
+
+test("silence, an empty recording and a very short one give bars without dividing by zero", () => {
+  assert.deepEqual(wavePeaks(new Float32Array(1000), 4), [0, 0, 0, 0]);
+  assert.deepEqual(wavePeaks(new Float32Array(0), 3), [0, 0, 0]);
+  const short = wavePeaks(Float32Array.from([0.5, -0.5]), 4);
+  assert.equal(short.length, 4);
+  assert.ok(short.every((value) => Number.isFinite(value) && value >= 0 && value <= 1));
 });

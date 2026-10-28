@@ -7,3 +7,7 @@ Built during the Meta Global AI Developer Hackathon. Building started 26 October
 ## Data
 
 No patient data is ever stored. The demo uses made-up data only.
+
+## Fonts
+
+Hanken Grotesk and Source Serif 4, both under the SIL Open Font License 1.1, self-hosted with Fontsource.

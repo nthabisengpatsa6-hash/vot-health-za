@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { signOut } from "firebase/auth";
+import Message from "../components/Message";
 import { PRODUCT_NAME } from "../config/product";
 import { FACILITY_TYPES, ROLES } from "../config/profileOptions";
 import { auth } from "../lib/firebase";
@@ -74,23 +75,27 @@ export default function ProfileScreen({ user, profile, firstTime = false }) {
 
         <label className="field">
           <span className="field-label">Where you work</span>
-          <select className="input" value={facilityType} onChange={(e) => { setFacilityType(e.target.value); clearStatus(); }}>
-            <option value="" disabled>Choose a facility type</option>
-            {FACILITY_TYPES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
+          <span className="select">
+            <select className="input" value={facilityType} onChange={(e) => { setFacilityType(e.target.value); clearStatus(); }}>
+              <option value="" disabled>Choose a facility type</option>
+              {FACILITY_TYPES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </span>
         </label>
 
         <label className="field">
           <span className="field-label">Your area in {TOWN}</span>
-          <select className="input" value={area} onChange={(e) => { setArea(e.target.value); clearStatus(); }}>
-            <option value="" disabled>Choose your area</option>
-            {AREA_NAMES.map((name) => <option key={name} value={name}>{name}</option>)}
-          </select>
+          <span className="select">
+            <select className="input" value={area} onChange={(e) => { setArea(e.target.value); clearStatus(); }}>
+              <option value="" disabled>Choose your area</option>
+              {AREA_NAMES.map((name) => <option key={name} value={name}>{name}</option>)}
+            </select>
+          </span>
           <span className="field-hint">Today and Near me show what's going around here.</span>
         </label>
 
-        {error && <p className="message message-error" role="alert">{error}</p>}
-        {saved && <p className="message message-ok" role="status">Saved.</p>}
+        {error && <Message kind="error" role="alert">{error}</Message>}
+        {saved && <Message kind="ok" role="status" centred>Saved.</Message>}
 
         <button type="submit" className="button button-primary" disabled={busy}>{busy ? "Saving…" : firstTime ? "Save and continue" : "Save changes"}</button>
       </form>

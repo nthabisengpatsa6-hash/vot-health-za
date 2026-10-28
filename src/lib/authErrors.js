@@ -34,7 +34,7 @@ const CANCELLED = new Set([
   "auth/user-cancelled",
 ]);
 
-export const GENERAL_MESSAGE = "Something went wrong. Please try again.";
+export const GENERAL_MESSAGE = "Sign-in didn't work. Check your connection, then try again.";
 
 // Returns the message to show, or null when there is nothing to show.
 export function authErrorMessage(error) {

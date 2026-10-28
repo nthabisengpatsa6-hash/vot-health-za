@@ -6,6 +6,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
+import Message from "../components/Message";
 import { PRODUCT_NAME } from "../config/product";
 import { authErrorMessage } from "../lib/authErrors";
 import { auth } from "../lib/firebase";
@@ -112,8 +113,8 @@ export default function SignInScreen() {
             </div>
           )}
 
-          {error && <p className="message message-error" role="alert">{error}</p>}
-          {notice && <p className="message message-ok" role="status">{notice}</p>}
+          {error && <Message kind="error" role="alert">{error}</Message>}
+          {notice && <Message kind="ok" role="status">{notice}</Message>}
 
           <button type="submit" className="button button-primary" disabled={busy}>{busy ? "Please wait…" : submitLabel}</button>
         </form>

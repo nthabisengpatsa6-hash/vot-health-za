@@ -3,6 +3,7 @@ import { signOut } from "firebase/auth";
 import { Link, Navigate, Route, Routes, useParams } from "react-router";
 import AppLayout from "./components/AppLayout";
 import { LevelKey } from "./components/LevelBadge";
+import Message from "./components/Message";
 import { PRODUCT_NAME } from "./config/product";
 import { auth, onLocalEmulators } from "./lib/firebase";
 import { useSession } from "./lib/useSession";
@@ -84,7 +85,7 @@ function ProfileErrorScreen() {
   return (
     <main className="center-screen">
       <p className="wordmark">{PRODUCT_NAME}</p>
-      <p role="alert">Your profile couldn't be loaded. Please try again.</p>
+      <Message kind="error" role="alert">Your profile couldn't be loaded. Please try again.</Message>
       <button type="button" className="button button-primary" onClick={() => window.location.reload()}>Try again</button>
       <button type="button" className="text-button" onClick={() => signOut(auth)}>Sign out</button>
     </main>
