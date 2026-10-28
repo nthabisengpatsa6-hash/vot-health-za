@@ -20,6 +20,7 @@ const {extractCard} = require("./lib/extractCard");
 const {listenWithTwoEars} = require("./lib/twoEars");
 const {PLACE_KEYWORDS} = require("./lib/cardSchema");
 const {nextPracticeResult, practiceModeOn} = require("./lib/practice");
+const {errorDetails} = require("./lib/errorLog");
 // Used as module objects so the tests can stand in for Firestore and the log.
 const noteLimit = require("./lib/noteLimit");
 const noteTiming = require("./lib/noteTiming");
@@ -47,7 +48,10 @@ exports.checkMetaConnection = onCall(
           headers: {Authorization: `Bearer ${metaApiKey.value()}`},
         });
       } catch (err) {
-        logger.error("Could not reach the Meta API", {message: err.message});
+        logger.error(
+            "Could not reach the Meta API",
+            errorDetails(err, {uid: request.auth.uid}),
+        );
         throw new HttpsError("unavailable", "Could not reach the Meta API.");
       }
 
@@ -123,7 +127,7 @@ async function takeDailyPlace(uid, timing) {
     usage = await noteLimit.reserveNote(uid);
   } catch (err) {
     timing.outcome = "counter_failed";
-    logger.error("Daily note counter failed", {message: err.message});
+    logger.error("Daily note counter failed", errorDetails(err, {uid}));
     throw new HttpsError(
         "unavailable",
         "The voice note couldn't be sent. Please try again.",
