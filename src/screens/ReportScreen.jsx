@@ -11,6 +11,7 @@ import { streamFunction } from "../lib/api";
 import { draftFromCard, fieldsToFix } from "../lib/cardDraft";
 import { saveCards } from "../lib/cards";
 import { MAX_SECONDS, MicrophoneError, startRecording } from "../lib/recorder";
+import { SHOW_TIMING, formatTiming } from "../lib/timing";
 import { bytesToBase64, encodeWav, recordingToSamples, wavePeaks } from "../lib/wav";
 
 // The privacy line under the main action. It promises only what the app
@@ -75,7 +76,7 @@ export default function ReportScreen({ user, profile }) {
   const [sendError, setSendError] = useState(null);
   const [note, setNote] = useState(null);
   const [drafts, setDrafts] = useState([]);
-  const [transcript, setTranscript] = useState("");
+  const [timing, setTiming] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [slowSave, setSlowSave] = useState(false);
 
@@ -177,25 +178,38 @@ export default function ReportScreen({ user, profile }) {
     setSendError(null);
     setStage("reading");
     setPhase("sending");
+    // Upload ends when processNote says it has the whole note ("received",
+    // its first message), total when the cards arrive. Only ?timing=1 shows
+    // them.
+    const sentAt = performance.now();
+    const since = () => Math.round(performance.now() - sentAt);
+    let uploadMs = null;
+    setTiming(null);
     let reply;
     try {
       reply = await streamFunction("processNote", { audioBase64: bytesToBase64(wav.current) }, (message) => {
-        if (message && message.stage === "building" && live.current) setStage("building");
+        if (!message || !live.current) return;
+        if (message.stage === "received" && uploadMs === null) {
+          uploadMs = since();
+          setTiming({ uploadMs });
+        }
+        if (message.stage === "building") setStage("building");
       });
     } catch (err) {
       if (!live.current) return;
+      setTiming({ uploadMs, totalMs: since() });
       setSendError(sendProblem(err));
       setPhase("send-error");
       return;
     }
     if (!live.current) return;
+    setTiming({ uploadMs, serverMs: reply.noteMs, totalMs: since() });
     dropAudio();
     // Card review keeps only a still picture of the note: its waveform and
     // length, with no playback link.
     setReview((current) => current && { seconds: current.seconds, peaks: current.peaks });
     setNote(reply);
     setDrafts(reply.cards.map(draftFromCard));
-    setTranscript(reply.transcriptClean || "");
     setSaveError(null);
     setPhase("cards");
   }
@@ -205,7 +219,7 @@ export default function ReportScreen({ user, profile }) {
     setReview(null);
     setNote(null);
     setDrafts([]);
-    setTranscript("");
+    setTiming(null);
     setMicProblem(null);
     setSendError(null);
     setSaveError(null);
@@ -217,12 +231,12 @@ export default function ReportScreen({ user, profile }) {
     setPhase("saving");
     const slowTimer = setTimeout(() => setSlowSave(true), SLOW_SAVE_MS);
     try {
-      await saveCards({ drafts: drafts.filter((draft) => !draft.removed), note, transcript, profile, uid: user.uid });
+      await saveCards({ drafts: drafts.filter((draft) => !draft.removed), note, profile, uid: user.uid });
       if (!live.current) return;
       setReview(null);
       setNote(null);
       setDrafts([]);
-      setTranscript("");
+      setTiming(null);
       setPhase("saved");
     } catch {
       if (!live.current) return;
@@ -234,13 +248,14 @@ export default function ReportScreen({ user, profile }) {
     }
   }
 
-  if (phase === "sending") return <SendingView stage={stage} />;
+  if (phase === "sending") return <SendingView stage={stage} timing={timing} />;
 
   if (phase === "send-error") {
     return (
       <section className="screen">
         <h1>Report</h1>
         <Message kind="error" role="alert">{sendError.text}</Message>
+        <TimingLine timing={timing} />
         {sendError.kind === "retry" && <button type="button" className="button button-primary" onClick={send}>Try again</button>}
         <button type="button" className="button button-secondary stacked" onClick={startOver}>{sendError.kind === "limit" ? "OK" : "Record again"}</button>
       </section>
@@ -279,6 +294,7 @@ export default function ReportScreen({ user, profile }) {
         <h1>Check your report</h1>
         {note.practice && <p className="pill">Practice result: made up, not from your recording.</p>}
         {review && <VoiceNoteRow peaks={review.peaks} duration={formatTime(Math.round(review.seconds))} />}
+        <TimingLine timing={timing} />
         {!note.isReport && (
           <Message kind="info">
             <p>This didn't sound like a report. Record again?</p>
@@ -292,7 +308,7 @@ export default function ReportScreen({ user, profile }) {
             ))}
           </fieldset>
         )}
-        <NoteNotices note={note} transcript={transcript} onTranscriptChange={setTranscript} readOnly={!note.isReport || saving} />
+        <NoteNotices note={note} />
         {note.isReport && (
           <div className="confirm-area">
             {saveError && <Message kind="error" role="alert">{saveError}</Message>}
@@ -345,6 +361,12 @@ export default function ReportScreen({ user, profile }) {
   );
 }
 
+// Phone tests only (?timing=1): where the note's time went.
+function TimingLine({ timing }) {
+  const text = SHOW_TIMING && timing ? formatTiming(timing) : "";
+  return text ? <p className="timing-line">{text}</p> : null;
+}
+
 function PrivacyLine({ text }) {
   return (
     <p className="privacy-line">
@@ -357,7 +379,7 @@ function PrivacyLine({ text }) {
 // No spinner: the waveform rises and falls while the note is processed. Each
 // stage is real: Listening is the finished recording, Reading starts when the
 // note is sent, and Building the card comes from processNote's own message.
-function SendingView({ stage }) {
+function SendingView({ stage, timing }) {
   const current = STAGES.findIndex((item) => item.id === stage);
   return (
     <section className="screen">
@@ -365,6 +387,7 @@ function SendingView({ stage }) {
       <div className="processing">
         <Waveform />
         <p className="wait-line">This usually takes under a minute. Please keep this screen open.</p>
+        <TimingLine timing={timing} />
       </div>
       <ol className="stages" aria-live="polite">
         {STAGES.map((item, index) => {

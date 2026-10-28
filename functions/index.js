@@ -3,9 +3,12 @@ const {onCall, HttpsError} = require("firebase-functions/https");
 const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const {
+  EXTRACT_MODEL,
   META_API_BASE_URL,
   MAX_AUDIO_BYTES,
   PRACTICE_STAGE_MS,
+  SPARK_AUDIO_MODEL,
+  TRANSCRIBE_MODEL,
 } = require("./constants");
 const {
   AudioFormatError,
@@ -17,8 +20,9 @@ const {extractCard} = require("./lib/extractCard");
 const {listenWithTwoEars} = require("./lib/twoEars");
 const {PLACE_KEYWORDS} = require("./lib/cardSchema");
 const {nextPracticeResult, practiceModeOn} = require("./lib/practice");
-// Used as a module object so the tests can stand in for Firestore.
+// Used as module objects so the tests can stand in for Firestore and the log.
 const noteLimit = require("./lib/noteLimit");
+const noteTiming = require("./lib/noteTiming");
 
 setGlobalOptions({maxInstances: 10});
 
@@ -69,7 +73,7 @@ exports.checkMetaConnection = onCall(
 
 // Decodes the browser's base64 WAV and checks it before any model call.
 // The size is checked before decoding too, so an oversized upload is never
-// held in memory twice.
+// held in memory twice. Returns the WAV and its length.
 function decodeAudio(data) {
   const audioBase64 = data && data.audioBase64;
   if (typeof audioBase64 !== "string" || audioBase64.length === 0) {
@@ -85,14 +89,14 @@ function decodeAudio(data) {
     throw new HttpsError("invalid-argument", tooLarge);
   }
   try {
-    checkWav(wav);
+    const {durationMs} = checkWav(wav);
+    return {wav, durationMs};
   } catch (err) {
     if (err instanceof AudioFormatError) {
       throw new HttpsError("invalid-argument", err.message);
     }
     throw err;
   }
-  return wav;
 }
 
 // What one ear did, for the logs: timing, attempts and why it failed, never
@@ -113,11 +117,12 @@ function earLog(result) {
 // Counts the note against the caller's daily limit before anything is spent
 // on it. If the counter can't be reached, the note is refused rather than
 // let through uncounted.
-async function takeDailyPlace(uid) {
+async function takeDailyPlace(uid, timing) {
   let usage;
   try {
     usage = await noteLimit.reserveNote(uid);
   } catch (err) {
+    timing.outcome = "counter_failed";
     logger.error("Daily note counter failed", {message: err.message});
     throw new HttpsError(
         "unavailable",
@@ -125,6 +130,7 @@ async function takeDailyPlace(uid) {
     );
   }
   if (!usage.allowed) {
+    timing.outcome = "limit";
     throw new HttpsError(
         "resource-exhausted",
         "Daily limit reached. Try again tomorrow.",
@@ -151,97 +157,158 @@ async function practiceNote(response) {
   return nextPracticeResult();
 }
 
+// An ear whose last attempt ran out of time.
+function timedOut(result) {
+  return Boolean(result && !result.ok && result.error &&
+      result.error.kind === "timeout");
+}
+
+// One note, from the sign-in check to the cards, filling in `timing` as it
+// goes. Each refusal or failure sets the note's outcome code before it
+// throws.
+async function handleNote(request, response, timing) {
+  // Every function that calls a model requires sign-in, so nobody who
+  // merely finds the endpoint can spend the API credits.
+  if (!request.auth) {
+    timing.outcome = "signed_out";
+    throw new HttpsError(
+        "unauthenticated",
+        "Please sign in to send a voice note.",
+    );
+  }
+  // The handler runs only once the whole request has arrived, so this first
+  // message tells the app when the upload finished (its ?timing=1 line). It
+  // carries nothing else, and the screen ignores it.
+  sendStage(response, "received");
+
+  let audio;
+  try {
+    audio = decodeAudio(request.data);
+  } catch (err) {
+    timing.outcome = err instanceof HttpsError ? "bad_audio" : "error";
+    throw err;
+  }
+  const {wav} = audio;
+  timing.audioBytes = wav.length;
+  timing.audioSeconds = Math.round(audio.durationMs / 100) / 10;
+
+  await takeDailyPlace(request.auth.uid, timing);
+  if (practiceModeOn()) return practiceNote(response);
+
+  const apiKey = metaApiKey.value();
+  timing.asrModel = TRANSCRIBE_MODEL;
+  timing.audioEarModel = SPARK_AUDIO_MODEL;
+  let heard;
+  try {
+    heard = await listenWithTwoEars({
+      // Place names are what Voice Transcribe would otherwise mishear
+      // (decision, 27 Oct). No language hint.
+      voice: (signal) => transcribeWav(wav, {
+        apiKey,
+        keywords: PLACE_KEYWORDS,
+        signal,
+      }),
+      spark: (signal) => transcribeWithSpark(wav, {apiKey, signal}),
+    });
+  } catch (err) {
+    const ears = err.ears || {};
+    noteTiming.recordEars(timing, ears);
+    timing.outcome = timedOut(ears.voice) && timedOut(ears.spark) ?
+        "asr_timeout" : "asr_failed";
+    logger.error("Both transcriptions failed", {
+      voice: earLog(ears.voice),
+      spark: earLog(ears.spark),
+    });
+    throw new HttpsError(
+        "unavailable",
+        "The voice note couldn't be transcribed. Please try again.",
+    );
+  }
+  noteTiming.recordEars(timing, heard.ears);
+
+  sendStage(response, "building");
+  const {voice, spark} = heard.ears;
+  // The card is still built, from the other ear; this says why one failed.
+  if (heard.singleSource) {
+    logger.warn("One transcription failed", {
+      voice: earLog(voice),
+      spark: earLog(spark),
+    });
+  }
+  timing.extractModel = EXTRACT_MODEL;
+  const extractStarted = performance.now();
+  let extraction;
+  try {
+    extraction = await extractCard({
+      transcriptA: voice.ok ? voice.value.transcript : null,
+      transcriptB: spark.ok ? spark.value.transcript : null,
+    }, {apiKey});
+  } catch (err) {
+    timing.extractMs = noteTiming.msSince(extractStarted);
+    timing.extractRetries = noteTiming.retriesFrom(err.attempts);
+    timing.outcome = err.kind === "timeout" ?
+        "extract_timeout" : "extract_failed";
+    logger.error("Card extraction failed", {
+      voice: earLog(voice),
+      spark: earLog(spark),
+      extraction: {
+        kind: err.kind || "error",
+        status: err.status || null,
+        attempts: err.attempts || null,
+        attemptMs: err.attemptMs || null,
+      },
+    });
+    throw new HttpsError(
+        "internal",
+        "The case card couldn't be built. Please try again.",
+    );
+  }
+  timing.extractMs = noteTiming.msSince(extractStarted);
+  timing.extractRetries = noteTiming.retriesFrom(extraction.attempts);
+  // Two empty transcripts make no model call.
+  if (extraction.attempts === 0) timing.extractModel = null;
+  return {...extraction.reply, singleSource: heard.singleSource};
+}
+
 // Turns one push-to-talk voice note (a 24 kHz WAV, base64-encoded by the
 // browser) into draft case cards. Two "ears" transcribe it in parallel and
 // Muse Spark 1.3 builds the cards from both transcripts. Audio and raw
-// transcripts live only in memory for this call; logs carry timings and
-// attempts only.
+// transcripts live only in memory for this call; logs carry timings,
+// attempts and failure kinds only, with one "note_timing" line per call.
 exports.processNote = onCall(
-    // Each ear and the card step allow two 60 s attempts, and the ears run
-    // side by side, so 300 s covers both stages plus decoding. The browser's
-    // callable timeout must be at least this. At most 5 instances, as a cap
-    // on spending alongside the daily limit.
+    // Each ear and the card step allow two 60 s attempts with a 1 s pause,
+    // and the ears run side by side, so the worst case is about 243 s and
+    // 300 s covers it. The browser's callable timeout must be at least this.
+    // Each note holds about 30 MB (40 MB at the 120 s cap). Running out of
+    // memory fails every note on the instance, so 1 GiB keeps 8 at once well
+    // clear of it. At most 5 instances, as a cap on spending alongside the
+    // daily limit, and none kept warm.
     {
       region: "africa-south1",
       secrets: [metaApiKey],
       timeoutSeconds: 300,
+      memory: "1GiB",
+      concurrency: 8,
       maxInstances: 5,
+      minInstances: 0,
     },
     async (request, response) => {
-      // Every function that calls a model requires sign-in, so nobody who
-      // merely finds the endpoint can spend the API credits.
-      if (!request.auth) {
-        throw new HttpsError(
-            "unauthenticated",
-            "Please sign in to send a voice note.",
-        );
-      }
-      const wav = decodeAudio(request.data);
-      await takeDailyPlace(request.auth.uid);
-      if (practiceModeOn()) return practiceNote(response);
-
-      const apiKey = metaApiKey.value();
-      const started = performance.now();
-
-      let heard;
+      const timing = noteTiming.startNoteTiming();
       try {
-        heard = await listenWithTwoEars({
-          // Place names are what Voice Transcribe would otherwise mishear
-          // (decision, 27 Oct). No language hint.
-          voice: (signal) => transcribeWav(wav, {
-            apiKey,
-            keywords: PLACE_KEYWORDS,
-            signal,
-          }),
-          spark: (signal) => transcribeWithSpark(wav, {apiKey, signal}),
-        });
+        const reply = await handleNote(request, response, timing);
+        timing.outcome = reply.practice ? "practice" : "ok";
+        timing.cardCount = reply.cards.length;
+        timing.noteMs = noteTiming.msSince(timing.started);
+        // The server's time, for the app's ?timing=1 line.
+        return {...reply, noteMs: timing.noteMs};
       } catch (err) {
-        const ears = err.ears || {};
-        logger.error("Both transcriptions failed", {
-          voice: earLog(ears.voice),
-          spark: earLog(ears.spark),
-        });
-        throw new HttpsError(
-            "unavailable",
-            "The voice note couldn't be transcribed. Please try again.",
-        );
+        if (!timing.outcome) timing.outcome = "error";
+        throw err;
+      } finally {
+        if (timing.noteMs === undefined) {
+          timing.noteMs = noteTiming.msSince(timing.started);
+        }
+        noteTiming.write(noteTiming.noteTimingEntry(timing));
       }
-
-      sendStage(response, "building");
-      const {voice, spark} = heard.ears;
-      let extraction;
-      try {
-        extraction = await extractCard({
-          transcriptA: voice.ok ? voice.value.transcript : null,
-          transcriptB: spark.ok ? spark.value.transcript : null,
-        }, {apiKey});
-      } catch (err) {
-        logger.error("Card extraction failed", {
-          voice: earLog(voice),
-          spark: earLog(spark),
-          extraction: {
-            kind: err.kind || "error",
-            status: err.status || null,
-            attempts: err.attempts || null,
-            attemptMs: err.attemptMs || null,
-          },
-        });
-        throw new HttpsError(
-            "internal",
-            "The case card couldn't be built. Please try again.",
-        );
-      }
-
-      logger.info("Processed a voice note", {
-        totalMs: Math.round(performance.now() - started),
-        singleSource: heard.singleSource,
-        voice: earLog(voice),
-        spark: earLog(spark),
-        extraction: {
-          ms: extraction.latencyMs,
-          attempts: extraction.attempts,
-        },
-      });
-      return {...extraction.reply, singleSource: heard.singleSource};
     },
 );

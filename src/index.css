@@ -1004,6 +1004,18 @@ textarea {
   margin: 0;
 }
 
+/* Phone tests only (?timing=1): where a note's time went. */
+.timing-line {
+  margin: 0 0 var(--space-5);
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-muted);
+}
+
+.processing .timing-line {
+  margin: 0;
+}
+
 .stages {
   display: grid;
   gap: var(--space-1);
@@ -1225,6 +1237,18 @@ textarea {
 
 .transcript[open] {
   padding-bottom: var(--space-4);
+}
+
+/* The clinician's words as heard: curly quotes, the opening one hanging in
+   the margin so the text lines up with everything else (docs/DESIGN.md). */
+.transcript-words {
+  margin: 0;
+  text-indent: var(--hanging-quote);
+  white-space: pre-line;
+}
+
+.transcript .note {
+  margin: var(--space-3) 0 0;
 }
 
 .hotlines {

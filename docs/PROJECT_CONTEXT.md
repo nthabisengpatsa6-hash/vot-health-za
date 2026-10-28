@@ -114,7 +114,7 @@ A card describes a group of patients, never a person. Nothing is saved until the
 | Observations | Not responding to usual treatment | Tick boxes: more severe than usual; not responding to usual treatment; unusual symptoms; short of supplies (described) |
 | Reporter | Nurse, clinic | Role and facility type from the account |
 | Unsure fields | Area | Fields the AI flagged; the clinician must confirm them |
-| Source | Transcript, names stripped | Kept for the evidence trail |
+| Source | Voice note | The cleaned transcript is shown for checking during review and never stored. The evidence trail points to the card's own fields, which hold the clinician's words (symptoms, exposure words, what is unusual) |
 
 Symptom groups, not diseases: diagnosing stays the clinician's job. Slow, lab-tracked diseases such as TB are deliberately excluded. If a clinician mentions a diagnosed notifiable condition, the card reminds her to notify it through the NMC system and prepares the details (P1). Medicine stock is tracked in other systems (Stock Visibility System, RxSolution), so "short of supplies" is only an observation here.
 

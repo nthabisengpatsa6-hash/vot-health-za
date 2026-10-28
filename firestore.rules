@@ -43,18 +43,19 @@ service cloud.firestore {
     }
 
     // A case card describes a group of patients, never a person: exactly
-    // these fields, no names, raw transcripts, disagreements or audio. The
-    // lists mirror src/config/cardOptions.js, functions/lib/cardSchema.js and
+    // these fields, no names, transcripts (not even the cleaned one shown
+    // during review), disagreements or audio. The lists mirror
+    // src/config/cardOptions.js, functions/lib/cardSchema.js and
     // functions/data/places.json; the rules tests fail if they drift apart.
     function isValidCard(data) {
       return data.keys().hasOnly(['reporterUid', 'reporterRole', 'reporterFacilityType', 'reporterArea',
                                   'symptomGroup', 'unusualDescription', 'symptomsInWords', 'caseCount',
                                   'comparedWithUsual', 'ageGroup', 'area', 'onset', 'exposure', 'observations',
-                                  'notifiableConditionMentioned', 'transcriptClean', 'source', 'createdAt'])
+                                  'notifiableConditionMentioned', 'source', 'createdAt'])
         && data.keys().hasAll(['reporterUid', 'reporterRole', 'reporterFacilityType', 'reporterArea',
                                'symptomGroup', 'unusualDescription', 'symptomsInWords', 'caseCount',
                                'comparedWithUsual', 'ageGroup', 'area', 'onset', 'exposure', 'observations',
-                               'notifiableConditionMentioned', 'transcriptClean', 'source', 'createdAt'])
+                               'notifiableConditionMentioned', 'source', 'createdAt'])
         && data.symptomGroup in ['diarrhoea_vomiting', 'bloody_diarrhoea', 'fever_rash', 'cough_flu',
                                  'fever_stiff_neck_confusion', 'sudden_after_eating_drinking',
                                  'red_eyes_itchy_rash', 'something_unusual']
@@ -85,7 +86,6 @@ service cloud.firestore {
         && data.observations.shortOfSupplies is bool
         && isNullOrTextUpTo(data.observations.suppliesNote, 300)
         && isNullOrTextUpTo(data.notifiableConditionMentioned, 300)
-        && isTextUpTo(data.transcriptClean, 5000)
         && data.source == 'voice'
         && data.createdAt == request.time;
     }

@@ -80,10 +80,10 @@ export function fieldsToFix(draft) {
 }
 
 // Exactly the fields firestore.rules allows for cards/{cardId}: nothing
-// about what the AI was unsure of, no raw transcripts, no disagreements, no
-// audio. `note` is processNote's reply and `transcript` the clinician's
-// edited copy of its transcriptClean.
-export function toCardDoc({ draft, note, transcript, profile, uid, createdAt }) {
+// about what the AI was unsure of, no transcripts (the cleaned one is shown
+// during review, never stored), no disagreements, no audio. `note` is
+// processNote's reply.
+export function toCardDoc({ draft, note, profile, uid, createdAt }) {
   const shortOfSupplies = draft.observations.shortOfSupplies === true;
   return {
     reporterUid: uid,
@@ -107,7 +107,6 @@ export function toCardDoc({ draft, note, transcript, profile, uid, createdAt }) 
       suppliesNote: shortOfSupplies ? textOrNull(draft.observations.suppliesNote) : null,
     },
     notifiableConditionMentioned: textOrNull(note.notifiableConditionMentioned),
-    transcriptClean: clean(transcript),
     source: "voice",
     createdAt,
   };

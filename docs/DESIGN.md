@@ -82,7 +82,7 @@ Text never sits directly on Signal orange or Watch ochre (it fails contrast). La
 - 14 px is the smallest text anywhere.
 - Counts, times and durations use tabular figures.
 - Sentence case everywhere. No ALL CAPS labels, no letter-spaced eyebrow labels.
-- The clinician's words use curly quotes with a hanging opening quote (text-indent: -0.42em), so the text lines up with everything else and the quote mark sits in the margin.
+- The clinician's words use curly quotes with a hanging opening quote (text-indent: -0.42em), so the text lines up with everything else and the quote mark sits in the margin. First used for the transcript under "What we heard" on card review, which is read-only text (it's never saved).
 - Text is left-aligned. Centre only one-line confirmations and the privacy line.
 
 ## Spacing, radius, elevation

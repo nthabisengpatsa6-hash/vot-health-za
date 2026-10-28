@@ -1,13 +1,13 @@
 # HANDOVER
 
-**Last updated:** 2026-10-28 09:42 SAST
+**Last updated:** 2026-10-28 10:26 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). Dated entries below keep the name used at the time. The domain lemoha.co.za was bought on 28 Oct 2026 and isn't connected yet. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Task 9 (Wed 28 Oct) renamed the product to Lemoha, added the logo (the ring: wordmark in the header and on the sign-in and set-up screens, favicon, app icons and a web app manifest), added a Logo section to DESIGN.md, and fixed the cut-off symptom-group dropdown. A Task 9 follow-up the same morning shrank the wordmark's "o" to the height of the other letters. Nothing from Tasks 6 to 9 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 10, the deploy task (Functions, rules, Hosting), then a real end-to-end test on phones, including an iPhone. Score the 10 recordings when they arrive.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Task 9 (Wed 28 Oct) renamed the product to Lemoha, added the logo (the ring: wordmark in the header and on the sign-in and set-up screens, favicon, app icons and a web app manifest), added a Logo section to DESIGN.md, and fixed the cut-off symptom-group dropdown. A Task 9 follow-up the same morning shrank the wordmark's "o" to the height of the other letters. Task 10, part 1 (Wed 28 Oct): saved cards no longer hold the transcript (17 fields; the transcript is shown read-only during review and never stored), processNote writes one "note_timing" log line per call and returns its server time, the app shows a timing line with ?timing=1, processNote's memory and concurrency are set, and the phone checklist is in Next steps. Nothing from Tasks 6 to 10 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 10 Part C, the deploys (Functions, rules, Hosting, each its own STOP), one live test, then Nthabiseng's phone tests. Score the 10 recordings when they arrive.
 
 ## Done
 
@@ -204,6 +204,23 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
 - `npm test` 31 of 31, `npm run lint` clean, `npm run build` fine (only the known chunk-size warning).
 - Review crops (outside the repo): wordmark-4x-after.png (header, 24 px) and wordmark-40-4x-after.png (sign-in, 40 px).
 
+### Day 2 work — Task 10, part 1: no stored transcript, step timings, function settings (done Wed 28 Oct; nothing deployed)
+- Saved cards have 17 fields; transcriptClean is gone (decided 28 Oct: shown during review, never stored). The 17: reporterUid, reporterRole, reporterFacilityType, reporterArea, symptomGroup, unusualDescription, symptomsInWords, caseCount, comparedWithUsual, ageGroup, area, onset, exposure {types, words}, observations {moreSevere, notResponding, unusualSymptoms, shortOfSupplies, suppliesNote}, notifiableConditionMentioned, source, createdAt.
+  - src/lib/cardDraft.js (toCardDoc) and src/lib/cards.js (saveCards) no longer take or write the transcript.
+  - firestore.rules: transcriptClean is off both field lists and its 5000 cap is gone. hasOnly was already there, so a card that carries transcriptClean is denied like any unknown field.
+  - processNote and functions/prompts/ are unchanged: the model still writes the cleaned transcript, and the review screen still shows it.
+- The transcript on card review is read-only (approved): "What we heard" now shows the words as text in Source Serif 4, in curly quotes with the hanging opening quote (the first use of --hanging-quote), with "Not saved. Fix anything wrong in the card above." under it (only when the note is a report, since a non-report has no card). The text box, its "Transcript (you can edit it)" label and the edit state in ReportScreen are gone, and so is TEXT_LIMITS.transcriptClean. With no transcript text at all, the transcript notice and "What we heard" aren't shown. DESIGN.md's hanging-quote line names this first use.
+- processNote settings (approved): memory 1 GiB, concurrency 8, timeoutSeconds 300, maxInstances 5, minInstances 0. Worst case is about 243 s: each ear 2 × 60 s + 1 s, side by side, then the card step 2 × 60 s + 1 s. Each note holds about 30 MB (40 MB at the 120 s cap); running out of memory would fail every note on the instance.
+- Step timings (functions/lib/noteTiming.js): every processNote call, success or failure, writes one log entry with the Firebase logger, message "note_timing", holding only noteMs, audioBytes, audioSeconds, asrMs, audioEarMs, extractMs, asrRetries, audioEarRetries, extractRetries, coldStart, cardCount, outcome, asrModel, audioEarModel, extractModel. The entry is built by copying only those keys. A step that never ran logs null; an ear cut off by the 30 s wait logs when we stopped waiting, with retries null.
+  - Outcome codes: ok, practice, signed_out, bad_audio, limit, counter_failed, asr_failed or asr_timeout (both ears), extract_failed or extract_timeout (the card step), error (anything unexpected). A note killed by the 300 s function timeout can't write its line; Cloud Run's request log shows the 504.
+  - "Processed a voice note" is replaced by note_timing. The two failure lines stay (failure kinds and HTTP statuses), and a note built from one ear logs a warning, "One transcription failed", with the same ear details.
+- processNote's reply gains noteMs (the server time), practice mode included; nothing else in the reply changes. Its first streamed message is now {stage: "received"}, sent as soon as the handler starts, which is only once the whole request has arrived (approved). It carries nothing else, and the screen ignores it.
+- The app's timing line (src/lib/timing.js): only when the page was opened with ?timing=1 (read once at load, because the redirect from / to /report drops the query). Upload is from Send until "received" arrives; total until the cards arrive; server is noteMs. While processing: "Upload 2.1 s" under the wait line; on card review, under the note's waveform: "Upload 2.1 s, server 18.4 s, total 21.0 s"; after a failed send: upload and total. 14 px, ink-muted, tabular figures. Nothing is sent anywhere.
+  - Upload time includes preparing the request (base64, the sign-in token) and, on a cold start, the instance starting. In the local emulators the first note after a code reload showed "Upload 26 s" for this reason; the log's coldStart says when it happened.
+- Tests: web 33 (new test/unit/timing.test.js; cards.test.js checks the 17 fields), Functions 68 (new functions/test/note-timing.test.js: the entry holds only the allowed keys whatever the timing holds; plain values only; a fake transcript, uid and file name never appear; one entry per call for ok, signed out, bad audio, limit, lost counter, both ears failed and a failed card step; the reply's noteMs equals the logged one; coldStart true on the first call only; "received" then "building" streamed), rules 89 (new: a card with transcriptClean is denied; the card the app itself builds is accepted; the 5000-character transcript test is gone).
+- Checked in headless Edge against the emulators in practice mode at 360 × 740 (26 of 26): with ?timing=1 the line shows the upload while processing, 14 px under the wait line, without changing the stage shown, then the full line on card review; the transcript is plain text in Source Serif 4 at 20 px, text-indent -8.4 px, the quote mark in the margin and the first letter in line with the summary (within 1 px); "Not saved…" under reports only; no "edit it" wording anywhere; the saved card in the emulator has exactly the 17 fields; reloaded without ?timing=1, no line on any of the other four results (including the two-card and not-a-report ones); no sideways scrolling; no console errors.
+- `npm run lint` clean, `npm run build` fine (only the known chunk-size warning).
+
 ## Official hotlines (checked 27 Oct 2026, on each organisation's own pages)
 Shown, with tap-to-call links, when a note asks about treatment (src/config/hotlines.js).
 - NICD: 0800 212 552, "a 24-hour service for healthcare professionals only". Source: NICD, situational update on the Ebola disease outbreak caused by Bundibugyo virus, 29 June 2026, https://www.nicd.ac.za/situational-update-on-the-ebola-disease-outbreak-caused-by-bundibugyo-virus/ (several other 2025–2026 NICD pages give the same number; older NICD pages give other numbers).
@@ -301,21 +318,33 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - Follow-up, after adding "The day patients came in is not the onset." (score-006): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions. n01's onset is now asked in all 3 repeats. Extraction 5.3 s on average (1.3–13.1 s); about $0.22.
 
 ## In progress
-- Nothing.
+- Task 10 Part C, the deploys. Starts only after the Part A/B commit is pushed.
 
 ## Next steps (in order)
 1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. Task 10: the deploy task, each deploy its own STOP:
-   - Functions: checkMetaConnection gets its sign-in check live; processNote with the daily limit and maxInstances 5.
-     - Decide processNote's memory and concurrency first. Each note holds about 30 MB in memory (the base64 upload, the decoded WAV and the Spark ear's base64 copy). A 2nd-gen function defaults to 256 MiB and up to 80 requests at once per instance, so a busy instance could run out of memory. Options: concurrency 10 at 256 MiB, or 512 MiB.
-   - The Firestore rules (users and cards).
-   - Hosting (the live site still shows the Vite starter page). Run `npm run build` first.
-3. Then a real end-to-end test on phones, against the live project with real Meta calls:
-   - Android Chrome and iPhone Safari. iPhone Safari has never been tested: there's no Safari on Windows. Check that it records (audio/mp4), decodes, plays back, sends, shows the stages and saves; check the microphone permission steps; check that holding the button doesn't open a long-press menu.
-   - Made-up notes only. A note that asks about treatment, one that mentions a notifiable condition, and a two-group note.
-   - On a real Android phone and an iPhone: tapping anywhere on the symptom-group box opens the phone's own list, and the chosen label shows in full.
-   - Add to the home screen on both: the icon and the name "Lemoha" look right (the maskable icon on Android, apple-touch-icon on iPhone).
-   - Watch the processNote logs for timings, and the daily counter in Firestore (noteUsage).
+2. Task 10 Part C, each deploy its own STOP:
+   - Read-only checks first: `firebase use` shows vot-health-za; billing is on (`gcloud billing projects describe vot-health-za`); the META_API_KEY secret exists (`firebase functions:secrets:get META_API_KEY`, which shows versions only, never the value); `firebase functions:list` (what's live, so the deploy doesn't need to delete anything); what each `firebase.json` target touches; `npm run build`, then dist/ has no source maps, no unexpected files and no value other than the public web config.
+   - Nthabiseng, before the first deploy: Google Cloud console → Billing → Budgets and alerts → a budget for this project with email alerts at 50%, 90% and 100%; and Firebase console → Authentication → Sign-in method: Email/Password and Google both on. Then say "done".
+   - STOP C1, Functions: show what `npm --prefix functions run deploy` runs (`firebase deploy --only functions`), then wait for "approved C1". After: checkMetaConnection refuses a signed-out call and lists models for a made-up example.com account; report each function's region, memory, timeout and concurrency.
+   - STOP C2, Firestore rules: `npm run test:rules` all passing, what the rules allow in plain words, `firebase deploy --only firestore:rules`, wait for "approved C2". Report the time.
+   - STOP C3, Hosting: `npm run build`, `firebase deploy --only hosting`, wait for "approved C3". After: the live site loads the Lemoha sign-in screen with the title "Lemoha"; favicon, manifest and icons return 200; practice mode can't happen live.
+   - One live test from the computer: a made-up example.com account, a profile, one real note (test-audio/raw/mixed-amanzimtoti as the fake microphone; Amanzimtoti isn't on the Kganya list, so the card asks the area), answer and confirm; the live card has the 17 fields and no transcriptClean; report that note's note_timing numbers.
+   - STOP "approved delete": Claude Code lists the exact Firestore paths (the test card, users/{uid}, noteUsage/{uid}) and deletes only those, with `firebase firestore:delete`. It gives Nthabiseng the emails and UIDs of the two test sign-in accounts (the C1 check and the live test); she deletes them herself in the Firebase console (Authentication → Users), so no access token is handled in a script.
+3. Then the phone test, against the live project with real Meta calls. Nthabiseng works through it and reports back:
+   1. Use made-up scripts only (the 10 test scripts, or: "Three children under five with watery diarrhoea from Leeba View today. Bomme ba re ba nwa metsi a pompo."). Never real patient details.
+   2. Android, Chrome, on mobile data, at https://vot-health-za.web.app/?timing=1
+      - sign in with Google, then sign out and sign in with email
+      - set a profile
+      - record three notes of about 15, 30 and 60 seconds; write down the Upload, Server and Total numbers for each
+      - answer the questions and save each card
+      - tap anywhere on the symptom-group box: the phone's own list opens, and the chosen label shows in full
+      - "Add to home screen": the Lemoha icon and name show correctly
+      - If the timing line is missing, reload with ?timing=1 at the end of the address.
+   3. The same on Wi-Fi for one 30-second note, to compare upload times.
+   4. iPhone, Safari (borrow one): sign in, one 30-second note, save, the symptom-group box, the timing line.
+   5. Send the numbers and anything odd to the planning chat.
+
+   Also worth watching on the phones (from earlier tasks): iPhone Safari has never been tested (no Safari on Windows), so check it records, plays back, sends, shows the stages and saves, the microphone permission steps, and that holding the record button doesn't open a long-press menu; the wordmark's "o" at the phone's own screen density.
 4. Nthabiseng, in the consoles (by hand; no code): the name people see outside the app.
    - Firebase console → the cog next to "Project overview" → Project settings → General → "Public-facing name" → the pencil → "Lemoha" → Save. Firebase's help page says it fills %APP_NAME% in the sign-in emails (password reset); setup guides say Google sign-in uses it as the app name too.
    - Firebase console → Authentication → Templates → Password reset: check the sender name and the subject; change any "Fola" to "Lemoha".
@@ -323,6 +352,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
    - Don't rename the Firebase project itself (display name "Fola").
 5. After the Task 10 deploy, its own STOP: Connect lemoha.co.za to Firebase Hosting (DNS records), then decide whether to move the sign-in authDomain to it, so Google's account chooser stops showing vot-health-za.firebaseapp.com.
 6. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
+   - Day 6 (Signal detail): cards hold no transcript, so the evidence trail points to each card's own fields, which hold the clinician's words: symptomsInWords, exposure.words and unusualDescription.
 7. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser.
 
 ## Decisions and why
@@ -378,9 +408,16 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 28 Oct — The wordmark also replaces the plain-text name on the loading, profile error and first-time profile screens, at the sign-in size (approved).
 - 28 Oct — The extraction prompt keeps "Fola" for now: changing a prompt changes what the model does, so it changes with a re-score (see Open decisions).
 - 28 Oct — Long dropdown labels: the chosen label is shown as wrapping text with the real select laid invisibly over it (DESIGN.md, "Long option labels"). Why: a closed select can't wrap, and the phone's own list is the most familiar picker. Only the symptom group needs it today.
+- 28 Oct — The cleaned transcript is shown during review and never stored; saved cards have 17 fields. Why: it was decided before the first deploy, so live data never holds a transcript. The evidence trail uses the card's own fields (the clinician's words).
+- 28 Oct — The transcript on card review is read-only text (Nthabiseng's call), with "Not saved. Fix anything wrong in the card above." Why: a box that says "you can edit it" when edits go nowhere is misleading.
+- 28 Oct — processNote: 1 GiB, concurrency 8, timeout 300 s, maxInstances 5, minInstances 0 (approved). Why: running out of memory fails every note on the instance, and at our volume the extra memory costs a fraction of a cent a day; 300 s is above the worst case of about 243 s. Keeping one instance warm is only for judging week, a later decision.
+- 28 Oct — One "note_timing" log line per processNote call, holding numbers, model IDs and an outcome code only, never content or who sent it; the app shows timings only with ?timing=1 and sends them nowhere. Why: to see where the 23–47 s per note go before deciding anything about speed.
+- 28 Oct — processNote's first streamed message is {stage: "received"} (approved). Why: the browser has no "finished sending" event, and the server otherwise sends nothing until the "building" stage, so this is the only way to time the upload. It carries nothing else and the screen ignores it.
+- 28 Oct — Every push gets the standard pre-push scan below (approved), so it can't get lost again.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Change 'Fola' to 'Lemoha' in the extraction prompt during the next scoring run, and re-score in that same run.
+- Stop the card step from writing the cleaned transcript, to save time? It's no longer stored, but the review screen still shows it. A later speed decision, made after the note_timing numbers come in, and only with a re-scoring run (the prompt and processNote's reply would change).
 - Licence for the public repo.
 - How simulation data is kept apart from real data (Day 3).
 - Audio-ear model: the final choice comes after scoring the 10 recordings (now muse-spark-1.2).
@@ -399,7 +436,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - .oxlintrc.json — linter rules.
 - .firebaserc — links this folder to the Firebase project vot-health-za.
 - firebase.json — Firebase settings: Firestore (africa-south1, rules, indexes), Functions folder, Hosting from dist/, emulator ports.
-- firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Not deployed.
+- firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} (exactly the 17 fields, no transcript) created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Not deployed.
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
 - Brand folders (docs/DESIGN.md, Logo):
@@ -426,13 +463,14 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - src/lib/cards.js — saveCards: one cards/{cardId} document per card, in one batch.
 - src/lib/authErrors.js — plain-English messages for sign-in errors.
 - src/lib/places.js — the town and area names, read from functions/data/places.json.
+- src/lib/timing.js — the ?timing=1 flag (read once at load) and the timing line's wording.
 - src/lib/profile.js — watchProfile and saveProfile for users/{uid}.
 - src/lib/useSession.js — the hook that says who's signed in and whether their profile is set up.
 - src/components/AppLayout.jsx — header (with the wordmark) and bottom navigation around the signed-in screens.
 - src/components/Wordmark.jsx — the wordmark: the lowercase name with the ring as its "o", one image to screen readers.
 - src/components/RecordButton.jsx — the hold-or-tap record button.
 - src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions; the symptom group shows as wrapping text over an invisible select.
-- src/components/NoteNotices.jsx — the transcript and the fixed notices under the cards (single source, advice and hotlines, NMC reminder).
+- src/components/NoteNotices.jsx — the read-only transcript ("What we heard", never saved) and the fixed notices under the cards (single source, advice and hotlines, NMC reminder).
 - src/components/LevelBadge.jsx — the Watch, Signal and Alert badges (40 px swatch with the print, and the word) and their key.
 - src/components/Icons.jsx — the line icons (drawn for this app).
 - src/components/Message.jsx — an information or error message: a wash block with an icon.
@@ -448,12 +486,14 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - test/unit/cards.test.js — unit tests for card drafts and the saved document, using the practice results.
 - test/unit/design-tokens.test.js — tokens match docs/DESIGN.md, every listed contrast pair is at least 4.5:1, no font name is written outside the tokens, and colours appear only in the tokens and the allowed brand files.
 - test/unit/brand.test.js — the manifest and index.html carry PRODUCT_NAME, every icon is there at its stated size, and the wordmark's ring matches wordmark-o.svg.
+- test/unit/timing.test.js — the ?timing=1 flag and the timing line's wording.
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
 - test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
-- functions/index.js — Cloud Functions: checkMetaConnection and processNote (not deployed).
+- functions/index.js — Cloud Functions: checkMetaConnection and processNote (not deployed); processNote's settings (1 GiB, concurrency 8, 300 s, at most 5 instances) and its one note_timing line per call.
 - functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears, the daily note limit, practice-mode stage time).
 - functions/lib/noteLimit.js — the daily note limit: the SAST day and the counter transaction on noteUsage/{uid}.
+- functions/lib/noteTiming.js — the note_timing log entry: its allowed keys, the cold-start flag, ear timings and retries.
 - functions/lib/practice.js — practice mode: the emulator-and-demo check and the prepared results in turn.
 - functions/data/places.json — the demo town Kganya: 7 areas and which works feeds each (Day 3's town file grows from this).
 - functions/prompts/spark-audio.md — the instruction for the Muse Spark audio ear.
@@ -472,6 +512,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - functions/test/spark-and-extract.test.js — unit tests for the Spark ear and extraction requests, with a fake fetch.
 - functions/test/practice.test.js — practice mode is on only in the emulator under demo-, and processNote under the real project ID calls Meta.
 - functions/test/note-limit.test.js — the daily limit, with a fake Firestore transaction.
+- functions/test/note-timing.test.js — the note_timing entry (allowed keys only, no content) and one entry per processNote call for each outcome, with fake Meta replies.
 - functions/test/make-wav.js — builds WAVs in memory for the tests.
 - functions/package.json, functions/package-lock.json — Functions libraries, Node 22, npm scripts.
 - functions/.gitignore — keeps node_modules/ and *.local (including .secret.local) out of git.
@@ -515,9 +556,9 @@ Other local commands:
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 31 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the saved document, the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; and the brand: manifest, icons, title, the wordmark's ring).
-- `npm --prefix functions test` — runs the 61 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit), all with fakes and no network calls.
-- `npm run test:rules` — runs the 88 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
+- `npm test` — runs the 33 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; and the timing line).
+- `npm --prefix functions test` — runs the 68 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the note_timing log line), all with fakes and no network calls.
+- `npm run test:rules` — runs the 89 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
 
@@ -537,11 +578,24 @@ Other local commands:
 
 **Watch**
 - `npm --prefix functions run logs` — shows recent logs from the deployed functions (read-only).
+- Each processNote call writes one line with the message "note_timing" (see Task 10, part 1, for its keys and outcome codes). In the Google Cloud console's Logs Explorer, `jsonPayload.message="note_timing"` finds them.
+- Phone tests: open the live site with `?timing=1` at the end of the address to see "Upload …, server …, total …" on the Report screen. Upload includes preparing the request and, on a cold start, the instance starting.
 
 **Deploy (each one is a separate STOP: ask first)**
 - `npm run build`, then `firebase deploy --only hosting` — publishes the web app to the live link.
-- `npm --prefix functions run deploy` — publishes the Cloud Functions.
+- `npm --prefix functions run deploy` — publishes the Cloud Functions. It runs `firebase deploy --only functions` (from functions/package.json).
 - `firebase deploy --only firestore:rules` — publishes the Firestore security rules.
+- Secrets: `firebase functions:secrets:get META_API_KEY` shows that the secret exists and its versions, never the value. Claude Code never runs `firebase functions:secrets:access` or anything else that prints a secret's value.
+- Deleting live test data: Claude Code deletes Firestore documents only with `firebase firestore:delete` on exact paths, listed first for "approved delete". Sign-in accounts are deleted by Nthabiseng in the Firebase console (Authentication → Users), so no access token is handled in a script.
+
+**Standard pre-push scan (every push; report a–g before asking "Push now?")**
+- a. `git status` is clean; list the commits that would be pushed (`git log --oneline origin/main..HEAD`).
+- b. `git diff --stat origin/main..HEAD`, naming any file over 500 kB.
+- c. None of these in the push: .env or .env.*, .secret.local, test-audio/, audio files, credential JSON, logs, emulator exports, dist/, scripts or screenshots from outside the repo.
+- d. No keys, tokens or passwords in added lines (the public Firebase web apiKey in src/lib/firebase.js is the only exception).
+- e. No personal data: no real emails, phone numbers other than the two hotlines, real names other than Nthabiseng's, personal folder paths or transcript text.
+- f. No "-contributor" model IDs.
+- g. The product name only where the brand rules allow it (src/config/product.js, index.html's title, public/manifest.webmanifest; "Fola" only where HANDOVER records it).
 
 ## Known issues
 - Google's account chooser shows "vot-health-za.firebaseapp.com" (the sign-in authDomain), not the app name, until the app's branding is verified by Google or the authDomain moves to lemoha.co.za (Next steps 4 and 5).
@@ -551,9 +605,11 @@ Other local commands:
 - Source Serif 4 is loaded at its default optical size (14), to keep the files small; the clinician's words are set at 20 px.
 - Starting the emulators from a terminal opened before Java was installed fails with "Could not spawn java -version" (in that window, `$env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")` reloads the saved path so Java is found); stopping `npm run emulators` from a tool can leave its Java and Node processes holding ports 8080, 9099 and 5001 until they're ended.
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the repo history, which becomes public on Day 8. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
-- Nothing from Tasks 6 to 9 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
+- Nothing from Tasks 6 to 10 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
 - iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
-- processNote's memory and concurrency are still the defaults (256 MiB, up to 80 requests per instance) and each note uses about 30 MB; decide in the deploy task (see Next steps).
+- The timing line's upload time isn't pure network time: it runs from Send until processNote says "received", so it includes preparing the request (base64, the sign-in token) and, on a cold start, the instance starting (26 s in the local emulators after a code reload). The note_timing line's coldStart says when that happened.
+- A note stopped by processNote's own 300 s timeout writes no note_timing line; Cloud Run's request log shows the 504.
+- With two cards, "Not saved. Fix anything wrong in the card above." still says "the card" (the approved wording).
 - firestore.rules also keeps its own copy of the card lists (symptom groups, age groups, compared with usual, onset, exposure types, areas). Changing src/config/cardOptions.js, functions/lib/cardSchema.js or functions/data/places.json means changing firestore.rules too; the unit and rules tests fail until they match.
 - The browser check and the break-the-rule check are local scripts, not part of the repo (they need a local test recording and Edge). Re-running them means rewriting them; HANDOVER lists what they checked.
 - Practice mode's turn is held in the Functions emulator's memory, so it starts again at the first result whenever the emulator restarts or reloads the code.
@@ -574,6 +630,7 @@ Other local commands:
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-28 — Task 10, part 1: saved cards no longer hold the transcript (17 fields; rules and tests updated, a card with transcriptClean is denied); the transcript on card review is read-only text in the clinician's serif with the hanging quote; processNote writes one note_timing log line per call (numbers, model IDs and an outcome code only), streams "received" first and returns noteMs; the ?timing=1 line on the Report screen; processNote at 1 GiB, concurrency 8, 300 s, max 5 instances; the phone checklist and the standard pre-push scan in HANDOVER. Tests: web 33, Functions 68, rules 89; 26 of 26 browser checks. Nothing deployed.
 - 2026-10-28 — Task 9 follow-up: the wordmark's "o" shrunk from a 0.72em to a 0.61em box, with its drop from 0.083em to 0.0625em, so the ring's top and bottom are within 1 px of "e" and "a" at 4x at 24, 30, 40 and 50 px, and its width within 2–5% of a real "o". CSS only. Sign-in and the header checked at 360 × 740 and 125% text.
 - 2026-10-28 — Task 9: renamed to Lemoha (working name Fola until 28 Oct); the ring logo: Wordmark component (header, sign-in, set-up, loading and error screens), brand SVGs, favicon, app icons and the web app manifest; DESIGN.md Logo section, "Long option labels" and the voice-note-row case; the symptom-group dropdown shows its label in full; brand test and a tighter colour allow-list (31 web unit tests). Checked in Edge at 360 and 390 px and at 125% text (475 of 475). lemoha.co.za recorded. Nothing deployed; deploy is now Task 10.
 - 2026-10-28 — Task 8: the Shweshwe design system. docs/DESIGN.md (with six approved amendments), design tokens in src/styles/tokens.css, self-hosted Hanken Grotesk and Source Serif 4 (Fontsource, latin and latin-ext, pinned), every screen restyled with no change to behaviour, data or rules; voice note row with a real-loudness waveform; privacy lines; three copy changes; rule 13 in CLAUDE.md and AGENTS.md; design-token and contrast tests (27 web unit tests). Checked in Edge at 360 and 390 px, with reduced motion and at 125% text. Nothing deployed; deploy moves to Task 9.
@@ -583,4 +640,3 @@ Other local commands:
 - 2026-10-27 — Extraction prompt: "The day patients came in is not the onset."; Stage 1 now 100% with no confident-wrong values.
 - 2026-10-27 — Task 5: corrected three expected answers, tightened the extraction prompt, added the confident-wrong count and --rescore, added AGENTS.md (CLAUDE.md in step), recorded the Startup track, effort and audio-ear decisions; Stage 1 re-scored and re-run.
 - 2026-10-27 — Two-ears case card extraction: places list, Spark audio ear, extraction with structured output and code guards, processNote (replaces transcribeNote; not deployed), shared retry code, scoring runner and fixtures; Stage 1 and Stage 2 scored.
-- 2026-10-27 — Recorded the Day 0–1 decisions and facts; transcription now retries once on temporary failures; test runner gained run selection, numbered results and Muse Spark audio runs; ran the Sesotho experiment (runs 003–004).

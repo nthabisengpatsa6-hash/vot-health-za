@@ -13,7 +13,7 @@ const PROFILE = { role: "nurse", facilityType: "clinic", area: "Thaga Park" };
 const SAVED_FIELDS = [
   "reporterUid", "reporterRole", "reporterFacilityType", "reporterArea", "symptomGroup", "unusualDescription",
   "symptomsInWords", "caseCount", "comparedWithUsual", "ageGroup", "area", "onset", "exposure", "observations",
-  "notifiableConditionMentioned", "transcriptClean", "source", "createdAt",
+  "notifiableConditionMentioned", "source", "createdAt",
 ];
 
 test("unsure fields start empty; the AI's guess isn't filled in", () => {
@@ -72,7 +72,8 @@ test("a needed field the clinician empties stops the save", () => {
 test("the saved card has exactly the allowed fields and nothing from the AI's working", () => {
   const note = resultFor("4-n04");
   const draft = { ...draftFromCard(note.cards[0]), caseCount: 3, ageGroup: "5_12", area: "Leeba View" };
-  const saved = toCardDoc({ draft, note, transcript: `  ${note.transcriptClean}  `, profile: PROFILE, uid: "u1", createdAt: "SERVER_TIME" });
+  const saved = toCardDoc({ draft, note, profile: PROFILE, uid: "u1", createdAt: "SERVER_TIME" });
+  assert.equal(SAVED_FIELDS.length, 17);
   assert.deepEqual(Object.keys(saved).sort(), [...SAVED_FIELDS].sort());
   assert.deepEqual(Object.keys(saved.exposure), ["types", "words"]);
   assert.deepEqual(Object.keys(saved.observations), ["moreSevere", "notResponding", "unusualSymptoms", "shortOfSupplies", "suppliesNote"]);
@@ -81,7 +82,9 @@ test("the saved card has exactly the allowed fields and nothing from the AI's wo
   assert.equal(saved.reporterFacilityType, "clinic");
   assert.equal(saved.reporterArea, "Thaga Park");
   assert.equal(saved.notifiableConditionMentioned, "measles");
-  assert.equal(saved.transcriptClean, note.transcriptClean);
+  // Shown during review, never stored.
+  assert.ok(note.transcriptClean.length > 0);
+  assert.equal("transcriptClean" in saved, false);
   assert.equal(saved.source, "voice");
   assert.equal(saved.createdAt, "SERVER_TIME");
   assert.equal(saved.unusualDescription, null);
@@ -91,16 +94,16 @@ test("empty words are saved as null, and a supplies note only with its tick", ()
   const note = resultFor("2-n09");
   const draft = draftFromCard(note.cards[0]);
   const withNote = { ...draft, comparedWithUsual: "more", exposure: { ...draft.exposure, words: "   " }, observations: { ...draft.observations, suppliesNote: "gloves" } };
-  const saved = toCardDoc({ draft: withNote, note, transcript: "", profile: PROFILE, uid: "u1", createdAt: null });
+  const saved = toCardDoc({ draft: withNote, note, profile: PROFILE, uid: "u1", createdAt: null });
   assert.equal(saved.exposure.words, null);
   assert.equal(saved.observations.suppliesNote, null);
   const ticked = { ...withNote, observations: { ...withNote.observations, shortOfSupplies: true } };
-  assert.equal(toCardDoc({ draft: ticked, note, transcript: "", profile: PROFILE, uid: "u1", createdAt: null }).observations.suppliesNote, "gloves");
+  assert.equal(toCardDoc({ draft: ticked, note, profile: PROFILE, uid: "u1", createdAt: null }).observations.suppliesNote, "gloves");
 });
 
 test("exposure types are saved once each, in list order", () => {
   const note = resultFor("2-n09");
   const draft = { ...draftFromCard(note.cards[0]), comparedWithUsual: "more" };
   draft.exposure = { ...draft.exposure, types: ["school", "water"] };
-  assert.deepEqual(toCardDoc({ draft, note, transcript: "", profile: PROFILE, uid: "u1", createdAt: null }).exposure.types, ["water", "school"]);
+  assert.deepEqual(toCardDoc({ draft, note, profile: PROFILE, uid: "u1", createdAt: null }).exposure.types, ["water", "school"]);
 });

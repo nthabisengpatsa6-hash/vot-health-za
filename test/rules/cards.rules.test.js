@@ -3,11 +3,12 @@
 // project. The allowed values come from the app's own lists, so the copies
 // in firestore.rules can't drift from them unnoticed. RULES_FILE lets the
 // break-the-rule check run these tests against a deliberately broken copy.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { after, before, beforeEach, describe, test } from "node:test";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, setLogLevel, Timestamp, updateDoc, where, writeBatch } from "firebase/firestore";
 import { AGE_GROUPS, COMPARED_WITH_USUAL, EXPOSURE_TYPES, OBSERVATIONS, ONSETS, SYMPTOM_GROUPS } from "../../src/config/cardOptions.js";
+import { draftFromCard, toCardDoc } from "../../src/lib/cardDraft.js";
 
 const places = JSON.parse(readFileSync(new URL("../../functions/data/places.json", import.meta.url), "utf8"));
 const AREA_NAMES = places.areas.map((area) => area.name);
@@ -70,7 +71,6 @@ function newCard(overrides = {}, uid = OWNER) {
     exposure: { types: ["water"], words: "the tap water smelled funny" },
     observations: { moreSevere: false, notResponding: false, unusualSymptoms: false, shortOfSupplies: false, suppliesNote: null },
     notifiableConditionMentioned: null,
-    transcriptClean: "Four children under five with watery diarrhoea from Thaga Park.",
     source: "voice",
     createdAt: serverTimestamp(),
     ...overrides,
@@ -120,7 +120,18 @@ describe("allowed", () => {
   });
 
   test("no exposure, nothing to say, and nothing notifiable", async () => {
-    const card = newCard({ exposure: { types: [], words: null }, notifiableConditionMentioned: null, transcriptClean: "" });
+    const card = newCard({ exposure: { types: [], words: null }, notifiableConditionMentioned: null });
+    await assertSucceeds(setDoc(cardRef(dbAs(OWNER)), card));
+  });
+
+  // The app's own card builder, so its field list and the rules can't drift
+  // apart. The practice result's unsure fields are answered first.
+  test("the card the app builds is accepted", async () => {
+    const practice = new URL("../../test-fixtures/practice-results/", import.meta.url);
+    const name = readdirSync(practice).find((file) => file.startsWith("4-n04"));
+    const note = JSON.parse(readFileSync(new URL(name, practice), "utf8")).result;
+    const draft = { ...draftFromCard(note.cards[0]), caseCount: 3, ageGroup: "5_12", area: "Leeba View" };
+    const card = toCardDoc({ draft, note, profile: PROFILES[OWNER], uid: OWNER, createdAt: serverTimestamp() });
     await assertSucceeds(setDoc(cardRef(dbAs(OWNER)), card));
   });
 
@@ -133,7 +144,6 @@ describe("allowed", () => {
       exposure: { types: ["food"], words: longText(300) },
       observations: { moreSevere: false, notResponding: false, unusualSymptoms: false, shortOfSupplies: true, suppliesNote: longText(300) },
       notifiableConditionMentioned: longText(300),
-      transcriptClean: longText(5000),
     });
     await assertSucceeds(setDoc(cardRef(db, "limits"), atLimit));
     await assertSucceeds(setDoc(cardRef(db, "one"), newCard({ caseCount: 1 })));
@@ -205,6 +215,7 @@ describe("denied: wrong content", () => {
   const extraFields = {
     "the area as heard": { areaHeard: "Nonyana Flat" },
     "a raw transcript": { transcriptVoice: "made-up" },
+    "the cleaned transcript": { transcriptClean: "Four children under five with watery diarrhoea from Thaga Park." },
     "the transcripts' disagreements": { disagreements: ["made-up"] },
     "audio": { audioBase64: "UklGRg==" },
     "a name": { patientName: "made-up" },
@@ -263,7 +274,6 @@ describe("denied: wrong content", () => {
     "exposure words over 300 characters": { exposure: { types: [], words: longText(301) } },
     "a supplies note over 300 characters": { observations: { moreSevere: false, notResponding: false, unusualSymptoms: false, shortOfSupplies: true, suppliesNote: longText(301) } },
     "a notifiable condition over 300 characters": { notifiableConditionMentioned: longText(301) },
-    "a transcript over 5000 characters": { transcriptClean: longText(5001) },
   };
   for (const [label, bad] of Object.entries(overLimit)) {
     test(`a card can't have ${label}`, async () => {

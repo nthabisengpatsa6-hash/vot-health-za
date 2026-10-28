@@ -55,6 +55,5 @@ export const TEXT_LIMITS = {
   unusualDescription: 300,
   exposureWords: 300,
   suppliesNote: 300,
-  transcriptClean: 5000,
 };
 export const CASE_COUNT_MAX = 500;
