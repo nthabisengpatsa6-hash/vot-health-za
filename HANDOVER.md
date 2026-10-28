@@ -1,13 +1,13 @@
 # HANDOVER
 
-**Last updated:** 2026-10-28 10:44 SAST
+**Last updated:** 2026-10-28 16:44 SAST
 
-The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). Dated entries below keep the name used at the time. The domain lemoha.co.za was bought on 28 Oct 2026 and isn't connected yet. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
+The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). Dated entries below keep the name used at the time. The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app (connected to Firebase Hosting). Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Task 9 (Wed 28 Oct) renamed the product to Lemoha, added the logo (the ring: wordmark in the header and on the sign-in and set-up screens, favicon, app icons and a web app manifest), added a Logo section to DESIGN.md, and fixed the cut-off symptom-group dropdown. A Task 9 follow-up the same morning shrank the wordmark's "o" to the height of the other letters. Task 10, part 1 (Wed 28 Oct): saved cards no longer hold the transcript (17 fields; the transcript is shown read-only during review and never stored), processNote writes one "note_timing" log line per call and returns its server time, the app shows a timing line with ?timing=1, processNote's memory and concurrency are set, and the phone checklist is in Next steps. Nothing from Tasks 6 to 10 is deployed: the live Hosting URL, https://vot-health-za.web.app, still shows the Vite starter page. Next: Task 10 Part C, the deploys (Functions, rules, Hosting, each its own STOP), one live test, then Nthabiseng's phone tests. Score the 10 recordings when they arrive.
+Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse Voice Transcribe and Muse Spark audio) transcribe it in parallel, and Muse Spark 1.3 builds the cards from both, behind code guards. The callable processNote does this end to end (not deployed). Scoring: 100% on the 10 text fixtures after Task 5's fixture corrections and prompt changes, with no confident-wrong values; 91.7–95.8% on the two real recordings in Task 4 (results below). Task 6 (Day 2, part 1) added sign-in (Google, or email and password), a one-time profile (role, facility type, area) at users/{uid}, and the mobile app layout. Task 7 (Day 2, part 2) built the Report screen end to end: record a voice note (hold, or tap to start and stop), play it back, send it, watch honest progress stages, check the draft cards (unsure fields highlighted, with their questions), confirm, and the cards are saved to cards/{cardId}. processNote now has a daily limit of 40 notes per user and maxInstances 5, and in the local emulators it returns prepared made-up results ("practice mode") instead of calling Meta. Firestore rules for users/{uid} and cards/{cardId} are tested in the emulator (88 tests) but not deployed. Locally, the app uses only the emulators, under the made-up project ID demo-fola. Task 8 gave the app its look: the "Shweshwe" design direction, written down in docs/DESIGN.md (the single source of truth for all UI), turned into design tokens and self-hosted fonts, and applied to every existing screen, with no change to behaviour, data or rules. Task 9 (Wed 28 Oct) renamed the product to Lemoha, added the logo (the ring: wordmark in the header and on the sign-in and set-up screens, favicon, app icons and a web app manifest), added a Logo section to DESIGN.md, and fixed the cut-off symptom-group dropdown. A Task 9 follow-up the same morning shrank the wordmark's "o" to the height of the other letters. Task 10, part 1 (Wed 28 Oct): saved cards no longer hold the transcript (17 fields; the transcript is shown read-only during review and never stored), processNote writes one "note_timing" log line per call and returns its server time, the app shows a timing line with ?timing=1, processNote's memory and concurrency are set, and the phone checklist is in Next steps. Task 10 Part C (Wed 28 Oct) deployed everything: Functions, the Firestore rules and Hosting are live at https://lemoha.co.za (also https://vot-health-za.web.app). The first live notes found two problems the emulator couldn't show, both now fixed: the error lines lost their reason, and the daily counter never made the default Admin app. Two notes from Nthabiseng's phone on mobile data then worked end to end (22 and 30 s in all). Next: Task 10 Part D, the rest of the phone test; then the next small task (the review-screen fix, the sign-in domain, the wordmark spacing, cache headers). Score the 10 recordings when they arrive.
 
 ## Done
 
@@ -222,6 +222,45 @@ Day 1 (Tue 27 Oct). A voice note now becomes draft case cards: two "ears" (Muse 
 - Checked in headless Edge against the emulators in practice mode at 360 × 740 (26 of 26): with ?timing=1 the line shows the upload while processing, 14 px under the wait line, without changing the stage shown, then the full line on card review; the transcript is plain text in Source Serif 4 at 20 px, text-indent -8.4 px, the quote mark in the margin and the first letter in line with the summary (within 1 px); "Not saved…" under reports only; no "edit it" wording anywhere; the saved card in the emulator has exactly the 17 fields; reloaded without ?timing=1, no line on any of the other four results (including the two-card and not-a-report ones); no sideways scrolling; no console errors.
 - `npm run lint` clean, `npm run build` fine (only the known chunk-size warning).
 
+### Day 2 work — Task 10 Part C: the deploys and the first live notes (done Wed 28 Oct)
+- Deployed, each with its own STOP:
+  - C1, 11:28 SAST: Functions from 770bda8 + f58beb4. processNote created and checkMetaConnection updated, both africa-south1. Both refuse a signed-out call (401 UNAUTHENTICATED); checkMetaConnection lists 9 models for a signed-in made-up account.
+  - C2, 11:47 SAST: firestore.rules (users and cards; everything else, noteUsage included, deny-all), after `npm run test:rules` 89 of 89. The CLI's "An unexpected error has occurred" afterwards was its own "Timed out" (the release returned 200). Signed-out reads get 403 PERMISSION_DENIED. No query needs an index.
+  - C3, 12:01 SAST: Hosting from f58beb4 (14 files). Every live file matches dist/ byte for byte; the title is "Lemoha"; headless Edge shows the sign-in screen with the wordmark, no "Local test mode" strip and no console errors. Cache-Control is max-age=3600 on everything (Known issues).
+  - C1b, 14:38 SAST (93a5082) and C1c, 15:45 SAST (919bb7e): Functions redeployed. Every function setting was the same before and after (compared with `firebase functions:list --json`: region, memory, CPU, timeout, concurrency, min and max instances, secret, service account, ingress), and both functions still refuse a signed-out call.
+- lemoha.co.za was already connected to Hosting (found at C3): https://lemoha.co.za serves the app over HTTPS, and https://www.lemoha.co.za returns 301 to it. DNS: lemoha.co.za A 199.36.158.100; www CNAME vot-health-za.web.app. Neither function sets `cors`, so onCall's default allows any origin; a preflight from https://lemoha.co.za gets 204.
+- The first live notes failed at the daily counter (outcome counter_failed, noteMs 3), and the reason wasn't logged.
+  - 93a5082, error logging: "Daily note counter failed" and "Could not reach the Meta API" passed their reason as `message`, which the Firebase logger overwrites. Both now log errorName, errorCode (or the cause's code, where fetch keeps it), reason and where, built by functions/lib/errorLog.js. reason is the error's message with the caller's UID, everything after "documents/" in a full Firestore name, and users/, cards/ and noteUsage/ paths replaced by "[redacted]"; other slash-separated text (text/html, links) stays; at most 500 characters. where is the first stack line in our own code, as file and line relative to functions/. It's only for errors whose message can't contain note content. 7 tests, through the real logger: the reason survives and the UID doesn't.
+  - Nthabiseng found that the default compute service account, which processNote runs as, had only "Cloud Build Service Account" (no Firestore access), and added "Cloud Datastore User" before C1b. FIREBASE_CONFIG and GCLOUD_PROJECT were set correctly on the live revision.
+  - The new log line then showed the real cause: errorCode app/no-app ("The default Firebase app does not exist…") at lib/noteLimit.js:25. For a signed-in caller, firebase-functions verifies the ID token through its own named Admin app, "__FIREBASE_FUNCTIONS_SDK__", before our code runs, so noteLimit's "no app yet?" check skipped initializeApp(). The emulator skips token verification and signed-out calls never verify, so no local test caught it.
+  - 919bb7e, the fix: a search of functions/ for getApps, getApp, initializeApp, getFirestore and getAuth found only noteLimit.js. functions/lib/admin.js is now the only place that makes the default app: it looks for "[DEFAULT]" by name and makes it if missing; defaultDb() is its Firestore, and noteLimit uses it. 2 tests set up the SDK's named app first; with the old check put back for a moment, the counter test failed with app/no-app.
+- Live attempts from the computer (headless Edge driven by a local script, test account 2, the made-up recording mixed-amanzimtoti, about 20 s):
+  - 12:12 and 15:15 SAST reached processNote and hit the counter bug.
+  - 14:41 and 15:47 (with one Try again) never reached it: headless Edge on this computer's Wi-Fi couldn't open a connection to the functions server (net::ERR_CONNECTION_TIMED_OUT after about 21 s, which is when Windows gives up on an unanswered connection), on both the CORS preflight and the POST. Plain connections from the same computer worked (83 ms), so it isn't a Lemoha fault. This computer's upload was also very slow (1.25 MB took 10–59 s).
+  - A read-only check found no client-side time limit near 21 s: processNote's streamed call has only the app's 310 s abort (src/lib/api.js:27-28), and the SDK's 70 s default covers only non-streamed calls. One send per tap, one fetch, no automatic retries; after a failure the recording stays in memory and Try again resends it.
+- The live test moved to Nthabiseng's phone (mobile data, her own account, https://lemoha.co.za/?timing=1). Two notes, both outcome ok with one card each, so the counter fix and the Firestore role work live. processNote's log has no error or warning lines for them (both ears answered). From the note_timing lines (the ears run side by side, so the transcription stage is the slower ear):
+
+  | | Note 1 (handler 16:05:47 SAST) | Note 2 (handler 16:08:25 SAST) |
+  |---|---|---|
+  | Phone's timing line | Upload 6.5 s, server 15.5 s, total 22.0 s | Upload 11.0 s, server 19.0 s, total 30 s |
+  | outcome, coldStart | ok, true (new instance 16:05:42) | ok, false |
+  | audioSeconds, audioBytes | 16.5, 792044 | 15.3, 734444 |
+  | asrMs (Voice Transcribe) | 7525 | 5546 |
+  | audioEarMs (Spark audio) | 4486 | 6626 |
+  | extractMs (card step) | 6955 | 12104 |
+  | retries (asr, audio ear, extract) | 0, 0, 0 | 0, 0, 0 |
+  | cardCount | 1 | 1 |
+  | noteMs | 15489 | 19039 |
+  | Models | muse-voice-transcribe-1.0, muse-spark-1.2, muse-spark-1.3 | the same |
+
+  - Longest step: note 1, transcription (Voice Transcribe 7.5 s), just ahead of the card step (7.0 s); note 2, the card step (12.1 s, nearly twice the slower ear's 6.6 s). The two stages add up to all but about 1 s and 0.3 s of the server time.
+  - Note 1's upload includes the cold start (the instance started about 5.6 s before the handler ran). Note 2's upload, with no cold start, was about 10 s for roughly 1 MB on mobile data. Upload + server = total on both, within 0.1 s.
+  - On the phone, the Observations box blocked saving without looking like a question, so a box was ticked just to save; that card holds a false severity flag (Next steps 3).
+- Delete ("approved delete", for test accounts 1 and 2 only): test account 2's profile, users/WoHIkb6d63Pg7m4KoLgkRXJPpk13, deleted at 16:39 SAST with `firebase firestore:delete` on that one path (--force only for the confirmation prompt; no --recursive). Checked as test account 2 afterwards: profile 404 NOT_FOUND, 0 cards. Neither test account had any other document (no noteUsage, no cards). The local test browser folder that held test account 2's sign-in is deleted. Nthabiseng deletes the two sign-in accounts herself in the Firebase console (Authentication → Users):
+  - test account 1 (C1 check): lemoha.c1.check.1793179755266@example.com, UID fZr1VPiZUSPkkJWhP0I4EOJQeOP2
+  - test account 2 (live test): lemoha.live.test.1793182318748@example.com, UID WoHIkb6d63Pg7m4KoLgkRXJPpk13
+- Functions tests: 77 (new: 7 error-log, 2 admin); lint clean. gcloud's sign-in had expired, so the checks used the Firebase CLI (Known issues).
+
 ## Official hotlines (checked 27 Oct 2026, on each organisation's own pages)
 Shown, with tap-to-call links, when a note asks about treatment (src/config/hotlines.js).
 - NICD: 0800 212 552, "a 24-hour service for healthcare professionals only". Source: NICD, situational update on the Ebola disease outbreak caused by Bundibugyo virus, 29 June 2026, https://www.nicd.ac.za/situational-update-on-the-ebola-disease-outbreak-caused-by-bundibugyo-virus/ (several other 2025–2026 NICD pages give the same number; older NICD pages give other numbers).
@@ -319,21 +358,15 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - Follow-up, after adding "The day patients came in is not the onset." (score-006): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions. n01's onset is now asked in all 3 repeats. Extraction 5.3 s on average (1.3–13.1 s); about $0.22.
 
 ## In progress
-- Task 10 Part C, the deploys. Starts only after the Part A/B commit is pushed.
+- Task 10 Part D, the rest of the phone test (Next steps 2). Two notes from Nthabiseng's phone on mobile data are done (Task 10 Part C).
+- Delete list: Nthabiseng's phone account's data (its users and noteUsage documents, and every test card it saved) is deleted after Part D, and in any case before Day 4. All live test cards must be gone before signals read cards. Its email isn't recorded here.
+- Nthabiseng deletes test accounts 1 and 2 in the Firebase console (emails and UIDs under Task 10 Part C).
 
 ## Next steps (in order)
-1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model.
-2. Task 10 Part C, each deploy its own STOP:
-   - Read-only checks first: `firebase use` shows vot-health-za; billing is on (`gcloud billing projects describe vot-health-za`); the META_API_KEY secret exists (`firebase functions:secrets:get META_API_KEY`, which shows versions only, never the value); `firebase functions:list` (what's live, so the deploy doesn't need to delete anything); what each `firebase.json` target touches; `npm run build`, then dist/ has no source maps, no unexpected files and no value other than the public web config.
-   - Nthabiseng, before the first deploy: Google Cloud console → Billing → Budgets and alerts → a budget for this project with email alerts at 50%, 90% and 100%; and Firebase console → Authentication → Sign-in method: Email/Password and Google both on. Then say "done".
-   - STOP C1, Functions: show what `npm --prefix functions run deploy` runs (`firebase deploy --only functions`), then wait for "approved C1". After: checkMetaConnection refuses a signed-out call and lists models for a made-up example.com account; report each function's region, memory, timeout and concurrency.
-   - STOP C2, Firestore rules: `npm run test:rules` all passing, what the rules allow in plain words, `firebase deploy --only firestore:rules`, wait for "approved C2". Report the time.
-   - STOP C3, Hosting: `npm run build`, `firebase deploy --only hosting`, wait for "approved C3". After: the live site loads the Lemoha sign-in screen with the title "Lemoha"; favicon, manifest and icons return 200; practice mode can't happen live.
-   - One live test from the computer: a made-up example.com account, a profile, one real note (test-audio/raw/mixed-amanzimtoti as the fake microphone; Amanzimtoti isn't on the Kganya list, so the card asks the area), answer and confirm; the live card has the 17 fields and no transcriptClean; report that note's note_timing numbers.
-   - STOP "approved delete": Claude Code lists the exact Firestore paths (the test card, users/{uid}, noteUsage/{uid}) and deletes only those, with `firebase firestore:delete`. It gives Nthabiseng the emails and UIDs of the two test sign-in accounts (the C1 check and the live test); she deletes them herself in the Firebase console (Authentication → Users), so no access token is handled in a script.
-3. Then the phone test, against the live project with real Meta calls. Nthabiseng works through it and reports back:
+1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model. In the same run: keep South African spelling ("diarrhoea") in symptomsInWords (a prompt change, so it's re-scored), and the "Fola" → "Lemoha" prompt change (Open decisions).
+2. Task 10 Part D, the rest of the phone test, against the live project with real Meta calls. Nthabiseng works through it and reports back. Done so far (28 Oct): two notes from her phone on mobile data at ?timing=1 (results under Task 10 Part C).
    1. Use made-up scripts only (the 10 test scripts, or: "Three children under five with watery diarrhoea from Leeba View today. Bomme ba re ba nwa metsi a pompo."). Never real patient details.
-   2. Android, Chrome, on mobile data, at https://vot-health-za.web.app/?timing=1
+   2. Android, Chrome, on mobile data, at https://lemoha.co.za/?timing=1
       - sign in with Google, then sign out and sign in with email
       - set a profile
       - record three notes of about 15, 30 and 60 seconds; write down the Upload, Server and Total numbers for each
@@ -344,14 +377,25 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
    3. The same on Wi-Fi for one 30-second note, to compare upload times.
    4. iPhone, Safari (borrow one): sign in, one 30-second note, save, the symptom-group box, the timing line.
    5. Send the numbers and anything odd to the planning chat.
+   6. Afterwards: delete the phone account's data (In progress).
 
    Also worth watching on the phones (from earlier tasks): iPhone Safari has never been tested (no Safari on Windows), so check it records, plays back, sends, shows the stages and saves, the microphone permission steps, and that holding the record button doesn't open a long-press menu; the wordmark's "o" at the phone's own screen density.
+3. Next small task, after Task 10:
+   - Review-screen fix, from the phone test. The Observations box blocked saving ("Answer 1 more to save") without looking like a question, so a box ("More severe than usual") was ticked just to save, and the card stored a false severity flag. Agreed direction:
+     1. Observations are optional. They never block saving or count as an unanswered question. The card ticks a box only when the note says so; otherwise all start unticked.
+     2. Patient flags, reworded: "Sicker than usual" (moreSevere) and "Not getting better with usual treatment" (notResponding), under a heading like "Anything else you noticed?".
+     3. Hide "Unusual symptoms" from the review screen; unusualSymptoms stays false. The "Something unusual" symptom group covers it. No change to the 17 fields or the rules.
+     4. Supplies move to their own optional line below, worded about the clinic ("Running short of anything?"), with the suppliesNote box appearing when ticked.
+     5. Tapping "Answer N more to save" scrolls to the first unanswered question.
+   - The sign-in domain switch: authDomain to lemoha.co.za, so Google's account chooser stops showing vot-health-za.firebaseapp.com. Nthabiseng adds the redirect URI and the authorized domain in the consoles.
+   - The wordmark ring's spacing.
+   - Hosting cache headers: no-cache for index.html and the manifest, long-lived for hashed assets (Known issues).
 4. Nthabiseng, in the consoles (by hand; no code): the name people see outside the app.
    - Firebase console → the cog next to "Project overview" → Project settings → General → "Public-facing name" → the pencil → "Lemoha" → Save. Firebase's help page says it fills %APP_NAME% in the sign-in emails (password reset); setup guides say Google sign-in uses it as the app name too.
    - Firebase console → Authentication → Templates → Password reset: check the sender name and the subject; change any "Fola" to "Lemoha".
-   - Google Cloud console (same project) → Google Auth Platform → Branding → "App name": check it says Lemoha, and change it if it says Fola. Google shows this name on its account chooser only after the app's branding is verified; until then the chooser shows the domain, vot-health-za.firebaseapp.com (see step 5).
+   - Google Cloud console (same project) → Google Auth Platform → Branding → "App name": check it says Lemoha, and change it if it says Fola. Google shows this name on its account chooser only after the app's branding is verified; until then the chooser shows the domain, vot-health-za.firebaseapp.com (see step 3).
    - Don't rename the Firebase project itself (display name "Fola").
-5. After the Task 10 deploy, its own STOP: Connect lemoha.co.za to Firebase Hosting (DNS records), then decide whether to move the sign-in authDomain to it, so Google's account chooser stops showing vot-health-za.firebaseapp.com.
+5. Speed, on Day 7 with "Check later". From the phone test: the server time is almost all transcription (5.5–7.5 s, both ears side by side) plus the card step (7–12 s, the largest and most variable). Upload on mobile data was about 10 s per MB, and a cold start about 5.6 s. Planned order: compressed audio from the phone; then a card step that no longer writes the cleaned transcript (re-score); then one warm instance in judging week.
 6. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
    - Day 6 (Signal detail): cards hold no transcript, so the evidence trail points to each card's own fields, which hold the clinician's words: symptomsInWords, exposure.words and unusualDescription.
 7. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser.
@@ -415,10 +459,17 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - 28 Oct — One "note_timing" log line per processNote call, holding numbers, model IDs and an outcome code only, never content or who sent it; the app shows timings only with ?timing=1 and sends them nowhere. Why: to see where the 23–47 s per note go before deciding anything about speed.
 - 28 Oct — processNote's first streamed message is {stage: "received"} (approved). Why: the browser has no "finished sending" event, and the server otherwise sends nothing until the "building" stage, so this is the only way to time the upload. It carries nothing else and the screen ignores it.
 - 28 Oct — Every push gets the standard pre-push scan below (approved), so it can't get lost again.
+- 28 Oct — A caught error is logged as errorName, errorCode, reason (the caller's UID and our document paths replaced by "[redacted]") and where (file and line in our code); never the transcript, audio, card content or the UID (approved). Why: the counter's live failure couldn't be diagnosed, because the logger overwrote the reason.
+- 28 Oct — functions/lib/admin.js is the only place that makes the default Admin app, and looks for it by name (approved). Why: firebase-functions makes its own named app to verify a signed-in caller, so "is there any app?" is the wrong check.
+- 28 Oct — Live tests run from Nthabiseng's phone, not headless Edge on the computer (her call). Why: the computer's Wi-Fi sometimes couldn't open a connection to the functions server.
+- 28 Oct — All live test cards are deleted before signals read cards (before Day 4); the phone account's data goes after Part D (Nthabiseng's call).
+- 28 Oct — Observations on card review become optional and never block saving (agreed direction; Next steps 3). Why: in the phone test, a required-looking box led to a false severity flag on a saved card.
+- 28 Oct — Speed order for Day 7: compressed audio from the phone, then a card step that no longer writes the cleaned transcript (re-scored), then one warm instance in judging week. Why: the phone test's note_timing numbers (Next steps 5).
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Change 'Fola' to 'Lemoha' in the extraction prompt during the next scoring run, and re-score in that same run.
-- Stop the card step from writing the cleaned transcript, to save time? It's no longer stored, but the review screen still shows it. A later speed decision, made after the note_timing numbers come in, and only with a re-scoring run (the prompt and processNote's reply would change).
+- The privacy notice (with the profile delete UI) must say that Google's platform logs keep technical data such as IP addresses and browser details for a limited time.
+- Day 4 planning: Cards are written directly from the browser, so any signed-in user with a profile can save valid-looking cards without a voice note. There's no daily cap on that (the 40-a-day limit only covers processNote), and email sign-ups aren't verified. Before signals read real cards, decide between: server-written cards (a confirm function, which fits the 'Check later' drafts design), a per-user cap in the rules, email verification, and App Check.
 - Licence for the public repo.
 - How simulation data is kept apart from real data (Day 3).
 - Audio-ear model: the final choice comes after scoring the 10 recordings (now muse-spark-1.2).
@@ -437,7 +488,7 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - .oxlintrc.json — linter rules.
 - .firebaserc — links this folder to the Firebase project vot-health-za.
 - firebase.json — Firebase settings: Firestore (africa-south1, rules, indexes), Functions folder, Hosting from dist/, emulator ports.
-- firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} (exactly the 17 fields, no transcript) created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Not deployed.
+- firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} (exactly the 17 fields, no transcript) created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Deployed 28 Oct (Task 10 Part C).
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
 - Brand folders (docs/DESIGN.md, Logo):
@@ -491,10 +542,12 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
 - test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
-- functions/index.js — Cloud Functions: checkMetaConnection and processNote (not deployed); processNote's settings (1 GiB, concurrency 8, 300 s, at most 5 instances) and its one note_timing line per call.
+- functions/index.js — Cloud Functions: checkMetaConnection and processNote (deployed 28 Oct); processNote's settings (1 GiB, concurrency 8, 300 s, at most 5 instances) and its one note_timing line per call.
 - functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears, the daily note limit, practice-mode stage time).
 - functions/lib/noteLimit.js — the daily note limit: the SAST day and the counter transaction on noteUsage/{uid}.
+- functions/lib/admin.js — the only place that makes the default Admin app (looked for by name, since firebase-functions makes its own named app first) and its Firestore.
 - functions/lib/noteTiming.js — the note_timing log entry: its allowed keys, the cold-start flag, ear timings and retries.
+- functions/lib/errorLog.js — errorDetails: a caught error's name, code, reason (UID and our document paths redacted) and where, for one log line. Only for errors whose message can't contain note content.
 - functions/lib/practice.js — practice mode: the emulator-and-demo check and the prepared results in turn.
 - functions/data/places.json — the demo town Kganya: 7 areas and which works feeds each (Day 3's town file grows from this).
 - functions/prompts/spark-audio.md — the instruction for the Muse Spark audio ear.
@@ -514,6 +567,8 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 - functions/test/practice.test.js — practice mode is on only in the emulator under demo-, and processNote under the real project ID calls Meta.
 - functions/test/note-limit.test.js — the daily limit, with a fake Firestore transaction.
 - functions/test/note-timing.test.js — the note_timing entry (allowed keys only, no content) and one entry per processNote call for each outcome, with fake Meta replies.
+- functions/test/admin.test.js — with firebase-functions' own named app already there, the default app is still made and the counter opens its Firestore.
+- functions/test/error-log.test.js — the counter's and the Meta connection's error lines keep the reason and leave out the UID (through the real logger); redaction and where.
 - functions/test/make-wav.js — builds WAVs in memory for the tests.
 - functions/package.json, functions/package-lock.json — Functions libraries, Node 22, npm scripts.
 - functions/.gitignore — keeps node_modules/ and *.local (including .secret.local) out of git.
@@ -558,7 +613,7 @@ Other local commands:
 **Check**
 - `npm run lint` — checks the code for common mistakes.
 - `npm test` — runs the 33 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; and the timing line).
-- `npm --prefix functions test` — runs the 68 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the note_timing log line), all with fakes and no network calls.
+- `npm --prefix functions test` — runs the 77 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the default Admin app, the note_timing log line, the error log lines), all with fakes and no network calls.
 - `npm run test:rules` — runs the 89 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
@@ -580,6 +635,8 @@ Other local commands:
 **Watch**
 - `npm --prefix functions run logs` — shows recent logs from the deployed functions (read-only).
 - Each processNote call writes one line with the message "note_timing" (see Task 10, part 1, for its keys and outcome codes). In the Google Cloud console's Logs Explorer, `jsonPayload.message="note_timing"` finds them.
+- A failed counter or Meta connection writes an error line ("Daily note counter failed", "Could not reach the Meta API") with errorName, errorCode, reason (UID and our document paths shown as "[redacted]") and where (file and line in functions/).
+- `firebase functions:log --only processNote --lines 40` reads the latest lines; the times are UTC (SAST minus 2 hours).
 - Phone tests: open the live site with `?timing=1` at the end of the address to see "Upload …, server …, total …" on the Report screen. Upload includes preparing the request and, on a cold start, the instance starting.
 
 **Deploy (each one is a separate STOP: ask first)**
@@ -599,15 +656,20 @@ Other local commands:
 - g. The product name only where the brand rules allow it (src/config/product.js, index.html's title, public/manifest.webmanifest; "Fola" only where HANDOVER records it).
 
 ## Known issues
-- Google's account chooser shows "vot-health-za.firebaseapp.com" (the sign-in authDomain), not the app name, until the app's branding is verified by Google or the authDomain moves to lemoha.co.za (Next steps 4 and 5).
+- Google's account chooser shows "vot-health-za.firebaseapp.com" (the sign-in authDomain), not the app name, until the app's branding is verified by Google or the authDomain moves to lemoha.co.za (Next steps 3 and 4).
 - The wordmark's ring is level with "e" and "a" to within 1 px at 4x (Task 9 follow-up), checked in headless Edge as a real 4x screen. Phones at other densities (2.625x, 3x) haven't been checked; look at the wordmark in the Task 10 phone test. Measuring under DevTools device emulation shows a false 4 px jump (see the follow-up).
 - The symptom-group box's tap-to-open has only been checked in headless Edge (taps land on the select); the phones' own lists are in the Task 10 phone test.
 - The case card's arrival motion plays again when a removed card is brought back with Undo.
 - Source Serif 4 is loaded at its default optical size (14), to keep the files small; the clinician's words are set at 20 px.
 - Starting the emulators from a terminal opened before Java was installed fails with "Could not spawn java -version" (in that window, `$env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")` reloads the saved path so Java is found); stopping `npm run emulators` from a tool can leave its Java and Node processes holding ports 8080, 9099 and 5001 until they're ended.
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the repo history, which becomes public on Day 8. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
-- Nothing from Tasks 6 to 10 is deployed. The live site still shows the Vite starter page, and the live Firestore still has the deny-all rules, so saving a profile or a card would fail until the rules are deployed.
 - iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
+- Hosting sends Cache-Control max-age=3600 for everything (firebase.json has no headers), so after a redeploy a phone can keep the old index.html, and with it the old app, for up to an hour. Fixed in the next small task (Next steps 3): no-cache for index.html and the manifest, long-lived for hashed assets.
+- On card review, an unsure Observations field blocks saving ("Answer 1 more to save") without looking like a question. In the phone test a box was ticked just to save, so a saved test card holds a false severity flag. Fixed in the next small task (Next steps 3).
+- Headless Edge on the computer's Wi-Fi sometimes can't open a connection to the functions server (net::ERR_CONNECTION_TIMED_OUT after about 21 s), while plain connections from the same computer work. Live tests run from a phone instead.
+- gcloud's sign-in has expired: Nthabiseng runs `gcloud auth login` at a terminal before any gcloud command. The Firebase CLI still works.
+- The Functions emulator skips sign-in token verification, so anything firebase-functions does only for a verified signed-in caller never happens locally. That hid the live counter failure of 28 Oct (app/no-app: firebase-functions makes its own named Admin app to verify the token, so "no app yet" checks are wrong; fixed in 919bb7e, proven live by the phone test at 16:05 SAST). Check signed-in paths live after a Functions change that touches the Admin SDK.
+- processNote runs as the default compute service account. After the hackathon, give it its own service account with only Cloud Datastore User and access to the META_API_KEY secret.
 - The timing line's upload time isn't pure network time: it runs from Send until processNote says "received", so it includes preparing the request (base64, the sign-in token) and, on a cold start, the instance starting (26 s in the local emulators after a code reload). The note_timing line's coldStart says when that happened.
 - A note stopped by processNote's own 300 s timeout writes no note_timing line; Cloud Run's request log shows the 504.
 - firestore.rules also keeps its own copy of the card lists (symptom groups, age groups, compared with usual, onset, exposure types, areas). Changing src/config/cardOptions.js, functions/lib/cardSchema.js or functions/data/places.json means changing firestore.rules too; the unit and rules tests fail until they match.
@@ -623,13 +685,13 @@ Other local commands:
 - Muse Spark audio can invent text: in Task 3, 1.2 added a sentence that wasn't spoken, and in Task 4, 1.3 invented a disease name. The two-ears comparison and the rule 5 guard kept both off the cards, but the audio ear can't be trusted alone.
 - The cleaned transcript once swapped a name for an unrelated word (Task 4), and once kept a misheard word from one ear. The clinician reviews the transcript before confirming, and the Report screen presents it as "what we heard, please check". Since Task 5 the prompt says never to replace a name with another word.
 - A [?] in one transcript counts as a disagreement, so a weak audio ear can add questions about facts the other ear heard clearly (five questions on one card in Task 4).
-- The deployed checkMetaConnection can still be called by anyone (it only lists models). The code has required sign-in since Task 6, and the check goes live with the next Functions deploy.
 - npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path), listed again under @firebase/rules-unit-testing because it depends on firebase. Don't run "npm audit fix --force", because it would downgrade firebase.
 - Local Node is v24 but Functions run nodejs22. It's only a warning.
 - The Firebase CLI sometimes prints its results, then exits with "Timed out". Harmless.
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.
 
 ## Recent changes (newest first; keep the last 10)
+- 2026-10-28 — Task 10 Part C: Functions, the Firestore rules and Hosting deployed (each its own STOP) and live at https://lemoha.co.za. Live notes found two bugs the emulator couldn't show, both fixed and redeployed: error lines lost their reason (93a5082: errorName, errorCode, reason with the UID and our document paths redacted, where) and the daily counter never made the default Admin app (919bb7e: functions/lib/admin.js). Nthabiseng added Cloud Datastore User to the compute service account. Headless Edge on the computer's Wi-Fi couldn't always reach the functions server, so the live test moved to her phone: two notes on mobile data worked (22 and 30 s in all; note_timing in Done). Test account 2's profile deleted; the review-screen fix, speed plan and next small task recorded. Functions tests 77.
 - 2026-10-28 — Task 10, part 1: saved cards no longer hold the transcript (17 fields; rules and tests updated, a card with transcriptClean is denied); the transcript on card review is read-only text in the clinician's serif with the hanging quote; processNote writes one note_timing log line per call (numbers, model IDs and an outcome code only), streams "received" first and returns noteMs; the ?timing=1 line on the Report screen; processNote at 1 GiB, concurrency 8, 300 s, max 5 instances; the phone checklist and the standard pre-push scan in HANDOVER. Tests: web 33, Functions 68, rules 89; 26 of 26 browser checks. Nothing deployed.
 - 2026-10-28 — Task 9 follow-up: the wordmark's "o" shrunk from a 0.72em to a 0.61em box, with its drop from 0.083em to 0.0625em, so the ring's top and bottom are within 1 px of "e" and "a" at 4x at 24, 30, 40 and 50 px, and its width within 2–5% of a real "o". CSS only. Sign-in and the header checked at 360 × 740 and 125% text.
 - 2026-10-28 — Task 9: renamed to Lemoha (working name Fola until 28 Oct); the ring logo: Wordmark component (header, sign-in, set-up, loading and error screens), brand SVGs, favicon, app icons and the web app manifest; DESIGN.md Logo section, "Long option labels" and the voice-note-row case; the symptom-group dropdown shows its label in full; brand test and a tighter colour allow-list (31 web unit tests). Checked in Edge at 360 and 390 px and at 125% text (475 of 475). lemoha.co.za recorded. Nothing deployed; deploy is now Task 10.
@@ -639,4 +701,3 @@ Other local commands:
 - 2026-10-27 — Task 6: sign-in (Google, email and password), a one-time profile at users/{uid}, the mobile layout with all five routes (placeholders except Profile), the emulators under demo-fola, src/lib/api.js, Firestore rules for users/{uid} with 28 emulator tests (not deployed), and a sign-in check in checkMetaConnection (not deployed). The Vite starter files are deleted; Java 21 is installed.
 - 2026-10-27 — Extraction prompt: "The day patients came in is not the onset."; Stage 1 now 100% with no confident-wrong values.
 - 2026-10-27 — Task 5: corrected three expected answers, tightened the extraction prompt, added the confident-wrong count and --rescore, added AGENTS.md (CLAUDE.md in step), recorded the Startup track, effort and audio-ear decisions; Stage 1 re-scored and re-run.
-- 2026-10-27 — Two-ears case card extraction: places list, Spark audio ear, extraction with structured output and code guards, processNote (replaces transcribeNote; not deployed), shared retry code, scoring runner and fixtures; Stage 1 and Stage 2 scored.
