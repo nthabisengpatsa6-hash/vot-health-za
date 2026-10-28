@@ -9,17 +9,19 @@ import Message from "./Message";
 // (the transcript and the NMC reminder, set in the clinician's serif).
 export default function NoteNotices({ note }) {
   const transcript = (note.transcriptClean || "").trim();
+  const cards = note.cards.length > 1 ? "cards" : "card";
   return (
     <div className="note-notices">
       {/* Read only: the transcript is shown for checking and never saved, so
-          corrections go into the card. */}
+          corrections (names included) go into the card. With no card, there's
+          nothing to check it against. */}
       {transcript && (
         <>
-          <Message kind="check">Check the transcript. {PRODUCT_NAME} can miss or mishear words, especially in languages other than English. Remove any names before confirming.</Message>
+          {note.isReport && <Message kind="check">Check the card against what you said. {PRODUCT_NAME} can miss or mishear words, especially in languages other than English.</Message>}
           <details className="transcript">
             <summary>What we heard</summary>
             <blockquote className="transcript-words voice">“{transcript}”</blockquote>
-            {note.isReport && <p className="note">Not saved. Fix anything wrong in the card above.</p>}
+            {note.isReport && <p className="note">{`Not saved. Fix anything wrong in the ${cards} above.`}</p>}
           </details>
         </>
       )}
