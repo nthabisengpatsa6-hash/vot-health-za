@@ -10,16 +10,24 @@ import { fileURLToPath } from "node:url";
 // the rates (the honesty rule) or the ground truth (the scorecard's alone);
 // and the app doesn't import it yet, so it can't grow the main bundle (on
 // Day 4 it's loaded with import() on the /demo route).
+// The statistics (functions/shared/) follow the same rules, and more: they
+// take cards as input and never reach the simulation, Firebase, a package
+// or a Node built-in, so the browser and a Cloud Function run the same code.
+// Only the scorecard brings the two together.
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SIM = join(ROOT, "src", "sim");
+const SHARED = join(ROOT, "functions", "shared");
+const DATA = join(ROOT, "functions", "data");
 const rel = (path) => relative(ROOT, path).split(sep).join("/");
 
 // The app files the simulation may use: the card lists, the profile lists,
-// the card builder and the town file. All are free of Firebase.
+// the card builder and the town file, plus the statistics (for the
+// scorecard). All are free of Firebase.
 const SIM_MAY_USE = ["src/config/cardOptions.js", "src/config/profileOptions.js", "src/lib/cardDraft.js", "functions/data/places.json"];
 const MAY_READ_SETTINGS = ["src/sim/background.js", "src/sim/draws.js", "src/sim/seededCluster.js", "src/sim/engine.js", "src/sim/groundTruth.js"];
-// The Day 8 scorecard, not written yet.
+// The scorecard, the only sim file that also runs the statistics.
 const MAY_READ_GROUND_TRUTH = ["src/sim/scorecard.js"];
+const MAY_USE_STATISTICS = ["src/sim/scorecard.js"];
 
 function sourceFiles(dir) {
   return readdirSync(dir).flatMap((name) => {
@@ -32,6 +40,7 @@ function sourceFiles(dir) {
 // Everything except the tests, which may import any module they check.
 const APP_FILES = ["src", "scripts", "functions"].flatMap((dir) => sourceFiles(join(ROOT, dir)));
 const SIM_FILES = sourceFiles(SIM);
+const SHARED_FILES = sourceFiles(SHARED);
 
 // Code without its comments, so a comment can't hide or fake an import. A
 // "//" after a colon (as in https://) isn't a comment.
@@ -59,10 +68,10 @@ function resolveImport(file, specifier) {
 const importsOf = (file) => specifiers(readFileSync(file, "utf8")).map((specifier) => ({ specifier, path: resolveImport(file, specifier) }));
 const importersOf = (target) => APP_FILES.filter((file) => importsOf(file).some(({ path }) => path === join(ROOT, target))).map(rel);
 
-// Every file the simulation reaches, following imports from each sim file.
-function reachedFromSim() {
+// Every file reached by following imports from the given files.
+function reachedFrom(files) {
   const reached = new Map();
-  const queue = [...SIM_FILES];
+  const queue = [...files];
   while (queue.length > 0) {
     const file = queue.pop();
     if (reached.has(file)) continue;
@@ -72,46 +81,72 @@ function reachedFromSim() {
   }
   return reached;
 }
+const reachedFromSim = () => reachedFrom(SIM_FILES);
+const isStatistics = (file) => file.startsWith(SHARED + sep);
+
+// Code that must run the same in Node and in any browser, with no sign-in,
+// no network and no clock.
+const FORBIDDEN = [
+  [/\bfetch\s*\(/, "fetch"], [/XMLHttpRequest|WebSocket|EventSource|sendBeacon/, "a network call"], [/firebase/i, "Firebase"],
+  [/\b(?:window|document|navigator|localStorage|sessionStorage|indexedDB)\b/, "the browser"],
+  [/Math\.random/, "Math.random"], [/Date\.now|performance\.now|new Date\(\s*\)/, "the clock"],
+  [/\.get(?:FullYear|Month|Date|Day|Hours|Minutes|Seconds|Milliseconds|TimezoneOffset)\(|toLocale|\bIntl\b/, "the computer's time zone"],
+  [/Math\.(?!floor\b|ceil\b|round\b|min\b|max\b|abs\b|imul\b|trunc\b)\w+|\*\*/, "maths that browsers may round differently"],
+];
+function assertPure(files) {
+  for (const file of files) {
+    if (file.endsWith(".json")) continue;
+    const code = codeOnly(readFileSync(file, "utf8"));
+    for (const [pattern, what] of FORBIDDEN) assert.doesNotMatch(code, pattern, `${rel(file)} uses ${what}`);
+  }
+}
 
 test("the import scanner sees static imports, import() and require", () => {
   assert.deepEqual(specifiers('import a from "./a.js";\nimport {\n  b,\n} from "./b.js";\nexport { c } from "./c.js";\nconst d = await import("./d.js");\nconst e = require("./e");\n// import f from "./f.js";'), ["./a.js", "./b.js", "./c.js", "./d.js", "./e"]);
   assert.ok(importersOf("src/sim/scenarios.js").includes("src/sim/engine.js"));
 });
 
-test("the simulation reaches only its own files, the app's lists, the card builder and the town file: no Firebase, no packages", () => {
+test("the simulation reaches only its own files, the app's lists, the card builder, the town file and the statistics: no Firebase, no packages", () => {
   assert.ok(SIM_FILES.length >= 10);
   for (const [file, imports] of reachedFromSim()) {
-    assert.ok(file.startsWith(SIM + sep) || SIM_MAY_USE.includes(rel(file)), `the simulation reaches ${rel(file)}`);
+    assert.ok(file.startsWith(SIM + sep) || SIM_MAY_USE.includes(rel(file)) || isStatistics(file), `the simulation reaches ${rel(file)}`);
     for (const { specifier, path } of imports) assert.ok(path, `${rel(file)} imports the package "${specifier}"`);
   }
 });
 
 test("no file the simulation reaches uses the network, storage, the clock, the time zone or engine-dependent maths", () => {
-  const forbidden = [
-    [/\bfetch\s*\(/, "fetch"], [/XMLHttpRequest|WebSocket|EventSource|sendBeacon/, "a network call"], [/firebase/i, "Firebase"],
-    [/\b(?:window|document|navigator|localStorage|sessionStorage|indexedDB)\b/, "the browser"],
-    [/Math\.random/, "Math.random"], [/Date\.now|performance\.now|new Date\(\s*\)/, "the clock"],
-    [/\.get(?:FullYear|Month|Date|Day|Hours|Minutes|Seconds|Milliseconds|TimezoneOffset)\(|toLocale|\bIntl\b/, "the computer's time zone"],
-    [/Math\.(?!floor\b|ceil\b|round\b|min\b|max\b|abs\b|imul\b|trunc\b)\w+|\*\*/, "maths that browsers may round differently"],
-  ];
-  for (const file of reachedFromSim().keys()) {
-    if (file.endsWith(".json")) continue;
-    const code = codeOnly(readFileSync(file, "utf8"));
-    for (const [pattern, what] of forbidden) assert.doesNotMatch(code, pattern, `${rel(file)} uses ${what}`);
+  assertPure(reachedFromSim().keys());
+});
+
+test("the statistics reach only functions/shared/ and functions/data/: no simulation, Firebase, packages or Node built-ins", () => {
+  assert.ok(SHARED_FILES.length >= 6);
+  for (const [file, imports] of reachedFrom(SHARED_FILES)) {
+    assert.ok(isStatistics(file) || file.startsWith(DATA + sep), `the statistics reach ${rel(file)}`);
+    for (const { specifier, path } of imports) assert.ok(path, `${rel(file)} imports "${specifier}", which isn't in functions/shared/ or functions/data/`);
   }
 });
 
-test("outside src/sim, only engine.js may be imported, and the app doesn't import the simulation yet", () => {
+test("no file the statistics reach uses the network, storage, the clock, the time zone or engine-dependent maths", () => {
+  assertPure(reachedFrom(SHARED_FILES).keys());
+});
+
+test("outside src/sim, only engine.js may be imported (and the scorecard, by scripts), and the app imports neither the simulation nor the statistics yet", () => {
   for (const file of APP_FILES.filter((path) => !path.startsWith(SIM + sep))) {
     for (const { path } of importsOf(file)) {
-      if (!path || !path.startsWith(SIM + sep)) continue;
-      assert.equal(rel(path), "src/sim/engine.js", `${rel(file)} imports ${rel(path)}`);
+      if (!path) continue;
+      if (isStatistics(path)) assert.ok(!rel(file).startsWith("src/"), `${rel(file)} puts the statistics in the app's main bundle`);
+      if (!path.startsWith(SIM + sep)) continue;
+      assert.ok(["src/sim/engine.js", "src/sim/scorecard.js"].includes(rel(path)), `${rel(file)} imports ${rel(path)}`);
+      if (rel(path) === "src/sim/scorecard.js") assert.ok(rel(file).startsWith("scripts/"), `${rel(file)} imports the scorecard`);
       assert.ok(!rel(file).startsWith("src/"), `${rel(file)} puts the simulation in the app's main bundle`);
     }
   }
 });
 
-test("only the generator reads the scenario settings, and only the scorecard reads the ground truth", () => {
+test("only the generator reads the scenario settings, and only the scorecard reads the ground truth and runs the statistics", () => {
   for (const file of importersOf("src/sim/scenarios.js")) assert.ok(MAY_READ_SETTINGS.includes(file), `${file} reads the scenario settings`);
   for (const file of importersOf("src/sim/groundTruth.js")) assert.ok(MAY_READ_GROUND_TRUTH.includes(file), `${file} reads the ground truth`);
+  for (const file of SIM_FILES) {
+    if (importsOf(file).some(({ path }) => path && isStatistics(path))) assert.ok(MAY_USE_STATISTICS.includes(rel(file)), `${rel(file)} runs the statistics`);
+  }
 });
