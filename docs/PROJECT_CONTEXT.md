@@ -207,7 +207,7 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 | AI calls | Firebase Cloud Functions | Hold the API keys so the browser never sees them (needs the Blaze plan) |
 | Signal maths | Plain JavaScript modules in functions/shared/, run in the browser (the public replay) and later in Cloud Functions (live signals) | One copy of the maths for both; checkable numbers; the AI never does the maths |
 | Hosting | Firebase Hosting | Live link for the judges |
-| Map | Leaflet, with plain shapes for the demo town | Free, no API key; no real streets |
+| Map | Plain SVG: the demo town's shapes, drawn in the browser (decided 29 Oct 2026, Task 14) | No library, no tiles and no API key; no real streets; accessible buttons and the prints as SVG patterns; real area shapes can be drawn the same way later |
 | Audio | Browser recording → Cloud Function → Muse Voice Transcribe and Muse Spark ("two ears") | Audio is never stored |
 
 **Model routing**

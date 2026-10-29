@@ -143,6 +143,25 @@ The map is the one bold surface: a piece of indigo cloth.
 - A supply zone: a dotted white outline (2.5 px, dash 0.5 gap 7, round caps, 85% opacity) around its areas, with a white tag (radius 8, indigo text) naming it.
 - Areas are plain shapes, never a real street map.
 
+Added in Task 14 (29 Oct), for cases the first version didn't cover:
+- A level area's chip holds its name, with its level word on the line below.
+- Where the map can be used (the replay), each area's name is a real button, and a tap anywhere on its shape works too. Where it can't (Near me), the map is one picture with a spoken description.
+- The area whose sheet is open has a 3 px solid white outline.
+- Your area (Near me): the same 3 px solid white outline, and a white tag (radius 8, indigo 14 px weight 700) saying "Your area" under its name.
+- No supply zones and no muted comparison labels until possible sources are on screen (Signal detail): drawn earlier, they'd point at the answer.
+- Lines and dashes are drawn in screen pixels, and the prints stay 12 and 16 px whatever the map's size.
+- Under the map, a list of every area with its level badge (or "Nothing unusual"), highest level first, for screen readers and small screens. Each row opens the same sheet.
+
+The area sheet:
+- A bottom sheet that doesn't block the page: the map, Play and the day slider keep working, and its numbers follow the day shown. It appears without sliding (it isn't one of the motion moments), at most 55% of the screen's height.
+- Opening it moves focus to its heading. Close or Esc closes it and returns focus to where it was opened.
+- In it: the area's name (section title) and its level badge, with "Since day 17, Thu 18 Feb 2027" as the badge's line. Then, for each signal the area is part of: the symptom group (field value), counts against usual ("52 cases in 3 days; usually about 7"), the cards and places of care, and why it has its level ("Alert: reported from 4 places of care, clearly more than twice the usual number, and a possible common source."). Never a chance, never a source by name. With no level: "Nothing unusual was found in Thaga Park on Thu 18 Feb 2027."
+
+The replay's controls:
+- The run switch is the segmented control.
+- Play and Pause is a primary button with its icon, beside the day number (field value) and the date (14 px, ink-muted).
+- The day slider: a 6 px indigo-disabled track and a 24 px indigo thumb, 44 px tall to touch, with the focus ring. No filled part, which would need a gradient.
+
 The prints, as SVG patterns:
 
 ```svg
