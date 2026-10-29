@@ -67,10 +67,13 @@ function goToFirstAnswer(drafts) {
   const first = firstToFix(drafts);
   const block = first && document.getElementById(cardFieldId(first.index + 1, first.field));
   if (!block) return;
-  try {
-    block.scrollIntoView({ block: "start", behavior: "auto" });
-  } catch {
-    block.scrollIntoView(true);
+  for (const options of [{ block: "start", behavior: "auto" }, true]) {
+    try {
+      block.scrollIntoView(options);
+      break;
+    } catch {
+      // Try the plain form next; the focus below happens either way.
+    }
   }
   block.querySelector(FIRST_CONTROL)?.focus({ preventScroll: true });
 }
@@ -328,9 +331,11 @@ export default function ReportScreen({ user, profile }) {
     const statusOnButton = !saving && active.length > 0 && needed > 0;
     const saveTap = () => handleSaveTap(drafts, {
       save: confirm,
+      // The cover goes up first; its own timer takes it down, whatever
+      // the scroll or the focus does.
       jump: () => {
-        goToFirstAnswer(drafts);
         setTapShield(true);
+        goToFirstAnswer(drafts);
       },
     });
 
