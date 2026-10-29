@@ -30,8 +30,9 @@ const REQUIRED_FIELDS = [
   "symptomGroup", "caseCount", "comparedWithUsual", "ageGroup", "area",
   "onset",
 ];
-// The fields a clinician can be asked to confirm, in the order the card
-// shows them.
+// The fields the model may mark unsure, in the order the card shows them.
+// "observations" stays only because the reply schema the model sees is built
+// from this list; cleanCard never asks about it.
 const CARD_FIELDS = [
   "symptomGroup", "unusualDescription", "symptomsInWords", "caseCount",
   "comparedWithUsual", "ageGroup", "area", "onset", "exposure",
@@ -54,7 +55,6 @@ const DEFAULT_QUESTIONS = {
   area: "Which area do the patients live in?",
   onset: "When did the symptoms start?",
   exposure: "Did the patients share any water, food, school or event?",
-  observations: "Is anything unusual about how these patients are doing?",
 };
 const MAX_QUESTION_LENGTH = 160;
 const MAX_NOTE_LENGTH = 300;
@@ -168,6 +168,9 @@ function cleanCard(raw) {
   const unsure = new Set(
       asList(raw.unsureFields).filter((field) => CARD_FIELDS.includes(field)),
   );
+  // Observations are optional and never asked: a box is ticked only when the
+  // note says so, so if the model wasn't sure, every box starts unticked.
+  const observationsUnsure = unsure.delete("observations");
   const allowed = (field, value, isAllowed) => {
     if (value === null || value === undefined) return null;
     if (isAllowed(value)) return value;
@@ -199,7 +202,10 @@ function cleanCard(raw) {
     },
     observations: {
       ...Object.fromEntries(
-          OBSERVATION_FLAGS.map((flag) => [flag, observations[flag] === true]),
+          OBSERVATION_FLAGS.map((flag) => [
+            flag,
+            !observationsUnsure && observations[flag] === true,
+          ]),
       ),
       suppliesNote: textOrNull(observations.suppliesNote),
     },

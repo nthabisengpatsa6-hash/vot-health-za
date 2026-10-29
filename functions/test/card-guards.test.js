@@ -152,6 +152,48 @@ test("keeps the model's question for an unsure field, drops the rest", () => {
   ]);
 });
 
+test("never asks about observations, and leaves their boxes unticked " +
+    "when the model wasn't sure", () => {
+  const card = firstCard(rawReply({
+    observations: {
+      moreSevere: true,
+      notResponding: true,
+      unusualSymptoms: true,
+      shortOfSupplies: true,
+      suppliesNote: "gloves",
+    },
+    unsureFields: ["observations", "onset"],
+    questions: [
+      {field: "observations", question: "Were any patients very ill?"},
+      {field: "onset", question: "When did it start?"},
+    ],
+  }));
+  assert.deepEqual(card.unsureFields, ["onset"]);
+  assert.deepEqual(card.questions.map((item) => item.field), ["onset"]);
+  assert.deepEqual(card.observations, {
+    moreSevere: false,
+    notResponding: false,
+    unusualSymptoms: false,
+    shortOfSupplies: false,
+    suppliesNote: "gloves",
+  });
+});
+
+test("keeps observation ticks the model is sure of; missing ones are false",
+    () => {
+      const card = firstCard(rawReply({
+        observations: {moreSevere: true, notResponding: null},
+      }));
+      assert.deepEqual(card.unsureFields, []);
+      assert.deepEqual(card.observations, {
+        moreSevere: true,
+        notResponding: false,
+        unusualSymptoms: false,
+        shortOfSupplies: false,
+        suppliesNote: null,
+      });
+    });
+
 test("rejects a reply with the wrong shape", () => {
   for (const changes of [{cards: "none"}, {isReport: "yes"},
     {adviceRequested: null}]) {

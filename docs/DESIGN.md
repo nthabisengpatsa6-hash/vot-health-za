@@ -102,7 +102,7 @@ Text never sits directly on Signal orange or Watch ochre (it fails contrast). La
 
 - **Primary button:** indigo background, white text, radius 12, 54 px tall (50 inside sheets). Pressed: indigo-pressed.
 - **Secondary button:** white background, 1.5 px indigo border, indigo text.
-- **Disabled button:** indigo-disabled background, ink-disabled text. Its label says what's missing, for example "Answer 1 more to save".
+- **Disabled button:** indigo-disabled background, ink-disabled text. Its label says what's missing, for example "Answer 1 more to save". On card review, tapping it goes to the first unanswered question.
 - **Segmented control** (one answer out of 2 to 4): a white container with a 1.5 px indigo border and radius 12; 1 px indigo-divider lines between options; the selected option is filled indigo with white text and a check icon, and has aria-pressed="true". Give the longest option more width rather than letting it wrap. Options that don't fit in one row at 360 px wide stack one under another, in the same style.
 - **Inputs and dropdowns:** white, 1.5 px ink-muted border, radius 12, 50 px tall.
 - **Long option labels:** A dropdown whose labels can be long shows the chosen label as full text that wraps, with the real dropdown laid invisibly over it. Tapping still opens the phone's own list.

@@ -42,12 +42,19 @@ export const EXPOSURE_TYPES = [
   { value: "other", label: "Other" },
 ];
 
+// Every stored observation flag, in cardSchema.js's order (firestore.rules
+// and the tests sweep this list). All are optional. The card shows the two
+// patient flags, then the supplies flag on its own line. unusualSymptoms is
+// never shown and always saved as false: the "Something unusual" symptom
+// group covers it.
 export const OBSERVATIONS = [
-  { value: "moreSevere", label: "More severe than usual" },
-  { value: "notResponding", label: "Not responding to usual treatment" },
+  { value: "moreSevere", label: "Sicker than usual" },
+  { value: "notResponding", label: "Not getting better with usual treatment" },
   { value: "unusualSymptoms", label: "Unusual symptoms" },
-  { value: "shortOfSupplies", label: "Short of supplies" },
+  { value: "shortOfSupplies", label: "Running short of anything?" },
 ];
+export const PATIENT_FLAGS = OBSERVATIONS.filter((option) => ["moreSevere", "notResponding"].includes(option.value));
+export const SUPPLIES_FLAG = OBSERVATIONS.find((option) => option.value === "shortOfSupplies");
 
 // Firestore rules enforce the same limits.
 export const TEXT_LIMITS = {

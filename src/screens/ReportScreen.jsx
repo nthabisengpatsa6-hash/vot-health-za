@@ -8,7 +8,7 @@ import VoiceNoteRow from "../components/VoiceNoteRow";
 import Waveform from "../components/Waveform";
 import { PRODUCT_NAME } from "../config/product";
 import { streamFunction } from "../lib/api";
-import { draftFromCard, fieldsToFix } from "../lib/cardDraft";
+import { answersNeeded, cardFieldId, draftFromCard, firstToFix, handleSaveTap, saveButtonAction } from "../lib/cardDraft";
 import { saveCards } from "../lib/cards";
 import { MAX_SECONDS, MicrophoneError, startRecording } from "../lib/recorder";
 import { SHOW_TIMING, formatTiming } from "../lib/timing";
@@ -23,6 +23,10 @@ const PRIVACY_SAVING = `Check there are no names, then save. ${PRODUCT_NAME} doe
 const MIN_SECONDS = 1;
 const WARN_SECONDS = MAX_SECONDS - 10;
 const SLOW_SAVE_MS = 10_000;
+// A quick second tap on "Answer N more to save" would land on whatever the
+// jump moved under the finger, perhaps an answer. For this long after a
+// jump, an invisible cover takes taps.
+const TAP_SHIELD_MS = 500;
 
 const MIC_HELP = {
   blocked: {
@@ -48,6 +52,28 @@ const STAGES = [
   { id: "reading", label: "Reading your note…" },
   { id: "building", label: "Building the card…" },
 ];
+
+// The first control in a field block that can take an answer. The case
+// count's − and + buttons are skipped, so focus lands on its number box.
+const FIRST_CONTROL = "select:not(:disabled), textarea:not(:disabled), input:not(:disabled), button:not(.stepper-button):not(:disabled)";
+
+// "Answer N more to save" takes the clinician to the first unanswered
+// question and puts focus on its first control, so the next tap or key
+// answers it. The scroll is instant ("auto", and no CSS sets smooth
+// scrolling): docs/DESIGN.md allows motion only at three moments. If a
+// browser refuses the scroll options, the plain scroll and the focus still
+// happen.
+function goToFirstAnswer(drafts) {
+  const first = firstToFix(drafts);
+  const block = first && document.getElementById(cardFieldId(first.index + 1, first.field));
+  if (!block) return;
+  try {
+    block.scrollIntoView({ block: "start", behavior: "auto" });
+  } catch {
+    block.scrollIntoView(true);
+  }
+  block.querySelector(FIRST_CONTROL)?.focus({ preventScroll: true });
+}
 
 function formatTime(seconds) {
   const whole = Math.floor(seconds);
@@ -79,6 +105,7 @@ export default function ReportScreen({ user, profile }) {
   const [timing, setTiming] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [slowSave, setSlowSave] = useState(false);
+  const [tapShield, setTapShield] = useState(false);
 
   const live = useRef(true);
   const recording = useRef(null);
@@ -105,6 +132,12 @@ export default function ReportScreen({ user, profile }) {
       dropAudio();
     };
   }, []);
+
+  useEffect(() => {
+    if (!tapShield) return undefined;
+    const timer = setTimeout(() => setTapShield(false), TAP_SHIELD_MS);
+    return () => clearTimeout(timer);
+  }, [tapShield]);
 
   async function start() {
     setMicProblem(null);
@@ -227,6 +260,9 @@ export default function ReportScreen({ user, profile }) {
   }
 
   async function confirm() {
+    // The save button isn't HTML-disabled while answers are missing, so the
+    // save itself refuses until every kept card is complete.
+    if (saveButtonAction(drafts) !== "save") return;
     setSaveError(null);
     setPhase("saving");
     const slowTimer = setTimeout(() => setSlowSave(true), SLOW_SAVE_MS);
@@ -275,7 +311,7 @@ export default function ReportScreen({ user, profile }) {
   if (phase === "cards" || phase === "saving") {
     const saving = phase === "saving";
     const active = drafts.filter((draft) => !draft.removed);
-    const needed = active.reduce((sum, draft) => sum + fieldsToFix(draft).length, 0);
+    const needed = answersNeeded(drafts);
     let status = "Everything is answered.";
     let saveLabel = "Confirm and save";
     if (active.length === 0) {
@@ -285,9 +321,18 @@ export default function ReportScreen({ user, profile }) {
       status = `${needed} more ${needed === 1 ? "answer" : "answers"} needed before you can save.`;
       saveLabel = `Answer ${needed} more to save`;
     }
-    // While the disabled button says what's missing, the same words are only
-    // announced to screen readers, so they don't show twice.
+    // While the button says what's missing, the same words are only
+    // announced to screen readers, so they don't show twice. It looks
+    // disabled but stays tappable: a tap goes to the first unanswered
+    // question and never saves.
     const statusOnButton = !saving && active.length > 0 && needed > 0;
+    const saveTap = () => handleSaveTap(drafts, {
+      save: confirm,
+      jump: () => {
+        goToFirstAnswer(drafts);
+        setTapShield(true);
+      },
+    });
 
     return (
       <section className="screen">
@@ -313,11 +358,13 @@ export default function ReportScreen({ user, profile }) {
           <div className="confirm-area">
             {saveError && <Message kind="error" role="alert">{saveError}</Message>}
             <p className={statusOnButton ? "visually-hidden" : "note"} role="status">{saving && slowSave ? "Still saving. Waiting for a connection…" : status}</p>
-            <button type="button" className="button button-primary" disabled={saving || active.length === 0 || needed > 0} onClick={confirm}>{saving ? "Saving…" : saveLabel}</button>
+            <button type="button" className={statusOnButton ? "button button-primary is-waiting" : "button button-primary"} disabled={saving || active.length === 0} onClick={saveTap}>{saving ? "Saving…" : saveLabel}</button>
             <PrivacyLine text={PRIVACY_SAVING} />
             <button type="button" className="button button-secondary stacked" disabled={saving} onClick={startOver}>Record again</button>
           </div>
         )}
+        {/* Cancelling the press keeps focus where the jump put it. */}
+        {tapShield && <div className="tap-shield" aria-hidden="true" onMouseDown={(e) => e.preventDefault()} />}
       </section>
     );
   }

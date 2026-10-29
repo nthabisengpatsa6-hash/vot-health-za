@@ -1,5 +1,5 @@
-import { AGE_GROUPS, CASE_COUNT_MAX, COMPARED_WITH_USUAL, EXPOSURE_TYPES, OBSERVATIONS, ONSETS, SYMPTOM_GROUPS, TEXT_LIMITS } from "../config/cardOptions";
-import { fieldsToFix, isFilled } from "../lib/cardDraft";
+import { AGE_GROUPS, CASE_COUNT_MAX, COMPARED_WITH_USUAL, EXPOSURE_TYPES, ONSETS, PATIENT_FLAGS, SUPPLIES_FLAG, SYMPTOM_GROUPS, TEXT_LIMITS } from "../config/cardOptions";
+import { cardFieldId, fieldsToFix, isFilled, showsSuppliesNote } from "../lib/cardDraft";
 import { AREA_NAMES, TOWN } from "../lib/places";
 
 const SYMPTOM_PROMPT = "Choose a symptom group";
@@ -34,7 +34,7 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
     let className = "card-field";
     if (isUnsure) className += answered ? " is-unsure is-answered" : " is-unsure";
     return (
-      <div className={className} role="group" aria-labelledby={isUnsure ? `${labelId} ${questionId}` : labelId}>
+      <div className={className} id={cardFieldId(number, name)} role="group" aria-labelledby={isUnsure ? `${labelId} ${questionId}` : labelId}>
         {isUnsure && (
           <p className="card-question" id={questionId}>
             <span className="check-tag">{answered ? "Answered" : "Please check"}</span>
@@ -128,23 +128,29 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
         </>
       ))}
 
-      {field("observations", "Observations", () => (
+      {/* Optional, never asked and never in the way of saving: a box is
+          ticked only when the note said so. */}
+      {field("observations", "Anything else you noticed?", () => (
+        <div className="choices">
+          {PATIENT_FLAGS.map((option) => (
+            <label key={option.value} className="choice">
+              <input type="checkbox" checked={draft.observations[option.value]} onChange={(e) => set({ observations: { ...draft.observations, [option.value]: e.target.checked } })} />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </div>
+      ))}
+
+      {/* About the clinic, not the patients, so it's a line of its own. */}
+      {field("supplies", "Supplies", () => (
         <>
           <div className="choices">
-            {OBSERVATIONS.map((option) => (
-              <label key={option.value} className="choice">
-                <input type="checkbox" checked={draft.observations[option.value]} onChange={(e) => set({ observations: { ...draft.observations, [option.value]: e.target.checked, none: false } })} />
-                <span>{option.label}</span>
-              </label>
-            ))}
-            {unsure.has("observations") && (
-              <label className="choice">
-                <input type="checkbox" checked={draft.observations.none} onChange={(e) => set({ observations: { ...draft.observations, ...noFlags(), none: e.target.checked } })} />
-                <span>None of these</span>
-              </label>
-            )}
+            <label className="choice">
+              <input type="checkbox" checked={draft.observations.shortOfSupplies} onChange={(e) => set({ observations: { ...draft.observations, shortOfSupplies: e.target.checked } })} />
+              <span>{SUPPLIES_FLAG.label}</span>
+            </label>
           </div>
-          {draft.observations.shortOfSupplies && (
+          {showsSuppliesNote(draft) && (
             <label className="sub-field">
               <span className="sub-label">What is running short?</span>
               <input className="input voice" type="text" maxLength={TEXT_LIMITS.suppliesNote} value={draft.observations.suppliesNote} onChange={(e) => set({ observations: { ...draft.observations, suppliesNote: e.target.value } })} />
@@ -161,10 +167,6 @@ export default function CaseCardForm({ draft, number, total, onChange }) {
 // The − and + buttons always land on a count the rules accept.
 function clampCount(value) {
   return Math.max(1, Math.min(CASE_COUNT_MAX, value));
-}
-
-function noFlags() {
-  return Object.fromEntries(OBSERVATIONS.map((option) => [option.value, false]));
 }
 
 // One-tap answers as a segmented control. aria-pressed marks the chosen one
