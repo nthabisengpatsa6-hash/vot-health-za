@@ -1,9 +1,9 @@
 # Project context: Lemoha (codename vot-health-za)
 
-> The product is Lemoha, Sesotho for "to notice" (working name Fola until 28 Oct 2026). Domain: lemoha.co.za, bought 28 Oct 2026, not connected yet.
+> The product is Lemoha, Sesotho for "to notice" (working name Fola until 28 Oct 2026). Domain: lemoha.co.za, bought and connected to Firebase Hosting on 28 Oct 2026; www.lemoha.co.za redirects (301) to lemoha.co.za.
 > This file changes only when a decision changes. Day-to-day state lives in HANDOVER.md.
 > This repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Never put keys, passwords, tokens or personal data here.
-> Last decision change: 28 Oct 2026.
+> Last decision change: 29 Oct 2026.
 
 ## 1. The hackathon
 
@@ -111,7 +111,7 @@ A card describes a group of patients, never a person. Nothing is saved until the
 | Area | An area in the demo town | Matched against the local place list; asked if unsure |
 | Onset | Today | Today / last 3 days / longer |
 | Exposure clues | Tap water | Water, food, school, event or other, plus her words |
-| Observations | Not responding to usual treatment | Tick boxes: more severe than usual; not responding to usual treatment; unusual symptoms; short of supplies (described) |
+| Observations | Not getting better with usual treatment | Optional tick boxes, ticked only when the note says so; never asked and never in the way of saving: sicker than usual; not getting better with usual treatment; and, on a line of its own, running short of supplies (described). "Unusual symptoms" is stored but always false: the "Something unusual" symptom group covers it |
 | Reporter | Nurse, clinic | Role and facility type from the account |
 | Unsure fields | Area | Fields the AI flagged; the clinician must confirm them |
 | Source | Voice note | The cleaned transcript is shown for checking during review and never stored. The evidence trail points to the card's own fields, which hold the clinician's words (symptoms, exposure words, what is unusual) |
@@ -216,7 +216,7 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 
 **Keys.** Only Cloud Functions hold keys, as the Firebase secrets META_API_KEY and BASETEN_API_KEY. Nthabiseng sets them herself at a terminal prompt (firebase functions:secrets:set NAME). The browser never sees a key. For the emulator, local values go in functions/.secret.local, which is gitignored. Never ask for, print, log or commit a key.
 
-**Firebase.** Display name "Fola", the working name; the project isn't renamed (project ID: see .firebaserc). Blaze plan with a budget alert. Firestore in africa-south1 (permanent) and Functions in africa-south1. Firestore rules stay deny-all until each collection gets its own rules with emulator tests.
+**Firebase.** Display name "Fola", the working name; the project isn't renamed (project ID: see .firebaserc). Blaze plan with a budget alert. Firestore in africa-south1 (permanent) and Functions in africa-south1. Firestore rules stay deny-all until each collection gets its own rules with emulator tests. Hosting serves https://lemoha.co.za (connected 28 Oct 2026; www.lemoha.co.za redirects (301) to it) and https://vot-health-za.web.app. Sign-in uses authDomain lemoha.co.za (popup sign-in); vot-health-za.web.app still works.
 
 **Simulation data** is kept apart from anything real; the exact mechanism is decided on Day 3.
 
