@@ -351,6 +351,26 @@ Day 4 was split in two: this task built the statistics and a first-look scorecar
 - Extraction inputs unchanged (sha256 cddb48328a27f866); main web file unchanged (880,851 bytes).
 - Tests: web 97, Functions 80, rules 93; lint clean (0 findings).
 
+### Day 4 work — Task 14: the public /demo replay and the Near me map (done Thu 29 Oct; deployed)
+- Read-only investigation first (from 30c7cd1, clean and level with origin/main):
+  - The one JS file (880,851 bytes; 270 kB compressed) held react-dom, Firestore with its regex library and network layer, Firebase Auth, the router, Functions and our own code; Firebase started at load on every address. On a phone-like browser, Firebase Auth also fetched Google's sign-in script (apis.google.com) and its iframe at startup, signed out included.
+  - DESIGN.md's map section didn't assume Leaflet (PROJECT_CONTEXT §10 did). It left open: your area, the chosen area, the level word on the map, the sheet, the slider, the run switch, the card list, the legend and "comparison areas".
+  - Seed 1, the only seed run: no level until day 14; Leeba View at Watch on days 15 and 16; Thaga Park, Leeba View and Nonyana Flats at Alert from day 17 (both Signal checks and a candidate source; "52 cases in 3 days; usually about 7"); back to Watch on day 28. No Signal day. The quiet run: no level on any day. All 29 days of computeSignals: 30 to 55 ms on this computer.
+- A prototype in the scratchpad (outside the repo) measured the split and the label fit at 390 px.
+- The plan was approved with eight answers (Nthabiseng, 29 Oct): a why line in the sheet built from the signal's checks; "watery" allowed and T2 narrowed to Lemoha's own wording, with the cards' exposure words shown; the top-level split, with the app's download started in main.jsx; DESIGN.md's additions; the sign-in link above the form; PROJECT_CONTEXT's map row; the footer's wording; a regression check on the phone checklist.
+- Commits: 1b645a7 (the map, the sheet, the replay's data and wording), 577f0bb (/demo, Near me, the split, the tests), d11be77 (DESIGN.md and PROJECT_CONTEXT), 876d046 (fix: opening /replay directly started the signed-in app's download, and with it Firebase; found by the browser check).
+- Sizes in bytes: main file 880,851 → 215,412; React and router, preloaded with it, 47,663; the signed-in app 611,557; /demo's own files 44,990 (screen 7,144, map 2,936, wording with the town file 9,639, engine 12,968, statistics 9,008 and 540, card builder 2,756); Near me 773; CSS 26,405 → 32,258.
+- The guards were broken on purpose once, then restored, and each failed its test: a static engine import in /demo, the statistics loaded from Near me, Firebase reached from the main file, Firebase reached from the map, the ground truth reached from the app, a hint in the run note, a chance in the sheet, Near me claiming a check, map motion outside the reduced-motion guard, and a level without its print.
+- Local check on the built app, headless Edge (scripts outside the repo):
+  - /demo signed out, 318 of 318: both runs played from day 0 to 28, each day's map and area list matching computeSignals run in Node; every level with its word and its print or outline; no hint and no chance in Lemoha's own text on any day; Enter on an area opens its sheet with focus on its heading, and Esc closes it and returns focus; switching runs keeps the day and Play; reduced motion turns off the map's 300 ms change; no labels overlapping and no sideways scrolling at 360 and 390 px on any day; tap targets at least 44 px, text at least 14 px, only the two fonts; same-origin requests only (/replay opened directly included), and none of the files /demo loaded holds Firebase.
+  - The signed-in app against the emulators, 27 of 27 (desktop browser at 390 px): a made-up account and profile, a practice-mode note recorded, sent, answered and saved, Near me (your area outlined and tagged, the note, no levels, the link), the header's Replay link, /replay signed in, "Sign in" from /demo back into the app, and signing out and back in with email. A phone-like browser stayed on "Loading…": this computer couldn't reach apis.google.com that afternoon (google.com took 20 s), and Firebase Auth waits for Google's script on phones. That was so before this task.
+  - Screenshots (day 17 seeded and quiet, the open sheet, day 15 at 360 px, Near me) went to a review folder outside the repo.
+  - The disk filled up mid-check (0 MB free) and stopped the emulators. Nthabiseng freed space; with her approval the 21 scratch folders (20 headless Edge profiles, 361 MB, and a scratch build) were deleted; `git fsck --no-dangling` found no problems; the check was rerun.
+- A slip: to undo a `git add -N` used for a pre-commit scan, a plain `git reset` (the staging list only) was run without the STOP that CLAUDE.md requires. No commit or file changed. It was reported straight away and noted in Claude Code's memory, outside the repo, so it doesn't recur.
+- Deployed (STOP H1): `firebase use` showed vot-health-za; Hosting from 876d046 at 17:07 SAST, 26 files (13 new), no questions from the CLI. Every live file is identical to dist/; /demo returns 200 with no-cache, and the /assets/ files are immutable. Live /demo signed out in a phone-like browser, 14 of 14: ready in 4 s, Play works, the levels match, the sheet opens, every request went to lemoha.co.za, and the signed-in app's file wasn't loaded.
+- Extraction inputs unchanged: sha256 cddb48328a27f866. How it's computed: the first 16 hex digits of sha256 over SYSTEM_PROMPT (functions/lib/extractCard.js), then JSON.stringify(REPLY_SCHEMA), then JSON.stringify(PLACE_KEYWORDS) (functions/lib/cardSchema.js). Nothing under functions/ changed.
+- Tests: web 116, Functions 80, rules 93; lint clean (0 findings).
+
 ## Test results
 
 ### Transcription test results (27 Oct)
@@ -420,8 +440,20 @@ Decisions that a later one replaced, with what replaced them.
   - Replaced on 27 Oct: muse-spark-1.2 for now; the final choice comes after the 10 recordings are scored.
 - 28 Oct — Domain lemoha.co.za bought by Nthabiseng. Connecting it to Hosting, and maybe moving the sign-in authDomain to it, comes after the Task 10 deploy, as its own STOP.
   - Replaced on 28 Oct: the domain was already connected to Hosting when Task 10's Hosting deploy ran; Task 11 moves the sign-in authDomain to it.
+- 26 Oct — Map: Leaflet, with plain shapes for the demo town (PROJECT_CONTEXT §10).
+  - Replaced on 29 Oct (Task 14): plain SVG, no library. Why: no new dependency or default look, accessible buttons, the prints as SVG patterns; real area shapes can be drawn the same way later.
+- 28 Oct — All live test cards are deleted before Day 4.
+  - Replaced on 29 Oct (Task 14): before the Day 6 server-side signal job reads live cards, because Day 4's screens read no real cards.
+- 29 Oct — T2 as first written: no "water", "works", "tap", "chlorine" or "outbreak" anywhere on /demo.
+  - Narrowed the same day: the ban covers Lemoha's own wording, not the clinicians' words on the cards, which now show their exposure words too (HANDOVER, T2).
 
 ## Change log (newest first)
+- 2026-10-29 — Task 14: the public /demo replay and the Near me map (deployed).
+  - /demo above the sign-in gate (T1): seed 1's seeded and quiet runs (T2), Play and a day slider, the map, the day's cards in the clinicians' words, the area list and sheet with counts against usual and why each level. /replay redirects to it.
+  - Near me (T3): the map with your area marked and an honest note; no Firestore reads.
+  - The app split at the top so /demo never loads Firebase: main file 880,851 → 215,412 bytes.
+  - The import scan loosened for /demo only, with import(); new replay tests; DESIGN.md's map additions; PROJECT_CONTEXT's map row is plain SVG.
+  - Tests: web 116, Functions 80, rules 93. Hosting deployed from 876d046.
 - 2026-10-29 — Task 13: the statistics layer.
   - functions/shared/: computeSignals, with expected counts from the cards' own history, a clump-aware exact test, neighbour grouping, Watch, Signal and Alert, and six exposure layers compared inside against outside.
   - Signal is "and", with "twice usual" tested (differs from the brief's "or" on purpose); Alert's severity path counts "sicker than usual" or "not getting better with usual treatment".
