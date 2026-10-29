@@ -5,6 +5,7 @@ import places from "../../functions/data/places.json" with { type: "json" };
 import { computeSignals } from "../../functions/shared/signals.mjs";
 import { dayEnd, dayOfDate } from "../../functions/shared/sastDay.mjs";
 import { LEVELS } from "../../src/config/levels.js";
+import { isReplayPath } from "../../src/lib/loadApp.js";
 import { PRODUCT_NAME } from "../../src/config/product.js";
 import { createReplay, LAST_DAY, REPLAY_DAYS, REPLAY_SEED, RUNS } from "../../src/lib/replay.js";
 import * as words from "../../src/lib/replayText.js";
@@ -33,6 +34,11 @@ test("the replay is seed 1 on both runs, days 0 to 28, with no way to a held-out
   replay.resultFor("seeded", 0);
   replay.resultFor("quiet", 0);
   assert.deepEqual(seedsAsked, [1, 1]);
+});
+
+test("opening /demo or /replay never starts the signed-in app's download; every other address does", () => {
+  for (const path of ["/demo", "/demo/", "/Demo", "/replay", "/replay/"]) assert.ok(isReplayPath(path), path);
+  for (const path of ["/", "/report", "/near-me", "/demo/x", "/demonstration"]) assert.ok(!isReplayPath(path), path);
 });
 
 test("on day 17 the seeded run's map is computeSignals' own, and the quiet run has no level", () => {
