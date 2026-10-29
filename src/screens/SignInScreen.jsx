@@ -6,10 +6,12 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
+import { Link } from "react-router";
 import Message from "../components/Message";
 import Wordmark from "../components/Wordmark";
 import { authErrorMessage } from "../lib/authErrors";
 import { auth } from "../lib/firebase";
+import { DEMO_LINK } from "../lib/replayText";
 
 const RESET_SENT = "If there's an account for that email, a reset link is on its way. Check your inbox and spam folder.";
 
@@ -78,6 +80,9 @@ export default function SignInScreen() {
         <h1 className="auth-wordmark"><Wordmark size="large" /></h1>
         <p className="lead">Quick voice reports from health workers, joined up into early signals for your area.</p>
       </div>
+
+      {/* Most visitors without an account are judges: the replay needs none. */}
+      <Link to="/demo" className="button button-secondary auth-demo">{DEMO_LINK}</Link>
 
       <div className="panel">
         {mode === "reset" ? (

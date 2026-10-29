@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { CalendarIcon, MicIcon, PersonIcon, PinIcon, ReplayIcon } from "./Icons";
 import Wordmark from "./Wordmark";
@@ -19,7 +19,7 @@ export default function AppLayout() {
       <header className="app-header">
         <Link to="/report" className="header-wordmark"><Wordmark /></Link>
         <nav className="header-links" aria-label="More">
-          <NavLink to="/replay" className="header-link">
+          <NavLink to="/demo" className="header-link">
             <ReplayIcon />
             Replay
           </NavLink>
@@ -31,7 +31,10 @@ export default function AppLayout() {
       </header>
 
       <main className="app-main">
-        <Outlet />
+        {/* A screen that loads its own code (Near me) keeps the header and tabs while it does. */}
+        <Suspense fallback={<p className="note" role="status">Loading…</p>}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <nav className="tab-bar" aria-label="Main">

@@ -8,12 +8,14 @@ import { fileURLToPath } from "node:url";
 // with no sign-in, no Firestore and no network, the same in Node and in any
 // browser; signal code reaches it only through engine.js, so it can't read
 // the rates (the honesty rule) or the ground truth (the scorecard's alone);
-// and the app doesn't import it yet, so it can't grow the main bundle (on
-// Day 4 it's loaded with import() on the /demo route).
+// and in the app only the /demo route loads it, with import(), so it can't
+// grow the main file.
 // The statistics (functions/shared/) follow the same rules, and more: they
 // take cards as input and never reach the simulation, Firebase, a package
 // or a Node built-in, so the browser and a Cloud Function run the same code.
-// Only the scorecard brings the two together.
+// Only the scorecard brings the two together. Every page loads the main
+// file, so neither it nor the /demo route may reach Firebase: a signed-out
+// visitor to the replay never loads it.
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SIM = join(ROOT, "src", "sim");
 const SHARED = join(ROOT, "functions", "shared");
@@ -46,16 +48,19 @@ const SHARED_FILES = sourceFiles(SHARED);
 // "//" after a colon (as in https://) isn't a comment.
 const codeOnly = (source) => source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 
+const DYNAMIC_IMPORT = /\bimport\s*\(\s*["']([^"']+)["']\s*\)/g;
 const IMPORT_PATTERNS = [
   /\b(?:import|export)\b[^"';]*?\bfrom\s*["']([^"']+)["']/g,
   /\bimport\s*["']([^"']+)["']/g,
-  /\bimport\s*\(\s*["']([^"']+)["']\s*\)/g,
+  DYNAMIC_IMPORT,
   /\brequire\s*\(\s*["']([^"']+)["']\s*\)/g,
 ];
-function specifiers(source) {
+// Each import, and whether it's import(), which Vite gives a file of its own.
+function importList(source) {
   const code = codeOnly(source);
-  return IMPORT_PATTERNS.flatMap((pattern) => [...code.matchAll(pattern)].map((match) => match[1]));
+  return IMPORT_PATTERNS.flatMap((pattern) => [...code.matchAll(pattern)].map((match) => ({ specifier: match[1], dynamic: pattern === DYNAMIC_IMPORT })));
 }
+const specifiers = (source) => importList(source).map(({ specifier }) => specifier);
 
 // A relative import as a file path; anything else (a package) as null.
 function resolveImport(file, specifier) {
@@ -65,19 +70,21 @@ function resolveImport(file, specifier) {
   assert.ok(found, `${rel(file)} imports "${specifier}", which doesn't exist`);
   return found;
 }
-const importsOf = (file) => specifiers(readFileSync(file, "utf8")).map((specifier) => ({ specifier, path: resolveImport(file, specifier) }));
+const importsOf = (file) => importList(readFileSync(file, "utf8")).map(({ specifier, dynamic }) => ({ specifier, dynamic, path: resolveImport(file, specifier) }));
 const importersOf = (target) => APP_FILES.filter((file) => importsOf(file).some(({ path }) => path === join(ROOT, target))).map(rel);
 
-// Every file reached by following imports from the given files.
-function reachedFrom(files) {
+// Every file reached by following imports from the given files. With
+// staticOnly, only what loads with them, not what import() fetches later.
+// Stylesheets and JSON are reached but not read.
+function reachedFrom(files, { staticOnly = false } = {}) {
   const reached = new Map();
   const queue = [...files];
   while (queue.length > 0) {
     const file = queue.pop();
     if (reached.has(file)) continue;
-    const imports = file.endsWith(".json") ? [] : importsOf(file);
+    const imports = /\.(js|jsx|mjs|cjs)$/.test(file) ? importsOf(file) : [];
     reached.set(file, imports);
-    for (const { path } of imports) if (path) queue.push(path);
+    for (const { path, dynamic } of imports) if (path && !(staticOnly && dynamic)) queue.push(path);
   }
   return reached;
 }
@@ -101,8 +108,9 @@ function assertPure(files) {
   }
 }
 
-test("the import scanner sees static imports, import() and require", () => {
+test("the import scanner sees static imports, import() and require, and tells import() apart", () => {
   assert.deepEqual(specifiers('import a from "./a.js";\nimport {\n  b,\n} from "./b.js";\nexport { c } from "./c.js";\nconst d = await import("./d.js");\nconst e = require("./e");\n// import f from "./f.js";'), ["./a.js", "./b.js", "./c.js", "./d.js", "./e"]);
+  assert.deepEqual(importList('import a from "./a.js";\nconst [b] = await Promise.all([import("./b.js")]);').map(({ dynamic }) => dynamic), [false, true]);
   assert.ok(importersOf("src/sim/scenarios.js").includes("src/sim/engine.js"));
 });
 
@@ -130,17 +138,51 @@ test("no file the statistics reach uses the network, storage, the clock, the tim
   assertPure(reachedFrom(SHARED_FILES).keys());
 });
 
-test("outside src/sim, only engine.js may be imported (and the scorecard, by scripts), and the app imports neither the simulation nor the statistics yet", () => {
+test("outside src/sim, only engine.js may be imported (and the scorecard, by scripts only)", () => {
   for (const file of APP_FILES.filter((path) => !path.startsWith(SIM + sep))) {
     for (const { path } of importsOf(file)) {
-      if (!path) continue;
-      if (isStatistics(path)) assert.ok(!rel(file).startsWith("src/"), `${rel(file)} puts the statistics in the app's main bundle`);
-      if (!path.startsWith(SIM + sep)) continue;
+      if (!path || !path.startsWith(SIM + sep)) continue;
       assert.ok(["src/sim/engine.js", "src/sim/scorecard.js"].includes(rel(path)), `${rel(file)} imports ${rel(path)}`);
       if (rel(path) === "src/sim/scorecard.js") assert.ok(rel(file).startsWith("scripts/"), `${rel(file)} imports the scorecard`);
-      assert.ok(!rel(file).startsWith("src/"), `${rel(file)} puts the simulation in the app's main bundle`);
     }
   }
+});
+
+// The /demo route is the only part of the app that loads the engine and the
+// statistics (decision T1), and only with import(), so neither reaches the
+// main file.
+const DEMO_ROUTE = "src/screens/DemoScreen.jsx";
+const DEMO_LOADS = ["functions/shared/sastDay.mjs", "functions/shared/signals.mjs", "src/sim/engine.js"];
+
+test("in the app, only the /demo route loads the engine and the statistics, and only with import()", () => {
+  for (const file of APP_FILES.filter((path) => rel(path).startsWith("src/") && !path.startsWith(SIM + sep))) {
+    for (const { path, dynamic } of importsOf(file)) {
+      if (!path || !(path.startsWith(SIM + sep) || isStatistics(path))) continue;
+      assert.equal(rel(file), DEMO_ROUTE, `${rel(file)} loads ${rel(path)}: only the /demo route may`);
+      assert.ok(dynamic, `${DEMO_ROUTE} imports ${rel(path)} without import(), which puts it in the main file`);
+      assert.ok(DEMO_LOADS.includes(rel(path)), `${DEMO_ROUTE} loads ${rel(path)}`);
+    }
+  }
+  const loaded = importsOf(join(ROOT, DEMO_ROUTE)).filter(({ dynamic }) => dynamic).map(({ path }) => rel(path));
+  assert.deepEqual(loaded.sort(), DEMO_LOADS);
+});
+
+test("following every import from the app, the ground truth and the scorecard are never reached", () => {
+  const reached = [...reachedFrom([join(ROOT, "src", "main.jsx")]).keys()].map(rel);
+  assert.ok(reached.includes("src/sim/engine.js"), "the scan follows import() into the replay");
+  for (const file of ["src/sim/groundTruth.js", "src/sim/scorecard.js"]) assert.ok(!reached.includes(file), `the app reaches ${file}`);
+});
+
+test("the main file and the /demo route reach no Firebase: the signed-in app loads only with import()", () => {
+  for (const start of ["src/main.jsx", DEMO_ROUTE]) {
+    for (const [file, imports] of reachedFrom([join(ROOT, start)], { staticOnly: true })) {
+      assert.notEqual(rel(file), "src/lib/firebase.js", `${start} loads Firebase with it`);
+      for (const { specifier, path } of imports) {
+        if (!path) assert.doesNotMatch(specifier, /^@?firebase(\/|$)/, `${rel(file)} imports ${specifier}, which ${start} would load with it`);
+      }
+    }
+  }
+  assert.ok(importsOf(join(ROOT, "src", "lib", "loadApp.js")).some(({ path, dynamic }) => dynamic && rel(path) === "src/App.jsx"), "the signed-in app is loaded with import()");
 });
 
 test("only the generator reads the scenario settings, and only the scorecard reads the ground truth and runs the statistics", () => {

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { lazy } from "react";
 import { signOut } from "firebase/auth";
-import { Link, Navigate, Route, Routes, useParams } from "react-router";
+import { Navigate, Route, Routes, useParams } from "react-router";
 import AppLayout from "./components/AppLayout";
 import { LevelKey } from "./components/LevelBadge";
+import LoadingScreen from "./components/LoadingScreen";
 import Message from "./components/Message";
 import Wordmark from "./components/Wordmark";
 import { auth, onLocalEmulators } from "./lib/firebase";
@@ -12,12 +13,13 @@ import ProfileScreen from "./screens/ProfileScreen";
 import ReportScreen from "./screens/ReportScreen";
 import SignInScreen from "./screens/SignInScreen";
 
+// Near me carries the map, so it loads only when it's opened.
+const NearMeScreen = lazy(() => import("./screens/NearMeScreen"));
+
 // What each placeholder says until its screen is built.
 const SCREENS = {
   today: { title: "Today", day: 6, summary: "Your morning briefing: what's going around near you this week, and open signals nearby." },
-  nearMe: { title: "Near me", day: 4, summary: "A map of your area with Watch, Signal and Alert markers, and a \"Seeing this too\" button on each." },
   signal: { title: "Signal detail", day: 6, summary: "The reports behind a signal, possible common sources with their evidence, and a draft notification for a person to review and send." },
-  replay: { title: "Replay", day: 3, summary: "Demo mode: play a simulated town day by day, watch the signals form, and see the scorecard at the end." },
 };
 
 export default function App() {
@@ -42,9 +44,8 @@ function SessionContent({ session }) {
       <Route element={<AppLayout />}>
         <Route path="/report" element={<ReportScreen key={user.uid} user={user} profile={profile} />} />
         <Route path="/today" element={<PlaceholderScreen {...SCREENS.today}><AreaNote area={profile.area} /><LevelKey /></PlaceholderScreen>} />
-        <Route path="/near-me" element={<PlaceholderScreen {...SCREENS.nearMe}><AreaNote area={profile.area} /><LevelKey /><Link to="/signals/sample" className="button button-secondary">Open a sample signal</Link></PlaceholderScreen>} />
+        <Route path="/near-me" element={<NearMeScreen area={profile.area} />} />
         <Route path="/signals/:signalId" element={<SignalDetailPlaceholder />} />
-        <Route path="/replay" element={<PlaceholderScreen {...SCREENS.replay} />} />
         <Route path="/profile" element={<ProfileScreen key={user.uid} user={user} profile={profile} />} />
         <Route path="*" element={<Navigate to="/report" replace />} />
       </Route>
@@ -62,22 +63,6 @@ function SignalDetailPlaceholder() {
     <PlaceholderScreen {...SCREENS.signal}>
       <p className="note">Signal: {signalId}</p>
     </PlaceholderScreen>
-  );
-}
-
-function LoadingScreen() {
-  const [slow, setSlow] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setSlow(true), 10_000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <main className="center-screen" aria-busy="true">
-      <p className="auth-wordmark"><Wordmark size="large" /></p>
-      <p role="status">{slow ? "Still connecting. Check your internet connection." : "Loading…"}</p>
-    </main>
   );
 }
 
