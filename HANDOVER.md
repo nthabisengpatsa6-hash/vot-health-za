@@ -1,13 +1,13 @@
 # HANDOVER
 
-**Last updated:** 2026-10-29 09:41 SAST
+**Last updated:** 2026-10-29 12:19 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinician records a voice note, two "ears" transcribe it in parallel (Muse Voice Transcribe and Muse Spark audio), Muse Spark 1.3 builds draft case cards from both behind code guards, the clinician checks the cards, and they're saved. Two notes from Nthabiseng's phone on mobile data worked end to end (22 and 30 s in all). Task 11 is done and live (29 Oct): Observations are optional and never block saving, "Answer N more to save" goes to the first unanswered question, sign-in goes through lemoha.co.za, Hosting sends proper cache headers, and the font licences are in the repo. Its phone checks are with Nthabiseng (Next steps 3). Today, Near me, Signal detail and Replay are still placeholders. What comes next is under Next steps.
+Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinician records a voice note, two "ears" transcribe it in parallel (Muse Voice Transcribe and Muse Spark audio), Muse Spark 1.3 builds draft case cards from both behind code guards, the clinician checks the cards, and they're saved. Two notes from Nthabiseng's phone on mobile data worked end to end (22 and 30 s in all). Task 11 is done and live (29 Oct): Observations are optional and never block saving, "Answer N more to save" goes to the first unanswered question, sign-in goes through lemoha.co.za, Hosting sends proper cache headers, and the font licences are in the repo. Its phone checks are with Nthabiseng (Next steps 3). Task 12 (29 Oct, nothing deployed) built the simulation: the town file for Kganya, a seeded background of illness, the seeded cluster ("water"), a red herring, and a replay engine that makes each day's made-up cards on the fly and never stores them. Nothing in the app uses it yet; Day 4 builds the statistics and the Near me map on it (Next steps 5). Today, Near me, Signal detail and Replay are still placeholders. What comes next is under Next steps.
 
 ## Live setup
 - Live at https://lemoha.co.za and https://vot-health-za.web.app (Firebase Hosting). https://www.lemoha.co.za returns 301 to https://lemoha.co.za. DNS: lemoha.co.za A 199.36.158.100; www CNAME vot-health-za.web.app.
@@ -33,7 +33,26 @@ Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinic
   - Observations are optional and never asked: "Anything else you noticed?" (Sicker than usual; Not getting better with usual treatment), then "Supplies" (Running short of anything?, with "What is running short?" only while ticked). A box starts ticked only when the note said so. unusualSymptoms is never shown and always saved as false.
   - While answers are missing, the save button says "Answer N more to save" and looks disabled, but a tap (or Enter) jumps instantly to the first unanswered question and focuses its first control; the save itself refuses until every kept card is complete. For half a second after a jump, an invisible cover takes taps, so a quick second tap can't land on an answer.
 - Design: the Shweshwe direction (docs/DESIGN.md), tokens in src/styles/tokens.css, self-hosted Hanken Grotesk and Source Serif 4, the ring logo, favicon, app icons and the web app manifest.
-- Tests: web 42, Functions 79, rules 89 (what each covers is under "Check"). Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
+- The simulation (Task 12; src/sim/, not used by the app yet). All made up, generated on the fly, never stored:
+  - The town file is functions/data/places.json (also the card step's place list). Per area: works, population, neighbours, a polygon on a plain x/y grid. Also the two water works, four clinics, Kgwedi Heights Hospital (serves all seven areas), two primary schools (both catchments cross the water zones) and two spaza shops. Every name is an area name plus a generic word.
+
+    | Area | People | Works | Clinic |
+    |---|---|---|---|
+    | Thaga Park | 8,000 | A | Thaga Park Clinic |
+    | Leeba View | 12,000 | A | Thaga Park Clinic |
+    | Sefate Extension | 7,000 | A | Nonyana Flats Clinic |
+    | Nonyana Flats | 11,000 | A | Nonyana Flats Clinic |
+    | Mmutla Ridge | 5,000 | A | Mmutla Ridge Clinic |
+    | Kgwedi Heights | 14,000 | B | Lebone Gardens Clinic |
+    | Lebone Gardens | 12,000 | B | Lebone Gardens Clinic |
+
+  - createRun({ seed, scenario: "water" | "none", startDate }) (src/sim/engine.js): day 0 defaults to Mon 1 Feb 2027, with 84 days of history before it and replay days 0 to 28. cardsUpTo(day) returns { id, card } for every card created up to the end of that SAST day. Each card has a real card's 17 fields, built by toCardDoc, with source "simulation" (firestore.rules refuses it, so a simulated card can't be saved) and createdAt in milliseconds. 16 made-up reporters, sim-reporter-01 to -16.
+  - Background: about 10 cards a weekday and 4.5 a weekend day (about 59 a week), mostly 1 to 3 cases each; under-5 diarrhoea or vomiting is about 5 cards (9 cases) a week in works A and 3 (5 cases) in works B. Phrases are mostly English with a few mixed Sesotho and English.
+  - "water": chlorination stops at works A on day 0, unseen; from day 13, about 80 extra cards (about 245 cases, mostly under 5) across works A's five areas, unevenly, 40% mentioning the tap water, moreSevere on some from day 16. Red herring: a sports day at Leeba View Primary School on day 11, with three cards on days 13 to 15 from its works A areas. "none": the same background with nothing added; the two runs are identical through day 12, and works B's cards are identical throughout.
+  - Seed 1, days 13 to 20, works A under-5 cases: 95 under "water" against 15 under "none" (the busiest 8 days in its history: 20). For seeds 1 to 10, works A under "water" had 63 to 117 cases against a busiest 8 days of 14 to 34.
+  - Every setting is in src/sim/scenarios.js; the hidden facts are in src/sim/groundTruth.js, for the Day 8 scorecard only.
+  - scripts/simulate.mjs prints a daily summary (How to run).
+- Tests: web 72, Functions 79, rules 93 (what each covers is under "Check"). Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
 
 ## Working rules
 CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "approved"; a separate STOP for every permanent or risky action. Also:
@@ -53,6 +72,11 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
    - keep South African spelling ("diarrhoea") in symptomsInWords
    - "Fola" → "Lemoha" in the extraction prompt (Open decisions)
    - remove "observations" from the fields the model may mark unsure (the unsureFields list in the reply schema, functions/lib/cardSchema.js, and any prompt wording), so the model's instructions match the code guard, which drops it from Task 11 on
+   - local words (decision D4, 29 Oct). In a live test with a made-up script, "vetkoek" came back as "fat cook" in both "What we heard" and the card; an earlier note the same morning got it right. Both come from the card step: "What we heard" shows its cleaned transcript, transcriptClean (src/components/NoteNotices.jsx:11 and :23; asked for in functions/prompts/extract-card.md under "## transcriptClean"; returned at functions/index.js:274), and neither ear's own transcript reaches the browser. The prompt already warns that Transcript A turns some words into similar-sounding English (extract-card.md:7), so Voice Transcribe is the likely source, but only the run below can show it. The changes:
+     - a rule in the card step's prompt: keep local food, shop and place words exactly as said, never translated (vetkoek, kota, magwinya and similar). Treat the word list below like the place list: a sound-spelling of a listed word becomes that word ("fat cook" becomes vetkoek). Unsure means ask. Never translate.
+     - a text fixture with such words in test-fixtures/ (the spaza shop note already says vetkoek; add kota, magwinya and others)
+     - a short list of common South African food and everyday words, which Nthabiseng supplies, used in both places: Voice Transcribe's keywords (PLACE_KEYWORDS in functions/lib/cardSchema.js, sent at functions/index.js:212) and a word list in the card step's prompt (a placeholder next to {{AREAS}}, filled in functions/lib/extractCard.js). Also consider the audio ear's prompt (functions/prompts/spark-audio.md), which only mentions Sesotho.
+     - in the scoring run, report each ear's raw transcript for the vetkoek fixture (in the chat and the gitignored results only, never in the repo), so we know which ear misheard
 2. Task 10 Part D, the rest of the phone test, against the live project with real Meta calls. Nthabiseng works through it and reports back. Done so far (28 Oct): two notes from her phone on mobile data at ?timing=1 (results in docs/HISTORY.md, Task 10 Part C).
    1. Use made-up scripts only (the 10 test scripts, or: "Three children under five with watery diarrhoea from Leeba View today. Bomme ba re ba nwa metsi a pompo."). Never real patient details.
    2. Android, Chrome, on mobile data, at https://lemoha.co.za/?timing=1
@@ -81,11 +105,29 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
    - Firebase console → Authentication → Templates → Password reset: check the sender name and the subject; change any "Fola" to "Lemoha".
    - Google Cloud console (same project) → Google Auth Platform → Branding → "App name": check it says Lemoha, and change it if it says Fola. Google shows this name on its account chooser only after the app's branding is verified; until then the chooser shows the authDomain (see step 3).
    - Don't rename the Firebase project itself (display name "Fola").
-5. Speed, on Day 7 with "Check later". From the phone test: the server time is almost all transcription (5.5–7.5 s, both ears side by side) plus the card step (7–12 s, the largest and most variable). Upload on mobile data was about 10 s per MB, and a cold start about 5.6 s. Planned order: compressed audio from the phone; then a card step that no longer writes the cleaned transcript (re-score); then one warm instance in judging week.
-6. The logo, on Day 7 (moved from Task 11): the wordmark ring's spacing, the ring's line weight and the logo lump.
-7. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
+5. Day 4 (Fri 30 Oct): the statistics layer and the Near me map, on the simulation. Notes from Task 12:
+   - The honesty rule: expected counts are computed from the generated history only (the cards cardsUpTo returns for earlier days), never read from the generator's rate settings. test/unit/sim-imports.test.js enforces it: outside src/sim/, only engine.js may be imported, and only the generator may read src/sim/scenarios.js.
+   - Statistics count cases by the card's area (where the patients live), never by reporterArea. Kgwedi Heights Hospital (works B) treats works A patients, so counting by reporterArea would light up the wrong zone.
+   - Signal code gets only what cardsUpTo(day) returns: { id, card } records, createdAt in milliseconds. For live signals, Functions turns each Firestore Timestamp into the same with toMillis() as it reads cards, so one piece of signal code handles both.
+   - Shared code (proposal, not built yet):
+     - Pure modules that both the browser (the public replay, on simulated cards) and Cloud Functions (live signals, on real cards, which clinicians must never read directly) need go in functions/shared/, as ES modules (.mjs).
+     - A Functions deploy uploads only functions/, so they ship with it, with no copy step to go stale. The web app imports them directly, as it already does with functions/data/places.json.
+     - Functions code is CommonJS, so it loads them with `await import("./shared/….mjs")` inside its async handlers (works on every Node 22).
+     - A test like sim-imports keeps the folder pure: it imports only functions/shared/ and functions/data/; no firebase, no fetch, no Node built-ins.
+     - Ruled out: a top-level shared/ folder (a deploy wouldn't upload it), a file:../ dependency (the cloud install can't see outside functions/), converting functions/ to ES modules (too big this week).
+     - The simulation stays in src/sim/ (browser and Node only, never deployed). Its SAST day helper (src/sim/calendar.js) can move into functions/shared/ beside processNote's sastDay.
+   - The public replay (decision D2):
+     - A /demo route above the sign-in gate. Today src/App.jsx:33-38 decides by session status before any route: signed out shows SignInScreen at every address (line 36); only a signed-in user with a profile reaches the routes, where any unknown address goes to /report (line 49). The status comes from src/lib/useSession.js. Hosting already sends every address to index.html.
+     - Load the engine only with import("./sim/engine.js") on that route. Vite gives a dynamically imported module its own chunk (checked with Vite 8.3.5), but one static import anywhere in src/ pulls it into the main file. sim-imports.test.js fails on any import of src/sim/ from src/, so allow that one dynamic import then.
+     - The header's Replay link goes to the signed-in /replay placeholder (src/components/AppLayout.jsx:22, App.jsx:47).
+   - Don't show the scenario's name ("water") on the replay: it gives the answer away.
+   - Background noise is real: for seed 7, works B's under-5 cases in days 13 to 20 equal its busiest 8 days in history (14 and 14). No signal level should rise on one such week alone.
+6. Speed, on Day 7 with "Check later". From the phone test: the server time is almost all transcription (5.5–7.5 s, both ears side by side) plus the card step (7–12 s, the largest and most variable). Upload on mobile data was about 10 s per MB, and a cold start about 5.6 s. Planned order: compressed audio from the phone; then a card step that no longer writes the cleaned transcript (re-score); then one warm instance in judging week.
+7. The logo, on Day 7 (moved from Task 11): the wordmark ring's spacing, the ring's line weight and the logo lump.
+8. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
    - Day 6 (Signal detail): cards hold no transcript, so the evidence trail points to each card's own fields, which hold the clinician's words: symptomsInWords, exposure.words and unusualDescription.
-8. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser. README notes for that day: the first commit was 27 Oct 2026 at 08:50 SAST (4815aef, after the kickoff on 26 Oct at 18:00 SAST), and Fola was the working name until 28 Oct.
+9. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser. README notes for that day: the first commit was 27 Oct 2026 at 08:50 SAST (4815aef, after the kickoff on 26 Oct at 18:00 SAST), and Fola was the working name until 28 Oct.
+   - The scorecard: the same createRun with seeds 1 to 10 under "water", plus a "none" run in which Lemoha should stay quiet. It goes in src/sim/scorecard.js, the only module allowed to read src/sim/groundTruth.js (the import test already names it).
 
 ## Decisions and why
 - 26 Oct — Firestore and Functions in africa-south1: data stays in South Africa. Firestore's location can never be changed.
@@ -148,7 +190,7 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 - 28 Oct — Live tests run from Nthabiseng's phone, not headless Edge on the computer (her call). Why: the computer's Wi-Fi sometimes couldn't open a connection to the functions server.
 - 28 Oct — All live test cards are deleted before signals read cards (before Day 4); the phone account's data goes after Part D (Nthabiseng's call).
 - 28 Oct — Observations on card review become optional and never block saving (done in Task 11). Why: in the phone test, a required-looking box led to a false severity flag on a saved card.
-- 28 Oct — Speed order for Day 7: compressed audio from the phone, then a card step that no longer writes the cleaned transcript (re-scored), then one warm instance in judging week. Why: the phone test's note_timing numbers (Next steps 5).
+- 28 Oct — Speed order for Day 7: compressed audio from the phone, then a card step that no longer writes the cleaned transcript (re-scored), then one warm instance in judging week. Why: the phone test's note_timing numbers (Next steps 6).
 - 29 Oct — Observations are never asked (approved). processNote's guard drops "observations" from unsureFields and its question, and if the model was unsure, every box starts unticked (Nthabiseng's answer: unticked, because a pre-filled severity tick is what the phone test produced). The model's request is unchanged (the prompt and the reply schema; same fingerprint before and after), so the prompt catches up in the recordings run (Next steps 1). The web app does the same for an older reply. Why: a box is ticked only when the note says so.
 - 29 Oct — unusualSymptoms is hidden and always saved as false, enforced in draftFromCard (the draft never holds true) and toCardDoc (the only place the saved card is built). Why: a tick nobody can see must never reach a card; the "Something unusual" symptom group covers it.
 - 29 Oct — "Answer N more to save" stays tappable and jumps to the first unanswered question in screen order (DESIGN.md's disabled-button line says so). The scroll uses behavior "auto" (instant; no CSS sets smooth scrolling), not "instant", which couldn't be confirmed on iPhone Safari; if a scroll form throws, the plain form and then the focus still run. Why: on the phone, the disabled button gave no way to find the missing answer.
@@ -157,13 +199,28 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 - 29 Oct — Hosting cache headers: no-cache first for everything, then a year (immutable) for /assets/ only; test/unit/hosting.test.js keeps public/ free of an assets/ folder and Vite's hashed names unchanged, so nothing unhashed can be immutable. Why: after a redeploy, phones kept the old app for up to an hour.
 - 29 Oct — Font licences are Google Fonts' own OFL.txt copies (Nthabiseng's call), because Fontsource builds both fonts from Google Fonts' releases, the files are subsets (Modified Versions under the OFL), and Adobe's copy of the Source Serif 4 licence reserves the name "Source" while Google Fonts' release reserves none.
 - 29 Oct — HANDOVER holds the current state only; the dated record moved to docs/HISTORY.md, and neither file holds an email address or a user ID (approved).
+- 29 Oct — D1: simulation data is generated, never stored as cards. The town file plus a fixed seed make each day's made-up cards on the fly; the replay runs in the browser and in Node scripts. Simulated cards are never written to Firestore and never touch the cards collection, so the replay can never read or mix with real cards, live test cards included. No new collections, no rules changes. Their source is "simulation", which firestore.rules refuses (a rules test proves source alone keeps them out). The Day 8 scorecard is the same code run with 10 seeds, plus a no-cluster run. Why: the simplest way to keep simulation and real data apart is never to put them in the same place.
+- 29 Oct — D2: judges can watch the replay without signing up. A public replay page (for example /demo, with a Simulation banner throughout) needs no sign-in, writes nothing, and never calls a Meta model for a signed-out visitor; recording a voice note still needs sign-in. The page comes on Days 4 to 6; Task 12 made sure the engine runs with no sign-in, no Firestore and no network.
+- 29 Oct — D3: git history is not rewritten before the repo goes public. b133819 holds only made-up @example.com addresses and the UIDs of two deleted accounts, which point at nothing. Why: rewriting could break the repo days before the deadline, would change every later commit's hash and time, and the commit history is part of how judges see what was built during the hackathon.
+- 29 Oct — D4: local food, shop and place words are kept exactly as said (the vetkoek finding, 29 Oct live test with a made-up script). The fix goes into the recordings scoring run (Next steps 1): a prompt rule, a fixture, and a word list in Voice Transcribe's keywords and in the card step's prompt. No prompt or keyword list changed in Task 12.
+- 29 Oct — The town file is functions/data/places.json, grown rather than copied (approved). Why: it's already the card step's place list and is in functions/, so Day 4's Functions code can read it without a move. The card step reads only the town and the area names, so the extraction prompt, reply schema and keywords are unchanged (sha256 cddb48328a27f866 before and after). The main web file grew by 2,370 bytes (878,481 to 880,851), because src/lib/places.js imports the whole file.
+- 29 Oct — Simulation design (approved):
+  - The replay's day 0 is Mon 1 Feb 2027. Why: a Monday, in the future so it can't match any real event, with no South African public holiday in its 29 days, and nowhere near the real event's dates.
+  - 84 days of history, so Day 4 has enough past data for expected counts.
+  - Random numbers are seeded mulberry32 streams using + - * / only: no Math.random, no Math.exp, no clock, no time zone. Why: the same seed gives exactly the same run in Node and in every browser.
+  - Each day and purpose (background, seeded cluster, red herring) has its own stream, so the "none" run is exactly the "water" run without the extra cards.
+  - Cards are built through toCardDoc, so they keep a real card's 17 fields. cardsUpTo returns { id, card }, like a Firestore document.
+  - Every setting is in src/sim/scenarios.js, which only the generator may read; the hidden facts are in src/sim/groundTruth.js, for the scorecard only.
+  - Phrases are made up, mostly English with a few mixed Sesotho and English (Nthabiseng checked the Sesotho). They never use a personal name, a disease name, blame or political words, or a line from the test recordings' scripts. Four first-draft phrases were reworded because they were lines from those scripts.
+- 29 Oct — The honesty rule for Day 4: expected counts come from the generated history only, never from the generator's rate settings (Next steps 5).
+- 29 Oct — Statistics count cases by the card's area, never by reporterArea (Next steps 5).
+- 29 Oct — Judging weights, from the official participant guide (confirmed 29 Oct): Impact 30%, Use of Meta AI tooling 25%, Demo 25%, Technical depth and execution 20% (docs/PROJECT_CONTEXT.md).
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Change 'Fola' to 'Lemoha' in the extraction prompt during the next scoring run, and re-score in that same run.
 - The privacy notice (with the profile delete UI) must say that Google's platform logs keep technical data such as IP addresses and browser details for a limited time.
 - Day 4 planning: Cards are written directly from the browser, so any signed-in user with a profile can save valid-looking cards without a voice note. There's no daily cap on that (the 40-a-day limit only covers processNote), and email sign-ups aren't verified. Before signals read real cards, decide between: server-written cards (a confirm function, which fits the 'Check later' drafts design), a per-user cap in the rules, email verification, and App Check.
 - Licence for the public repo.
-- How simulation data is kept apart from real data (Day 3).
 - Audio-ear model: the final choice comes after scoring the 10 recordings (now muse-spark-1.2).
 - Should a [?] in one transcript count as a disagreement when the other transcript is clear? It adds questions (five on one card in Task 4). Decide after the 10 recordings are scored. (The other three Task 4 questions were closed in Task 5; see "Decisions and why".)
 
@@ -265,6 +322,12 @@ Source: dev.meta.ai/docs/structured-output.
 - src/screens/ProfileScreen.jsx — the first-time set-up and the Profile screen.
 - src/screens/PlaceholderScreen.jsx — "Arrives on Day N" for screens not built yet.
 - src/screens/ReportScreen.jsx — record, review, send with progress stages, check the cards, confirm and save.
+- src/sim/ — the simulation (Task 12): no Firebase, no network, no clock; the app doesn't import it yet.
+  - engine.js — createRun and cardsUpTo; the only sim file anything outside src/sim/ may import.
+  - scenarios.js — every setting: the background rates and the "water" and "none" scenarios. Only the generator reads it.
+  - groundTruth.js — the hidden facts behind each scenario, for the Day 8 scorecard only.
+  - background.js — the everyday cards. seededCluster.js — the seeded cluster and the red herring. draws.js — who reports a card, when, and what the patients shared. card.js — one simulated card, built through toCardDoc.
+  - random.js — seeded random numbers (mulberry32). calendar.js — replay days on SAST days. town.js — reads the town file. reporters.js — the 16 made-up reporters. phrases.js — the made-up words.
 - test/unit/auth-errors.test.js — unit tests for the sign-in error messages.
 - test/unit/wav.test.js — unit tests for the WAV encoder, checked against the server's own WAV check.
 - test/unit/card-options.test.js — checks the card screen's lists match functions/lib/cardSchema.js.
@@ -273,9 +336,14 @@ Source: dev.meta.ai/docs/structured-output.
 - test/unit/brand.test.js — the manifest and index.html carry PRODUCT_NAME, every icon is there at its stated size, and the wordmark's ring matches wordmark-o.svg.
 - test/unit/timing.test.js — the ?timing=1 flag and the timing line's wording.
 - test/unit/hosting.test.js — firebase.json's cache headers, and that nothing unhashed can land in /assets/.
+- test/unit/sim-town.test.js — the town file (zones, round populations, neighbours that match the shapes, names from area names, every place inside its area) and the made-up reporters.
+- test/unit/sim-run.test.js — the seeded random numbers, SAST days, seed 1's runs pinned by hash, cardsUpTo, every card's 17 fields, "water" against "none", the seeded cluster against its own history, the ground truth.
+- test/unit/sim-text.test.js — no capitals but the town file's names; no "outbreak", disease, blame or political words; no line from the test recordings' scripts.
+- test/unit/sim-imports.test.js — who may import what (engine.js only from outside src/sim/, the settings only from the generator, the ground truth only from the scorecard), the app not importing the simulation yet, and no network, storage, clock, time zone or engine-dependent maths in it.
 - public/fonts/hanken-grotesk/OFL.txt, public/fonts/source-serif-4/OFL.txt — the fonts' licences with their copyright lines, copied byte for byte from the Google Fonts releases; served with the app.
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
+- test/rules/sim-cards.rules.test.js — every card of seed 1's water run passes the card rules once source and createdAt are a live save's; source "simulation" alone, a createdAt in milliseconds alone, and an unchanged simulated card are each refused. Each made-up reporter gets a profile first, with the rules off, because the create rule checks it.
 - test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
 - functions/index.js — Cloud Functions: checkMetaConnection and processNote (deployed 28 Oct); processNote's settings (1 GiB, concurrency 8, 300 s, at most 5 instances) and its one note_timing line per call.
 - functions/constants.js — shared constants and settings (Meta API base URL, models, extraction effort, audio limits, the 30 s wait between ears, the daily note limit, practice-mode stage time).
@@ -284,7 +352,7 @@ Source: dev.meta.ai/docs/structured-output.
 - functions/lib/noteTiming.js — the note_timing log entry: its allowed keys, the cold-start flag, ear timings and retries.
 - functions/lib/errorLog.js — errorDetails: a caught error's name, code, reason (UID and our document paths redacted) and where, for one log line. Only for errors whose message can't contain note content.
 - functions/lib/practice.js — practice mode: the emulator-and-demo check and the prepared results in turn.
-- functions/data/places.json — the demo town Kganya: 7 areas and which works feeds each (Day 3's town file grows from this).
+- functions/data/places.json — the town file for Kganya, made up: the 7 areas (the card step's place list) with their works, populations, neighbours and shapes on a plain x/y grid; the two water works; four clinics and the hospital; two primary schools; two spaza shops. The card step reads only the town and the area names.
 - functions/prompts/spark-audio.md — the instruction for the Muse Spark audio ear.
 - functions/prompts/extract-card.md — the extraction prompt; {{placeholders}} are filled from cardSchema.js.
 - functions/lib/metaRequest.js — shared Meta API request code: 60 s per attempt, one retry, failure kinds, Standard-model guard.
@@ -310,6 +378,7 @@ Source: dev.meta.ai/docs/structured-output.
 - scripts/convert-audio.mjs — converts test recordings to 16 and 24 kHz WAVs, skipping ones already converted (local tool; needs ffmpeg).
 - scripts/transcribe-test.mjs — sends 24 kHz test WAVs through the chosen runs (a–e) and writes numbered results (local tool; calls the Meta API).
 - scripts/score-extraction.mjs — scores card extraction against test-fixtures/ (Stage 1 text, Stage 2 audio) and writes numbered results (local tool; calls the Meta API).
+- scripts/simulate.mjs — prints a daily summary of one simulated run (local tool; no network, writes nothing).
 - test-fixtures/ — made-up ideal transcripts and expected cards for the scorer (committed on purpose).
 - test-audio/ — local only, gitignored: raw/ (recordings), wav/ (converted), results/ (run-NNN-… from the transcription runner, score-NNN-… from the scorer).
 
@@ -347,11 +416,15 @@ Other local commands:
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 42 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, optional observations, unusualSymptoms always false, the supplies note only with its tick, the answers-needed count and the first question to answer, the save button's gate; the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; the timing line; and Hosting's cache headers).
+- `npm test` — runs the 72 web unit tests (the simulation: the town file and reporters, seeded runs pinned by hash, cardsUpTo, the cards' 17 fields, "water" against "none", the seeded cluster against its own history, the words it uses, and who may import it; sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, optional observations, unusualSymptoms always false, the supplies note only with its tick, the answers-needed count and the first question to answer, the save button's gate; the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; the timing line; and Hosting's cache headers).
 - `npm --prefix functions test` — runs the 79 Functions unit tests (WAV header, retries, code guards including observations never asked, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the default Admin app, the note_timing log line, the error log lines), all with fakes and no network calls.
-- `npm run test:rules` — runs the 89 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
+- `npm run test:rules` — runs the 93 Firestore rules tests (users, cards, and simulated cards against the card rules, about 11 s of the run), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
+
+**Simulation (local; no network, no key, writes nothing)**
+- `node scripts/simulate.mjs --seed 1 --scenario water` — makes one simulated run in memory and prints a line per replay day: date, the town's cards and cases, and the under-5 diarrhoea or vomiting cases in each area, with works A and works B totals. `--scenario none` is the no-cluster run; `--days 10` prints fewer days (default 29, days 0 to 28).
+- Changing anything the runs are made from (src/sim/, the town file, or toCardDoc) changes seed 1's pinned hashes in test/unit/sim-run.test.js, and `npm test` says so. If the change was on purpose, put the new hashes in the test.
 
 **Extraction scoring (local; calls the Meta API and uses credits)**
 - Load the key the same way as the transcription test below, in the same one-line command, and end the line with `; Remove-Item Env:META_API_KEY`, so the key is cleared when the run finishes. The runs:
@@ -415,7 +488,7 @@ Other local commands:
 - The browser check and the break-the-rule check are local scripts, not part of the repo (they need a local test recording and Edge). Re-running them means rewriting them; docs/HISTORY.md lists what they checked.
 - Practice mode's turn is held in the Functions emulator's memory, so it starts again at the first result whenever the emulator restarts or reloads the code.
 - firestore.rules keeps its own copies of the role, facility-type and area lists, because rules can't import files. Changing src/config/profileOptions.js or functions/data/places.json means changing firestore.rules too; `npm run test:rules` fails until they match.
-- The web app ships as one JavaScript file of about 877 kB (269 kB compressed), mostly the Firebase libraries, plus 26 kB of CSS and four font files (147 kB in all; an English-only screen downloads the two latin files, about 86 kB). Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
+- The web app ships as one JavaScript file of about 881 kB (270 kB compressed; the town file added 2.4 kB in Task 12), mostly the Firebase libraries, plus 26 kB of CSS and four font files (147 kB in all; an English-only screen downloads the two latin files, about 86 kB). Vite warns about it on every build. Splitting it (for example, loading Firestore only after sign-in) can wait until after P0.
 - Anyone can create an account and choose any role: there's no email verification, and checking clinicians against the SANC and HPCSA registers is out of scope.
 - Hosting has no automatic build before deploy: run `npm run build` first or the deploy sends a stale or missing dist/.
 - Voice Transcribe can silently drop non-English speech. In Task 2, a Sesotho closing phrase appeared in only 2 of 9 calls. Consequence for the design: missing card fields are always asked, and the Report screen tells the clinician to check the transcript.
@@ -426,5 +499,9 @@ Other local commands:
 - A [?] in one transcript counts as a disagreement, so a weak audio ear can add questions about facts the other ear heard clearly (five questions on one card in Task 4).
 - npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path), listed again under @firebase/rules-unit-testing because it depends on firebase. Don't run "npm audit fix --force", because it would downgrade firebase.
 - Local Node is v24 but Functions run nodejs22. It's only a warning.
+- Node can't import src/lib/places.js: it imports the JSON without `with { type: "json" }` (ERR_IMPORT_ATTRIBUTE_MISSING), which only Vite accepts. The simulation (src/sim/town.js) and scripts/simulate.mjs import functions/data/places.json themselves, with the attribute; Vite 8, Node and oxlint all accept it.
+- src/sim/calendar.js has its own copy of processNote's SAST day rule (UTC+2); test/unit/sim-run.test.js checks the two agree. Day 4 can move both into functions/shared/ (Next steps 5).
+- The simulation doesn't model public or school holidays: the history (9 Nov 2026 to 31 Jan 2027) runs through December at the usual rates.
+- The next Functions deploy uploads the grown functions/data/places.json. The extraction inputs are unchanged (sha256 cddb48328a27f866), so the model's request is the same.
 - The Firebase CLI sometimes prints its results, then exits with "Timed out". Harmless.
 - Run gcloud from PowerShell, not Git Bash; under Git Bash it can't find Python.

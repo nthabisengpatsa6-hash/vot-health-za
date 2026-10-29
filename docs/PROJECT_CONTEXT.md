@@ -41,7 +41,7 @@
 
 **Judging**
 1. Pass/fail: fits the theme and uses Meta's models.
-2. Four equal criteria, 0–10 each: **Impact**; **Use of Meta AI tooling** (creative, beyond a basic integration); **Technical depth and execution**; **Demo**.
+2. Four weighted criteria: **Impact** 30%; **Use of Meta AI tooling** 25% (creative, beyond a basic integration); **Demo** 25%; **Technical depth and execution** 20%. Source: the official participant guide, confirmed 29 Oct 2026. Judges score the video, the code and the live product.
 3. The top 5 per track are judged live.
 
 **Prizes.** Startup track: $250K / $150K / $75K / $50K / $25K for 1st to 5th. Bonus prizes we're aiming at: Best Build on Meta Open Weight Models ($10K; Muse Glimmer or Muse Spark Open on our own hardware or partner inference), Best Agentic Use-Case ($5K), Most Viral ($20K; X engagement until the end of 8 Nov), Community Vote ($10K). Not targeted: Best Creative Build ($5K; Muse Image or Muse Wonder). Whether bonus prizes stack with track prizes is unknown.
@@ -147,7 +147,7 @@ Five screens, mobile-first, in any phone browser, nothing to install.
 The demo is a simulation: a fictional town, a normal background of illness, and a seeded cluster timed like Bronkhorstspruit. Lemoha only ever sees cards up to the current replay day, so it has to find the cluster itself.
 
 1. **The town:** one data file with about 7 areas (made-up names checked so they aren't real places, populations, shapes). Water works A feeds 5 areas; works B feeds 2 comparison areas. A few clinics and a hospital, two schools, a couple of shops. Drawn as plain shapes, not on a real street map, so it can't be mistaken for a real place.
-2. **Normal days:** a script generates everyday background cards across the clinics, with a fixed random seed so every replay is identical.
+2. **Normal days:** the background generator makes everyday cards across the clinics, with a fixed random seed so every replay is identical. The cards are generated on the fly and never stored (section 10).
 3. **The seeded cluster:** on day 0, chlorination stops at works A, and nothing about it appears in the data. From day 13, under-5 diarrhoea climbs in works A's areas and some cards mention tap water; works B's areas stay normal.
 4. **A red herring:** a couple of cards mention a school event; Lemoha must weigh it and rank it below the water works.
 5. **Real voice notes at the key moments:** 4 to 6 recordings of people reading short mixed-language scripts go through the live pipeline; every other card is generated.
@@ -218,7 +218,7 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 
 **Firebase.** Display name "Fola", the working name; the project isn't renamed (project ID: see .firebaserc). Blaze plan with a budget alert. Firestore in africa-south1 (permanent) and Functions in africa-south1. Firestore rules stay deny-all until each collection gets its own rules with emulator tests. Hosting serves https://lemoha.co.za (connected 28 Oct 2026; www.lemoha.co.za redirects (301) to it) and https://vot-health-za.web.app. Sign-in uses authDomain lemoha.co.za (popup sign-in); vot-health-za.web.app still works.
 
-**Simulation data** is kept apart from anything real; the exact mechanism is decided on Day 3.
+**Simulation data** is generated, never stored (decided 29 Oct 2026). The town file (functions/data/places.json) plus a fixed seed make each day's made-up cards on the fly, in the browser or in Node scripts. Simulated cards are never written to Firestore and never touch the cards collection, so the replay can't read or mix with real cards; their source is "simulation", which the security rules refuse. The public replay page needs no sign-in, writes nothing, and never calls a Meta model for a signed-out visitor; recording a voice note still needs sign-in. The signal maths runs in the browser for the replay (on simulated cards) and in Cloud Functions for live signals (on real cards).
 
 ## 11. Conventions
 

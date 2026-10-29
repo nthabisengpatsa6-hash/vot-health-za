@@ -281,6 +281,43 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
   - F1: `firebase deploy --only functions:processNote`, after `git status` was clean and `git diff --stat 919bb7e HEAD -- functions/` showed only cardSchema.js and its test. The CLI said "Deploy complete!", then "An unexpected error has occurred" (exit code 2). Live: processNote 1024 MB, 300 s, concurrency 8, min unset (0), max 5, africa-south1, the same service account and secret version, ACTIVE; code hash 3f41ad3d… → 851f9cbd…; a signed-out call gets 401 UNAUTHENTICATED. checkMetaConnection unchanged.
   - H1: `npm run build` from 388c790, then `firebase deploy --only hosting` (16 files). Live: https://lemoha.co.za/__/auth/handler 200; on both domains /, /report, an /assets/ JS file, an /assets/ font, the manifest, an icon and /fonts/source-serif-4/OFL.txt each carry exactly one Cache-Control value (no-cache, or the year-long immutable value on the two /assets/ files); all 16 live files are identical to dist/.
 
+### Day 3 — Task 12: the simulation (done Thu 29 Oct; nothing deployed)
+- Read-only investigation first (from f05ffb0, clean and level with origin/main):
+  - The lists the simulation imports: areas, town and works in functions/data/places.json; card lists in src/config/cardOptions.js; roles and facility types in src/config/profileOptions.js.
+  - The saved card is built only by toCardDoc and checked only by firestore.rules. Its source must be "voice" and createdAt the write time, so a simulated card with source "simulation" can never be saved.
+  - "What we heard" is the card step's transcriptClean (the vetkoek fix, HANDOVER Next steps 1).
+  - A signed-out visitor sees SignInScreen at every address (src/App.jsx:36).
+  - In a throwaway Vite 8.3.5 build outside the repo, a module reached only through import() got its own chunk, and none of it was in the main file.
+  - Node can't load src/lib/places.js (its JSON import has no `with { type: "json" }`).
+- Town file (1bf7638): functions/data/places.json grew populations, neighbours, grid shapes, the two water works, four clinics, Kgwedi Heights Hospital, two primary schools and two spaza shops. Extraction prompt, reply schema and keywords: sha256 cddb48328a27f866 before and after. Main web file 878,481 → 880,851 bytes (269.57 → 270.27 kB compressed). A follow-up commit (625ffd0) took the product name out of the town file's note (rule 8).
+- Simulation (8b0d9a5), in src/sim/:
+  - seeded random streams (+ - * / only) and SAST replay days
+  - background rates and the two scenarios in scenarios.js
+  - background, seeded cluster and red herring, with 16 made-up reporters; cards built through toCardDoc with source "simulation"
+  - createRun and cardsUpTo; ground truth for the scorecard only
+- Day 0 is Mon 1 Feb 2027, with 84 days of history.
+- Seed 1: 1,115 cards under "water", 1,035 under "none" (80 extra: 77 seeded-cluster cards and 3 red herring), 337 and 257 in the replay window. For seeds 1 to 10, works A's under-5 diarrhoea or vomiting cases in days 13 to 20 under "water", against its busiest 8 days in history:
+
+  | Seed | Days 13–20 | Busiest 8 days |
+  |---|---|---|
+  | 1 | 95 | 20 |
+  | 2 | 95 | 18 |
+  | 3 | 104 | 34 |
+  | 4 | 102 | 21 |
+  | 5 | 114 | 26 |
+  | 6 | 104 | 27 |
+  | 7 | 117 | 14 |
+  | 8 | 91 | 24 |
+  | 9 | 98 | 20 |
+  | 10 | 63 | 18 |
+
+  Works B, and both zones under "none", stayed at or below their busiest 8 days (seed 7's works B equalled it: 14 and 14).
+- Four first-draft phrases were reworded because they were exact lines (or parts of lines) of the test recordings' scripts, among them "the tap water smelled funny". The Sesotho phrases were checked by Nthabiseng.
+- The guards were broken on purpose once, then restored: a clock call in the simulation, a static import of the engine in src/App.jsx, and the engine importing the ground truth each failed their own test with a plain message.
+- Rules test (a4bcb80): every card of seed 1's water run (1,115) passes the card rules once source and createdAt are a live save's; source "simulation" alone, a createdAt in milliseconds alone, and an unchanged card are each refused. Setup: a profile per made-up reporter, with the rules off (the create rule checks it); the rules check nothing else. About 11 s, so the whole run is used, not a sample.
+- scripts/simulate.mjs (c27d0a6).
+- Tests: web 72, Functions 79, rules 93; lint clean (0 findings).
+
 ## Test results
 
 ### Transcription test results (27 Oct)
@@ -352,6 +389,12 @@ Decisions that a later one replaced, with what replaced them.
   - Replaced on 28 Oct: the domain was already connected to Hosting when Task 10's Hosting deploy ran; Task 11 moves the sign-in authDomain to it.
 
 ## Change log (newest first)
+- 2026-10-29 — Task 12: the simulation.
+  - The town file (functions/data/places.json grown; the extraction prompt is unchanged).
+  - A seeded background, the seeded cluster ("water"), a red herring and a replay engine (src/sim/). Cards are generated on the fly and never stored; their source is "simulation", which the rules refuse.
+  - scripts/simulate.mjs.
+  - Decisions D1 to D4 recorded, the Day 4 notes, and the judging weights in PROJECT_CONTEXT.
+  - Tests: web 72, Functions 79, rules 93. Nothing deployed.
 - 2026-10-29 — Task 11: observations optional and never asked (functions guard and card review; reworded patient flags, a separate Supplies line, unusualSymptoms always false); "Answer N more to save" jumps to the first unanswered question, with the save gated in code and a half-second tap cover; sign-in through lemoha.co.za; Hosting cache headers; font licences from Google Fonts; HANDOVER split into the current state and docs/HISTORY.md, with no emails or UIDs; rule 3 now covers git reset, rebase, amend and force. score-007 the same as score-006. Tests: web 42, Functions 79, rules 89; 60 of 60 browser checks. processNote and Hosting deployed (F1, H1), live checks passed.
 - 2026-10-28 — Task 10 Part C: Functions, the Firestore rules and Hosting deployed (each its own STOP) and live at https://lemoha.co.za. Live notes found two bugs the emulator couldn't show, both fixed and redeployed: error lines lost their reason (93a5082: errorName, errorCode, reason with the UID and our document paths redacted, where) and the daily counter never made the default Admin app (919bb7e: functions/lib/admin.js). Nthabiseng added Cloud Datastore User to the compute service account. Headless Edge on the computer's Wi-Fi couldn't always reach the functions server, so the live test moved to her phone: two notes on mobile data worked (22 and 30 s in all; note_timing in the build log). Test account 2's profile deleted; the review-screen fix, speed plan and next small task recorded. Functions tests 77.
 - 2026-10-28 — Task 10, part 1: saved cards no longer hold the transcript (17 fields; rules and tests updated, a card with transcriptClean is denied); the transcript on card review is read-only text in the clinician's serif with the hanging quote; processNote writes one note_timing log line per call (numbers, model IDs and an outcome code only), streams "received" first and returns noteMs; the ?timing=1 line on the Report screen; processNote at 1 GiB, concurrency 8, 300 s, max 5 instances; the phone checklist and the standard pre-push scan in HANDOVER. Tests: web 33, Functions 68, rules 89; 26 of 26 browser checks. Nothing deployed.
