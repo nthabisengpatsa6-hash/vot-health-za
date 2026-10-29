@@ -4,10 +4,13 @@ import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 
 // Firebase web config for the "Fola web" app. These values identify the
-// project to the client SDK; they are not secrets.
+// project to the client SDK; they are not secrets. authDomain is the live
+// domain (a Hosting custom domain, which serves /__/auth/handler), so
+// Google's account chooser names lemoha.co.za rather than the
+// firebaseapp.com address. The local emulators don't use it.
 export const firebaseConfig = {
   apiKey: "AIzaSyBg6YnaJA2E8X1EEYXloOSlZxQa_hCf_DY",
-  authDomain: "vot-health-za.firebaseapp.com",
+  authDomain: "lemoha.co.za",
   projectId: "vot-health-za",
   storageBucket: "vot-health-za.firebasestorage.app",
   messagingSenderId: "858004013937",
