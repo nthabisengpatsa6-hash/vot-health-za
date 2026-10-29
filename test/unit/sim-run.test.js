@@ -254,10 +254,11 @@ test("under water, works A's under-5 diarrhoea in days 13 to 20 is clearly above
 test("the ground truth names works A's five areas, and nothing for the no-cluster run", () => {
   const truth = groundTruth("water");
   assert.deepEqual(truth.cause, { kind: "water works", works: "A", failureDay: 0 });
+  assert.deepEqual(truth.symptomGroups, ["diarrhoea_vomiting", "bloody_diarrhoea"]);
   assert.deepEqual([...truth.affectedAreas].sort(), [...areasOn("A")].sort());
   assert.deepEqual([...truth.comparisonAreas].sort(), [...areasOn("B")].sort());
   const school = places.schools.find((candidate) => candidate.name === truth.redHerring.school);
   assert.ok(school && new Set(school.catchment.map((name) => places.areas.find((area) => area.name === name).works)).size === 2);
-  assert.deepEqual(groundTruth("none"), { scenario: "none", cause: null, clusterStartDay: null, affectedAreas: [], comparisonAreas: [], redHerring: null });
+  assert.deepEqual(groundTruth("none"), { scenario: "none", cause: null, clusterStartDay: null, symptomGroups: [], affectedAreas: [], comparisonAreas: [], redHerring: null });
   assert.throws(() => groundTruth("food"));
 });

@@ -14,6 +14,8 @@ export function groundTruth(scenario) {
     scenario,
     cause: cluster ? { kind: "water works", works: cluster.works, failureDay: cluster.failureDay } : null,
     clusterStartDay: cluster ? cluster.startDay : null,
+    // The seeded cluster's symptom groups, the most common first.
+    symptomGroups: cluster ? Object.entries(cluster.symptomGroups).sort((a, b) => b[1] - a[1]).map(([group]) => group) : [],
     affectedAreas,
     comparisonAreas: cluster ? AREA_NAMES.filter((name) => !affectedAreas.includes(name)) : [],
     redHerring: herring ? { kind: "school event", event: herring.event, school: herring.school, day: herring.day } : null,
