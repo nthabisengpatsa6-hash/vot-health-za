@@ -1,13 +1,13 @@
 # HANDOVER
 
-**Last updated:** 2026-10-29 12:19 SAST
+**Last updated:** 2026-10-29 14:03 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinician records a voice note, two "ears" transcribe it in parallel (Muse Voice Transcribe and Muse Spark audio), Muse Spark 1.3 builds draft case cards from both behind code guards, the clinician checks the cards, and they're saved. Two notes from Nthabiseng's phone on mobile data worked end to end (22 and 30 s in all). Task 11 is done and live (29 Oct): Observations are optional and never block saving, "Answer N more to save" goes to the first unanswered question, sign-in goes through lemoha.co.za, Hosting sends proper cache headers, and the font licences are in the repo. Its phone checks are with Nthabiseng (Next steps 3). Task 12 (29 Oct, nothing deployed) built the simulation: the town file for Kganya, a seeded background of illness, the seeded cluster ("water"), a red herring, and a replay engine that makes each day's made-up cards on the fly and never stores them. Nothing in the app uses it yet; Day 4 builds the statistics and the Near me map on it (Next steps 5). Today, Near me, Signal detail and Replay are still placeholders. What comes next is under Next steps.
+Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinician records a voice note, two "ears" transcribe it in parallel (Muse Voice Transcribe and Muse Spark audio), Muse Spark 1.3 builds draft case cards from both behind code guards, the clinician checks the cards, and they're saved. Two notes from Nthabiseng's phone on mobile data worked end to end (22 and 30 s in all). Task 11 is done and live (29 Oct): Observations are optional and never block saving, "Answer N more to save" goes to the first unanswered question, sign-in goes through lemoha.co.za, Hosting sends proper cache headers, and the font licences are in the repo. Its phone checks are with Nthabiseng (Next steps 3). Task 12 (29 Oct, nothing deployed) built the simulation: the town file for Kganya, a seeded background of illness, the seeded cluster ("water"), a red herring, and a replay engine that makes each day's made-up cards on the fly and never stores them. Task 13 (29 Oct, nothing deployed) built the statistics layer in functions/shared/ (cards in, Watch, Signal and Alert out, with candidate sources and their evidence) and a first-look scorecard: on seeds 1 to 10, works A's seeded cluster reaches Signal on day 15 to 18, and the no-cluster runs never go past Watch. Nothing in the app uses the simulation or the statistics yet; Task 14 builds the Near me map and the public /demo page on them (Next steps 5). Today, Near me, Signal detail and Replay are still placeholders. What comes next is under Next steps.
 
 ## Live setup
 - Live at https://lemoha.co.za and https://vot-health-za.web.app (Firebase Hosting). https://www.lemoha.co.za returns 301 to https://lemoha.co.za. DNS: lemoha.co.za A 199.36.158.100; www CNAME vot-health-za.web.app.
@@ -52,7 +52,38 @@ Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinic
   - Seed 1, days 13 to 20, works A under-5 cases: 95 under "water" against 15 under "none" (the busiest 8 days in its history: 20). For seeds 1 to 10, works A under "water" had 63 to 117 cases against a busiest 8 days of 14 to 34.
   - Every setting is in src/sim/scenarios.js; the hidden facts are in src/sim/groundTruth.js, for the Day 8 scorecard only.
   - scripts/simulate.mjs prints a daily summary (How to run).
-- Tests: web 72, Functions 79, rules 93 (what each covers is under "Check"). Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
+- The statistics layer (Task 13; functions/shared/, used by neither the app nor any function yet). `computeSignals({ cards, asOf, town })` takes { id, card } records with createdAt in milliseconds (as cardsUpTo returns them; live cards would use toMillis()), and asOf, the instant a SAST day ends. It returns plain JSON, no sentences:
+  - per signal: its level, symptom group, areas and time window; observed and expected cards and cases; the chances; which level checks passed; independent reporters and reporters as counts; the severity and supply flags counted; cases by age, cards by onset and by exposure; per-area and per-day numbers; all six exposure layers compared inside and outside, with supporting and contradicting facts and the candidates' order; every card ID behind it.
+  - areaLevels (the highest level per area, for the map), the baseline used, and the cards skipped (never guessed), with the reason.
+  - Reporter fields never appear: in a small town, a role plus a facility plus an area can name a person. The method and thresholds are under "The statistics" below.
+- The scorecard (Task 13): src/sim/scorecard.js replays a run day by day through computeSignals and marks each signal against the ground truth; scripts/scorecard.mjs prints it for the tuning seeds (How to run).
+- Tests: web 97, Functions 80, rules 93 (what each covers is under "Check").
+
+## The statistics (Task 13)
+In plain words: for each symptom group and area, count the cases in the last 3 and 7 days and compare them with the same area's own history (the 8 weeks that ended 2 weeks ago, a weekend day counted as the town's own share of a weekday, about half). Ask how often at least that many cases would happen by chance. Neighbouring areas that are up join into one place. Then ask what the affected areas share. For a practitioner: "52 cases of diarrhoea or vomiting in Thaga Park, Leeba View and Nonyana Flats in 3 days; usually about 7."
+- Expected counts come from the cards' own history only (the honesty rule), counted by the card's area, never the reporter's. The baseline is the 56 days that end 14 days before asOf, so a growing cluster can't raise its own baseline, and it moves forward one day per replay day. With less than 28 days of history, nothing is tested.
+- The test is exact and allows for clumps: cards arrive at the area's usual rate (a negative binomial, which also allows for how little history there is), and each card carries a number of cases drawn from the town's own mix of cases per card. A plain Poisson test on cases would fire too often: two 5-case cards in an area that usually sees one card a week score about 4 in 100 million under Poisson, and about 1 in 1,000 here.
+- Thresholds (every one is in functions/shared/settings.mjs):
+  - An area is raised at under 1 in 100, on 2 or more cards. Raised neighbours join into one place; being raised never fires anything on its own.
+  - Watch: under 1 in 10,000, on 3 or more cards (one card never fires, however many cases). About 112 tests a day (8 groups, 7 areas, 2 windows), so about one false Watch in 90 days for the whole town.
+  - Signal: a Watch AND 2 or more independent reporters AND clearly more than twice the usual count (under 1 in 100,000 when tested against twice the usual rate). This deliberately differs from the brief's "or": on seeds 1 to 10, "or" gave 10 no-cluster days at Signal or Alert, and "and" gives 0 ("and" with a plain twice-ratio also gave 10).
+  - Independent reporters are different places of care (facility type plus reporter area): two nurses at one clinic count once.
+  - Alert: a Signal with a candidate source, or 2 or more cards flagged "sicker than usual" or "not getting better with usual treatment". The severity path comes from the brief (its "severity flags" include not responding to usual treatment, the key flag for a poisoning cluster), not from the numbers. Running short of supplies never changes a level.
+  - A layer (works A or B, either school's catchment, either spaza shop's) is a candidate source when the inside is clearly raised (under 1 in 10,000, and at least twice the outside's rise), more than half its areas are raised, none is clearly normal, and the outside isn't raised (1 in 100 or more). "Clearly normal" means an area that usually sees 2 or more cases in the window but has far fewer than the layer's own rise predicts (under 1 in 100). Candidates are ordered by relativeRate (statistics only; Muse Spark ranks on Day 5). The clinicians' exposure clues count as evidence, never proof.
+- First scorecard (seeds 1 to 10; day numbers from the replay's day 0, the seeded cluster from day 13):
+  - Works A's diarrhoea or vomiting: Watch on day 14 to 18 (median 15), Signal 15 to 18 (median 16), Alert 15 to 18 (median 16). Works A is a candidate source from day 15 to 20 and first ranked #1 on day 16 to 20.
+  - At the first Alert, the Leeba View spaza shop leads in seeds 2, 4, 5, 8 and 9 (Day 5 notes, Next steps 5). Leeba View Primary School is a candidate on one day in 2 seeds, both times #2 behind the shop.
+  - No-cluster runs: 10 Watch days (5 episodes), 0 Signal, 0 Alert. The water runs have the same 10 and nothing else; seed 7's works B never fires.
+  - Alert signal-days in the water runs: 29 through a candidate source only, 11 through the severity flags only, 79 through both.
+  - One computeSignals call at day 28 (1,115 cards) takes about 1 ms on this computer.
+- Seeds: 1 to 10 are the tuning set, because thresholds were changed after seeing them. Seeds 11 to 20 are reserved for the Day 8 published scorecard; don't run them before the thresholds are frozen at the end of Day 5 (scoreRun refuses them). The tests keep using seeds 1 to 10.
+
+### Tuning log
+Every threshold changed after seeing scorecard numbers: what changed, from what to what, and why.
+- 29 Oct (Task 13, prototype) — Signal's "twice expected": from a plain ratio (cases at least twice expected) to a test against twice the usual rate, under 1 in 100,000; and "and" in place of the brief's "or". Why: the first look had 10 no-cluster days at Signal or Alert (seeds 2, 4, 5, 8). Every chance clump already had 2 reporters and twice a small area's usual 1 to 3 cases.
+- 29 Oct (Task 13, prototype) — New layer rule "no inside area clearly normal". First "no more cases than usual, where 2 or more are usual": the school catchment was still a candidate in 5 seeds, because one chance extra case broke it. Then "far below the layer's own rise (under 1 in 100)": that also blocked works A in seed 3, through its two smallest, latest-hit areas. Kept: both together (far below the rise, where 2 or more are usual). The school is now a candidate in 2 seeds, and works A isn't blocked.
+- 29 Oct (Task 13, plan approval) — Alert's severity path: from "sicker than usual" on 2 or more cards to "sicker than usual" or "not getting better with usual treatment" on 2 or more cards. Why: the brief, not the numbers (the first-level days didn't change).
+- Considered, not changed: a Watch bar of 1 in 100,000. It would cut false Watch days from 10 to 4, but would move seed 1's first Watch from day 15 to 17. Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
 
 ## Working rules
 CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "approved"; a separate STOP for every permanent or risky action. Also:
@@ -105,29 +136,29 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
    - Firebase console → Authentication → Templates → Password reset: check the sender name and the subject; change any "Fola" to "Lemoha".
    - Google Cloud console (same project) → Google Auth Platform → Branding → "App name": check it says Lemoha, and change it if it says Fola. Google shows this name on its account chooser only after the app's branding is verified; until then the chooser shows the authDomain (see step 3).
    - Don't rename the Firebase project itself (display name "Fola").
-5. Day 4 (Fri 30 Oct): the statistics layer and the Near me map, on the simulation. Notes from Task 12:
-   - The honesty rule: expected counts are computed from the generated history only (the cards cardsUpTo returns for earlier days), never read from the generator's rate settings. test/unit/sim-imports.test.js enforces it: outside src/sim/, only engine.js may be imported, and only the generator may read src/sim/scenarios.js.
-   - Statistics count cases by the card's area (where the patients live), never by reporterArea. Kgwedi Heights Hospital (works B) treats works A patients, so counting by reporterArea would light up the wrong zone.
-   - Signal code gets only what cardsUpTo(day) returns: { id, card } records, createdAt in milliseconds. For live signals, Functions turns each Firestore Timestamp into the same with toMillis() as it reads cards, so one piece of signal code handles both.
-   - Shared code (proposal, not built yet):
-     - Pure modules that both the browser (the public replay, on simulated cards) and Cloud Functions (live signals, on real cards, which clinicians must never read directly) need go in functions/shared/, as ES modules (.mjs).
-     - A Functions deploy uploads only functions/, so they ship with it, with no copy step to go stale. The web app imports them directly, as it already does with functions/data/places.json.
-     - Functions code is CommonJS, so it loads them with `await import("./shared/….mjs")` inside its async handlers (works on every Node 22).
-     - A test like sim-imports keeps the folder pure: it imports only functions/shared/ and functions/data/; no firebase, no fetch, no Node built-ins.
-     - Ruled out: a top-level shared/ folder (a deploy wouldn't upload it), a file:../ dependency (the cloud install can't see outside functions/), converting functions/ to ES modules (too big this week).
-     - The simulation stays in src/sim/ (browser and Node only, never deployed). Its SAST day helper (src/sim/calendar.js) can move into functions/shared/ beside processNote's sastDay.
+5. Day 4 (Fri 30 Oct), Task 14: the Near me map and the public /demo page, on the statistics (Task 13 built those). Then Day 5 (Sat 31 Oct): Muse Spark weighing and ranking sources, and tuning.
+   - Task 14, the statistics side:
+     - The replay calls computeSignals once per day shown, with cardsUpTo(day) and asOf = dayEnd(dayOfDate(run.startDate) + day) from functions/shared/sastDay.mjs. It draws areaLevels on the map and keeps each signal's evidence for Day 6.
+     - The honesty rule stays: outside src/sim/, only engine.js may be imported (and src/sim/scorecard.js, by scripts only), and only the generator reads src/sim/scenarios.js.
+     - Loosen the scan then, not before: only the /demo route may load functions/shared/ and the engine, and only by dynamic import (sim-imports.test.js fails on any import of either from src/ today).
+     - Live signals later: a Cloud Function loads functions/shared/ with `await import("./shared/signals.mjs")` inside its handler (functions/test/shared-import.test.js proves it works from CommonJS), and turns each Firestore Timestamp into milliseconds with toMillis().
    - The public replay (decision D2):
      - A /demo route above the sign-in gate. Today src/App.jsx:33-38 decides by session status before any route: signed out shows SignInScreen at every address (line 36); only a signed-in user with a profile reaches the routes, where any unknown address goes to /report (line 49). The status comes from src/lib/useSession.js. Hosting already sends every address to index.html.
-     - Load the engine only with import("./sim/engine.js") on that route. Vite gives a dynamically imported module its own chunk (checked with Vite 8.3.5), but one static import anywhere in src/ pulls it into the main file. sim-imports.test.js fails on any import of src/sim/ from src/, so allow that one dynamic import then.
+     - Load the engine only with import("./sim/engine.js") on that route. Vite gives a dynamically imported module its own chunk (checked with Vite 8.3.5), but one static import anywhere in src/ pulls it into the main file.
      - The header's Replay link goes to the signed-in /replay placeholder (src/components/AppLayout.jsx:22, App.jsx:47).
-   - Don't show the scenario's name ("water") on the replay: it gives the answer away.
-   - Background noise is real: for seed 7, works B's under-5 cases in days 13 to 20 equal its busiest 8 days in history (14 and 14). No signal level should rise on one such week alone.
+     - Don't show the scenario's name ("water") on the replay: it gives the answer away.
+     - Screens show counts against usual ("52 cases in 3 days; usually about 7"), not the chance numbers (Known issues).
+   - Day 5 notes:
+     - Until a third works A area rises, counts alone can't separate Works A from the Leeba View spaza shop: the shop's catchment is exactly Leeba View and Thaga Park, the two areas the seeded cluster hits first. The clinicians' water and food clues can (on seed 1's day 17, works A's cards include 6 that mention water and the shop's cards 2 that mention food). That's Muse Spark's job on Day 5 (decided 29 Oct). Don't change the statistics or the generator for it.
+     - Tune only on seeds 1 to 10, record every change in the tuning log (The statistics), and freeze the thresholds at the end of Day 5. Seeds 11 to 20 stay unrun until then; the Day 8 published scorecard uses them.
+     - Candidates to look at: the Watch bar (1 in 10,000 against 1 in 100,000; the tuning log has the trade-off); the 7-day window, which never found the seeded cluster before the 3-day window did (the same day at best, in 6 seeds) and gave 7 of the 10 false Watch days; whether rare, serious groups (fever with a stiff neck or confusion) need a lower minimum than 3 cards.
+     - Muse Spark gets the numbers and facts from computeSignals (counts, never the chances as words), plus the cards' own fields behind cardIds. Evidence shown to other clinicians shows only the clinician's-words fields (symptomsInWords, exposure.words, unusualDescription), never the reporter fields.
 6. Speed, on Day 7 with "Check later". From the phone test: the server time is almost all transcription (5.5–7.5 s, both ears side by side) plus the card step (7–12 s, the largest and most variable). Upload on mobile data was about 10 s per MB, and a cold start about 5.6 s. Planned order: compressed audio from the phone; then a card step that no longer writes the cleaned transcript (re-score); then one warm instance in judging week.
 7. The logo, on Day 7 (moved from Task 11): the wordmark ring's spacing, the ring's line weight and the logo lump.
 8. Later, with the privacy notice: a "Delete my profile" button (the rules already allow it). Day 4 decides how signals read cards (now owner-only).
    - Day 6 (Signal detail): cards hold no transcript, so the evidence trail points to each card's own fields, which hold the clinician's words: symptomsInWords, exposure.words and unusualDescription.
 9. Day 8 (Tue 3 Nov): Make the repo public, then check it from a logged-out browser. README notes for that day: the first commit was 27 Oct 2026 at 08:50 SAST (4815aef, after the kickoff on 26 Oct at 18:00 SAST), and Fola was the working name until 28 Oct.
-   - The scorecard: the same createRun with seeds 1 to 10 under "water", plus a "none" run in which Lemoha should stay quiet. It goes in src/sim/scorecard.js, the only module allowed to read src/sim/groundTruth.js (the import test already names it).
+   - The published scorecard: src/sim/scorecard.js (built in Task 13) on the held-out seeds 11 to 20, under "water" and "none" (Lemoha should stay quiet), with the thresholds frozen at the end of Day 5. scoreRun refuses those seeds unless it's called with allowHeldOut: true, which only the Day 8 run should use. Seeds 1 to 10 are the tuning set, so report them as such.
 
 ## Decisions and why
 - 26 Oct — Firestore and Functions in africa-south1: data stays in South Africa. Firestore's location can never be changed.
@@ -215,6 +246,14 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 - 29 Oct — The honesty rule for Day 4: expected counts come from the generated history only, never from the generator's rate settings (Next steps 5).
 - 29 Oct — Statistics count cases by the card's area, never by reporterArea (Next steps 5).
 - 29 Oct — Judging weights, from the official participant guide (confirmed 29 Oct): Impact 30%, Use of Meta AI tooling 25%, Demo 25%, Technical depth and execution 20% (docs/PROJECT_CONTEXT.md).
+- 29 Oct — The statistics live in functions/shared/ as pure ES modules (Task 13, approved): the browser replay uses them now and a Cloud Function can use the same code later. They import only functions/shared/ and functions/data/ and take cards as input; they never generate, read or know about simulated data. The only place statistics and ground truth meet is src/sim/scorecard.js. test/unit/sim-imports.test.js enforces all of it.
+- 29 Oct — The method and thresholds in "The statistics" (approved): expected counts from the cards' own history with a 14-day gap; an exact, clump-aware test on cases; neighbour grouping in 3- and 7-day windows; independent reporters are places of care.
+- 29 Oct — Signal = a Watch AND 2 or more independent reporters AND clearly more than twice the usual count (Nthabiseng's call). It deliberately differs from the brief's "or": "or" gave 10 no-cluster days at Signal or Alert, "and" gives 0. Recorded in PROJECT_CONTEXT §6.5.
+- 29 Oct — Alert's severity path counts cards flagged "sicker than usual" OR "not getting better with usual treatment", 2 or more (Nthabiseng's change). Why: the brief's severity flags include not responding to usual treatment, the key flag for a poisoning cluster. This comes from the brief, not from the numbers. Running short of supplies never changes a level.
+- 29 Oct — Layer rule 3, "no inside area clearly normal" (approved, with its tuning-log entry). Why: if the school were the source, Kgwedi Heights' children would be ill too.
+- 29 Oct — Shop or works A in the first days is left to the clinicians' clues and Muse Spark on Day 5; the statistics and the generator don't change for it (Nthabiseng's call).
+- 29 Oct — Seeds 1 to 10 are the tuning set; seeds 11 to 20 are held out for the Day 8 published scorecard and not run before the thresholds are frozen at the end of Day 5 (Nthabiseng's call). Why: thresholds were changed after seeing seeds 1 to 10, so only unseen seeds can show how well they generalise.
+- 29 Oct — The ground truth names the seeded cluster's symptom groups, read from the settings (approved), so its bloody diarrhoea isn't scored as a false alarm.
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Change 'Fola' to 'Lemoha' in the extraction prompt during the next scoring run, and re-score in that same run.
@@ -325,7 +364,8 @@ Source: dev.meta.ai/docs/structured-output.
 - src/sim/ — the simulation (Task 12): no Firebase, no network, no clock; the app doesn't import it yet.
   - engine.js — createRun and cardsUpTo; the only sim file anything outside src/sim/ may import.
   - scenarios.js — every setting: the background rates and the "water" and "none" scenarios. Only the generator reads it.
-  - groundTruth.js — the hidden facts behind each scenario, for the Day 8 scorecard only.
+  - groundTruth.js — the hidden facts behind each scenario (with the seeded cluster's symptom groups), for the scorecard only.
+  - scorecard.js — the scorecard: scoreRun replays a run through the statistics and marks each signal against the ground truth; the tuning seeds (1 to 10) and the held-out seeds (11 to 20, refused until the thresholds are frozen).
   - background.js — the everyday cards. seededCluster.js — the seeded cluster and the red herring. draws.js — who reports a card, when, and what the patients shared. card.js — one simulated card, built through toCardDoc.
   - random.js — seeded random numbers (mulberry32). calendar.js — replay days on SAST days. town.js — reads the town file. reporters.js — the 16 made-up reporters. phrases.js — the made-up words.
 - test/unit/auth-errors.test.js — unit tests for the sign-in error messages.
@@ -339,7 +379,9 @@ Source: dev.meta.ai/docs/structured-output.
 - test/unit/sim-town.test.js — the town file (zones, round populations, neighbours that match the shapes, names from area names, every place inside its area) and the made-up reporters.
 - test/unit/sim-run.test.js — the seeded random numbers, SAST days, seed 1's runs pinned by hash, cardsUpTo, every card's 17 fields, "water" against "none", the seeded cluster against its own history, the ground truth.
 - test/unit/sim-text.test.js — no capitals but the town file's names; no "outbreak", disease, blame or political words; no line from the test recordings' scripts.
-- test/unit/sim-imports.test.js — who may import what (engine.js only from outside src/sim/, the settings only from the generator, the ground truth only from the scorecard), the app not importing the simulation yet, and no network, storage, clock, time zone or engine-dependent maths in it.
+- test/unit/sim-imports.test.js — who may import what (engine.js only from outside src/sim/, the scorecard only from scripts/, the settings only from the generator, the ground truth and the statistics only from the scorecard; the statistics reach only functions/shared/ and functions/data/), the app importing neither the simulation nor the statistics yet, and no network, storage, clock, time zone or engine-dependent maths in either.
+- test/unit/signals.test.js — the statistics on small hand-made card sets, one or more tests per rule (the list is under "Check").
+- test/unit/sim-signals.test.js — the statistics on the simulation through the scorecard, seeds 1 to 10: no Signal or Alert without the seeded cluster ("none", and "water" outside it), works A's reaching Signal by day 20, and the held-out seeds refused.
 - public/fonts/hanken-grotesk/OFL.txt, public/fonts/source-serif-4/OFL.txt — the fonts' licences with their copyright lines, copied byte for byte from the Google Fonts releases; served with the app.
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
@@ -353,6 +395,13 @@ Source: dev.meta.ai/docs/structured-output.
 - functions/lib/errorLog.js — errorDetails: a caught error's name, code, reason (UID and our document paths redacted) and where, for one log line. Only for errors whose message can't contain note content.
 - functions/lib/practice.js — practice mode: the emulator-and-demo check and the prepared results in turn.
 - functions/data/places.json — the town file for Kganya, made up: the 7 areas (the card step's place list) with their works, populations, neighbours and shapes on a plain x/y grid; the two water works; four clinics and the hospital; two primary schools; two spaza shops. The card step reads only the town and the area names.
+- functions/shared/ — the statistics layer (Task 13): pure ES modules for the browser and, later, Cloud Functions; no Firebase, network or clock. A Functions deploy uploads them with the rest of functions/.
+  - signals.mjs — computeSignals: usable cards, neighbour grouping, levels, the layer comparison and the output.
+  - baseline.mjs — expected counts from the cards' own history: the baseline's days, the weekend weight, the cases-per-card mix.
+  - tail.mjs — the exact chance of at least (or at most) a number of cases (compound negative binomial, Panjer's recursion).
+  - layers.mjs — the exposure layers from the town file (water works, school catchments, shop catchments) and the card clues that point at each.
+  - settings.mjs — every threshold, in one frozen object (the tuning log names its keys).
+  - sastDay.mjs — SAST days, day ends (asOf), weekends and dates, with integer maths.
 - functions/prompts/spark-audio.md — the instruction for the Muse Spark audio ear.
 - functions/prompts/extract-card.md — the extraction prompt; {{placeholders}} are filled from cardSchema.js.
 - functions/lib/metaRequest.js — shared Meta API request code: 60 s per attempt, one retry, failure kinds, Standard-model guard.
@@ -373,12 +422,14 @@ Source: dev.meta.ai/docs/structured-output.
 - functions/test/admin.test.js — with firebase-functions' own named app already there, the default app is still made and the counter opens its Firestore.
 - functions/test/error-log.test.js — the counter's and the Meta connection's error lines keep the reason and leave out the UID (through the real logger); redaction and where.
 - functions/test/make-wav.js — builds WAVs in memory for the tests.
+- functions/test/shared-import.test.js — CommonJS code can load and run the shared statistics with import().
 - functions/package.json, functions/package-lock.json — Functions libraries, Node 22, npm scripts.
 - functions/.gitignore — keeps node_modules/ and *.local (including .secret.local) out of git.
 - scripts/convert-audio.mjs — converts test recordings to 16 and 24 kHz WAVs, skipping ones already converted (local tool; needs ffmpeg).
 - scripts/transcribe-test.mjs — sends 24 kHz test WAVs through the chosen runs (a–e) and writes numbered results (local tool; calls the Meta API).
 - scripts/score-extraction.mjs — scores card extraction against test-fixtures/ (Stage 1 text, Stage 2 audio) and writes numbered results (local tool; calls the Meta API).
 - scripts/simulate.mjs — prints a daily summary of one simulated run (local tool; no network, writes nothing).
+- scripts/scorecard.mjs — prints the scorecard for the tuning seeds under both scenarios, and one computeSignals timing (local tool; no network, writes nothing).
 - test-fixtures/ — made-up ideal transcripts and expected cards for the scorer (committed on purpose).
 - test-audio/ — local only, gitignored: raw/ (recordings), wav/ (converted), results/ (run-NNN-… from the transcription runner, score-NNN-… from the scorer).
 
@@ -416,8 +467,8 @@ Other local commands:
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 72 web unit tests (the simulation: the town file and reporters, seeded runs pinned by hash, cardsUpTo, the cards' 17 fields, "water" against "none", the seeded cluster against its own history, the words it uses, and who may import it; sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, optional observations, unusualSymptoms always false, the supplies note only with its tick, the answers-needed count and the first question to answer, the save button's gate; the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; the timing line; and Hosting's cache headers).
-- `npm --prefix functions test` — runs the 79 Functions unit tests (WAV header, retries, code guards including observations never asked, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the default Admin app, the note_timing log line, the error log lines), all with fakes and no network calls.
+- `npm test` — runs the 97 web unit tests (the statistics, on small hand-made card sets: the minimum count, clumpy counts and the exact chance against a brute-force sum, weekday and weekend expected counts, the 14-day gap, cards after asOf, neighbours and the 72-hour window, independent reporters, the hospital trap, the layer comparison, each Alert path, the privacy rule, cards that can't be counted, too little history, determinism, SAST days; the statistics on the simulation, seeds 1 to 10: no Signal or Alert without the seeded cluster, and works A's reaching Signal by day 20; the simulation: the town file and reporters, seeded runs pinned by hash, cardsUpTo, the cards' 17 fields, "water" against "none", the seeded cluster against its own history, the words it uses, and who may import it and the statistics; sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, optional observations, unusualSymptoms always false, the supplies note only with its tick, the answers-needed count and the first question to answer, the save button's gate; the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; the timing line; and Hosting's cache headers).
+- `npm --prefix functions test` — runs the 80 Functions unit tests (WAV header, retries, code guards including observations never asked, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the default Admin app, the note_timing log line, the error log lines, and loading the shared statistics from CommonJS), all with fakes and no network calls.
 - `npm run test:rules` — runs the 93 Firestore rules tests (users, cards, and simulated cards against the card rules, about 11 s of the run), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
@@ -425,6 +476,7 @@ Other local commands:
 **Simulation (local; no network, no key, writes nothing)**
 - `node scripts/simulate.mjs --seed 1 --scenario water` — makes one simulated run in memory and prints a line per replay day: date, the town's cards and cases, and the under-5 diarrhoea or vomiting cases in each area, with works A and works B totals. `--scenario none` is the no-cluster run; `--days 10` prints fewer days (default 29, days 0 to 28).
 - Changing anything the runs are made from (src/sim/, the town file, or toCardDoc) changes seed 1's pinned hashes in test/unit/sim-run.test.js, and `npm test` says so. If the change was on purpose, put the new hashes in the test.
+- `node scripts/scorecard.mjs` — runs the statistics day by day on the tuning seeds (1 to 10) under both scenarios and prints the scorecard, with "Simulation: made-up data" first: when works A's seeded cluster reached Watch, Signal and Alert, the candidate sources at the first Alert, when works A became a candidate and ranked first, the school catchment's candidacies, how each Alert was reached, every false alarm, and one computeSignals timing at day 28. About a second; writes nothing. It never runs seeds 11 to 20 (held out for Day 8).
 
 **Extraction scoring (local; calls the Meta API and uses credits)**
 - Load the key the same way as the transcription test below, in the same one-line command, and end the line with `; Remove-Item Env:META_API_KEY`, so the key is cleared when the run finishes. The runs:
@@ -500,7 +552,13 @@ Other local commands:
 - npm audit reports "high" issues in @grpc/grpc-js via the firebase SDK (Node-only code path), listed again under @firebase/rules-unit-testing because it depends on firebase. Don't run "npm audit fix --force", because it would downgrade firebase.
 - Local Node is v24 but Functions run nodejs22. It's only a warning.
 - Node can't import src/lib/places.js: it imports the JSON without `with { type: "json" }` (ERR_IMPORT_ATTRIBUTE_MISSING), which only Vite accepts. The simulation (src/sim/town.js) and scripts/simulate.mjs import functions/data/places.json themselves, with the attribute; Vite 8, Node and oxlint all accept it.
-- src/sim/calendar.js has its own copy of processNote's SAST day rule (UTC+2); test/unit/sim-run.test.js checks the two agree. Day 4 can move both into functions/shared/ (Next steps 5).
+- The SAST day rule (UTC+2) has three copies: processNote's sastDay, src/sim/calendar.js and functions/shared/sastDay.mjs. test/unit/sim-run.test.js and test/unit/signals.test.js check that they agree. calendar.js could import the shared one later; that changes a generator file, so it wasn't done in Task 13.
+- The statistics' maths runs in plain floating point: a baseline of about 10,000 cards in one place would make its chances underflow, and a 500-case card makes each test slower. Kganya is nowhere near either.
+- Real reporting will be burstier than the simulation's (catch-up sessions, staff on leave), and the simulation's card counts come from the same family of model the test assumes. Before real use, the thresholds must be checked against real history.
+- An area served by only one place of care can reach Watch, but not Signal, until a second place of care reports. The Watch still shows on the map.
+- A signal's id is its symptom group, areas and window, so it changes when an area joins it. Day 6 will need to match "the same signal" across days by symptom group and overlapping areas (computeSignals itself does that to merge its two windows).
+- The chance numbers are for setting levels. Screens should show counts against usual ("52 cases in 3 days; usually about 7"), not probabilities.
+- Task 14 will loosen the scan so that only the /demo route may load functions/shared/ and the engine, and only by dynamic import. Until then, sim-imports.test.js fails on any import of either from src/.
 - The simulation doesn't model public or school holidays: the history (9 Nov 2026 to 31 Jan 2027) runs through December at the usual rates.
 - The next Functions deploy uploads the grown functions/data/places.json. The extraction inputs are unchanged (sha256 cddb48328a27f866), so the model's request is the same.
 - The Firebase CLI sometimes prints its results, then exits with "Timed out". Harmless.

@@ -318,6 +318,39 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 - scripts/simulate.mjs (c27d0a6).
 - Tests: web 72, Functions 79, rules 93; lint clean (0 findings).
 
+### Day 4 work — Task 13: the statistics layer (done Thu 29 Oct; nothing deployed)
+Day 4 was split in two: this task built the statistics and a first-look scorecard, with no UI. Task 14 builds the Near me map and the public /demo page on top of it.
+- Read-only investigation first (from e8b2a3d, clean and level with origin/main):
+  - Under today's rules a saved card can't have area, caseCount or ageGroup null (firestore.rules:65, :67, :68-69), but toCardDoc copies them unchecked (src/lib/cardDraft.js:139, :141, :142) and only the save gate stops a save while they're empty. A server-written card could hold nulls, so the statistics skip and count them.
+  - The Leeba View spaza shop's catchment is exactly Leeba View and Thaga Park, the two areas the seeded cluster hits first.
+- A prototype in the scratchpad (outside the repo) gave the first-look numbers, and thresholds were changed after seeing them (HANDOVER's tuning log). The first version used the brief's reading of Signal and had 10 no-cluster days at Signal or Alert; the school catchment was a candidate source in 5 of 10 seeds.
+- The plan was approved with five answers and four changes (Nthabiseng, 29 Oct): Signal is "and", with "twice usual" tested; the new layer rule 3; the ground truth names its symptom groups; one Functions import test; Alert's severity path counts "sicker than usual" OR "not getting better with usual treatment"; seeds 11 to 20 held out for Day 8; one more simulation test; four known issues recorded.
+- Statistics (a14ec33): functions/shared/ (sastDay, tail, baseline, layers, settings, signals; ES modules, no Firebase, network or clock). computeSignals({ cards, asOf, town }) returns plain JSON. 19 hand-made card tests, the import and determinism scans extended to functions/shared/, and a Functions test that loads the modules from CommonJS with import().
+- Scorecard (a5c42e4): src/sim/scorecard.js and scripts/scorecard.mjs; groundTruth names the seeded cluster's symptom groups; simulation tests through the scorecard.
+- First scorecard, seeds 1 to 10 (the tuning set):
+
+  | Seed | Watch | Signal | Alert | Candidates at the first Alert | Works A: first a candidate / first #1 | School a candidate |
+  |---|---|---|---|---|---|---|
+  | 1 | 15 | 17 | 17 | Works A | 17 / 17 | never |
+  | 2 | 15 | 15 | 15 | Leeba View spaza shop, Leeba View Primary School | 18 / 18 | day 15, #2 of 2 |
+  | 3 | 15 | 16 | 16 | Works A | 16 / 16 | never |
+  | 4 | 14 | 15 | 15 | Leeba View spaza shop, Works A | 15 / 16 | day 14, #2 of 2 |
+  | 5 | 16 | 17 | 17 | Leeba View spaza shop | 16 / 18 | never |
+  | 6 | 14 | 16 | 16 | Works A, Leeba View spaza shop | 16 / 16 | never |
+  | 7 | 15 | 16 | 18 | Works A | 18 / 18 | never |
+  | 8 | 14 | 15 | 15 | Leeba View spaza shop | 18 / 18 | never |
+  | 9 | 14 | 15 | 15 | Leeba View spaza shop | 20 / 20 | never |
+  | 10 | 18 | 18 | 18 | Works A | 18 / 18 | never |
+
+  - No-cluster runs: 10 Watch days (5 episodes), 0 Signal, 0 Alert. The water runs have the same 10 and nothing else; seed 7's works B never fires.
+  - Alert signal-days in the water runs: 29 through a candidate source only, 11 through the severity flags only, 79 through both.
+  - The seeded cluster's bloody diarrhoea reached Watch only (seeds 2, 4, 6, 7).
+  - With the brief's "or", the no-cluster runs had 10 days at Signal or Alert; "and" with a plain twice-ratio also had 10; "and" with "twice" tested has 0.
+- One computeSignals call at day 28 (1,115 cards): about 1.1 ms median, under 3 ms at worst, on this computer (prototype: 9 ms for a cold first call).
+- The guards were broken on purpose once, then restored: counting by reporterArea (the hospital trap test failed), Signal as "or" (both simulation tests failed), reporter IDs in the output (privacy), Math.exp in the statistics, the statistics importing the engine, and the app importing the statistics each failed their own test.
+- Extraction inputs unchanged (sha256 cddb48328a27f866); main web file unchanged (880,851 bytes).
+- Tests: web 97, Functions 80, rules 93; lint clean (0 findings).
+
 ## Test results
 
 ### Transcription test results (27 Oct)
@@ -389,6 +422,12 @@ Decisions that a later one replaced, with what replaced them.
   - Replaced on 28 Oct: the domain was already connected to Hosting when Task 10's Hosting deploy ran; Task 11 moves the sign-in authDomain to it.
 
 ## Change log (newest first)
+- 2026-10-29 — Task 13: the statistics layer.
+  - functions/shared/: computeSignals, with expected counts from the cards' own history, a clump-aware exact test, neighbour grouping, Watch, Signal and Alert, and six exposure layers compared inside against outside.
+  - Signal is "and", with "twice usual" tested (differs from the brief's "or" on purpose); Alert's severity path counts "sicker than usual" or "not getting better with usual treatment".
+  - src/sim/scorecard.js and scripts/scorecard.mjs; seeds 1 to 10 are the tuning set and 11 to 20 are held out for Day 8.
+  - The tuning log, the Day 5 notes and four known issues in HANDOVER; §6.5 in PROJECT_CONTEXT.
+  - Tests: web 97, Functions 80, rules 93. Nothing deployed.
 - 2026-10-29 — Task 12: the simulation.
   - The town file (functions/data/places.json grown; the extraction prompt is unchanged).
   - A seeded background, the seeded cluster ("water"), a red herring and a replay engine (src/sim/). Cards are generated on the fly and never stored; their source is "simulation", which the rules refuse.

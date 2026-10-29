@@ -126,7 +126,9 @@ A hybrid: statistics find the clusters and do all the maths, map overlays test t
 2. **Where does it begin and end?** Group cards by symptom group, neighbouring areas and a 72-hour window.
 3. **What do the affected areas share?** For each exposure layer (water supply zone, school catchment, shop, event), compare case rates per 1,000 people inside and outside it. A much higher rate inside, while comparison zones stay normal, makes a candidate source.
 4. **Muse Spark weighs it.** It gets the numbers plus the cards' details (age groups, onset, exposure clues, observations) and ranks possible sources, each with supporting and contradicting evidence and a confidence word (low, medium, high).
-5. **Levels.** Watch: clearly above expected. Signal: 2 or more independent reporters, or twice expected. Alert: a Signal plus a candidate source or severity flags.
+5. **Levels** (decided 29 Oct 2026, Task 13). Watch: clearly above expected (less than 1 in 10,000 by chance, on at least 3 cards). Signal: a Watch AND 2 or more independent reporters (different places of care) AND clearly more than twice the usual count. Alert: a Signal plus a candidate source, or 2 or more cards flagged "sicker than usual" or "not getting better with usual treatment".
+   - This deliberately differs from the original brief ("Signal: 2 or more independent reporters, or twice expected"). In the no-cluster runs (seeds 1 to 10), "or" gave 10 days at Signal or Alert; "and", with "twice" tested against twice the usual rate, gave 0. "And" with a plain twice-ratio also gave 10: chance clumps in small areas already have 2 reporters and twice a usual count of 1 to 3 cases.
+   - Limit: an area served by only one place of care can reach Watch, but not Signal, until a second place of care reports. The Watch still shows on the map.
 6. **Suggested checks** for the environmental health practitioner, such as chlorine records and water sampling in one supply zone.
 
 Observations change the reasoning: sudden onset plus "not responding to usual treatment" points to a possible non-infectious cause for laboratory testing. The check runs on every confirmed card and once a day.
@@ -203,7 +205,7 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 | Frontend | React + Vite (JavaScript), mobile-first web app | Known stack; works in any phone browser |
 | Accounts and data | Firebase Authentication + Firestore | Known; security rules tested locally with the emulator |
 | AI calls | Firebase Cloud Functions | Hold the API keys so the browser never sees them (needs the Blaze plan) |
-| Signal maths | Plain JavaScript in Cloud Functions | Expected counts and zone comparisons are a few lines; the AI never does the maths |
+| Signal maths | Plain JavaScript modules in functions/shared/, run in the browser (the public replay) and later in Cloud Functions (live signals) | One copy of the maths for both; checkable numbers; the AI never does the maths |
 | Hosting | Firebase Hosting | Live link for the judges |
 | Map | Leaflet, with plain shapes for the demo town | Free, no API key; no real streets |
 | Audio | Browser recording → Cloud Function → Muse Voice Transcribe and Muse Spark ("two ears") | Audio is never stored |
