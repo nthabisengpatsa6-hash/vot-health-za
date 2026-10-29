@@ -6,7 +6,7 @@ The product is Lemoha (working name Fola until 28 Oct 2026). The repo codename s
 
 1. Before anything else, read HANDOVER.md and docs/PROJECT_CONTEXT.md.
 2. Show your plan, then STOP and wait for "approved". Nthabiseng reviews every plan before anything runs.
-3. Every permanent or risky action gets its own separate STOP, even inside an approved plan: Firebase project IDs or locations, deleting anything, security rules, deploys, git push.
+3. Every permanent or risky action gets its own separate STOP, even inside an approved plan: Firebase project IDs or locations, deleting anything, security rules, deploys, git push, and any git reset, rebase, amend or force operation, even on unpushed commits.
 4. Never ask for, print, log or write an API key, password or token. Nthabiseng sets keys herself at a terminal prompt (firebase functions:secrets:set NAME).
 5. This repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords, tokens or personal data in any file or commit. Test audio stays in test-audio/, which is gitignored.
 6. Made-up data only. Follow the hard rules in docs/PROJECT_CONTEXT.md, section 3.
