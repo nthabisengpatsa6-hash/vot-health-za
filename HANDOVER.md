@@ -33,10 +33,18 @@ Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinic
 - Design: the Shweshwe direction (docs/DESIGN.md), tokens in src/styles/tokens.css, self-hosted Hanken Grotesk and Source Serif 4, the ring logo, favicon, app icons and the web app manifest.
 - Tests: web 33, Functions 77, rules 89 (what each covers is under "Check"). Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
 
+## Working rules
+CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "approved"; a separate STOP for every permanent or risky action. Also:
+- Git: stop and ask before any git reset, rebase, amend or force operation, even on unpushed commits (Nthabiseng, 29 Oct). Push only after "Push now?" gets a yes, with the pre-push scan below.
+- Commit messages: write the message to a file and use `git commit -F <file>`. Windows PowerShell 5.1 splits a `-m` here-string at its double quotes and git reads the pieces as file names (it happened on 29 Oct).
+- Deploys: Firebase CLI only (gcloud's sign-in has expired). No --force on any deploy. If the CLI asks any question, stop and show the exact words; don't answer it. Don't trust the CLI's exit code: "Error: An unexpected error has occurred" sometimes follows a successful deploy, so always check the live result. Never run anything that prints a secret's value.
+
 ## In progress
 - Task 11 (29 Oct): the Observations box, the sign-in domain, Hosting cache headers, font licences, PROJECT_CONTEXT, and this HANDOVER tidy (Next steps 3).
 - Task 10 Part D, the rest of the phone test (Next steps 2).
-- Delete list: Nthabiseng's phone account's data (its users and noteUsage documents, and every test card it saved) is deleted after Part D, and in any case before Day 4. All live test cards must be gone before signals read cards. Its email isn't recorded here.
+- Delete list, after Part D and in any case before Day 4 (all live test cards must be gone before signals read cards):
+  - Nthabiseng's phone account's data: its users and noteUsage documents, and every test card it saved. Its email isn't recorded here.
+  - The iPhone test account (29 Oct, Safari, one card): its sign-in account is already deleted in the console, but its users, noteUsage and card documents are still in Firestore under a UID that no longer exists. Nobody can sign in as that owner, so the delete step must find these documents by listing the users, noteUsage and cards collections (for example in the Firebase console's Firestore data view), not through the app or the owner's account.
 
 ## Next steps (in order)
 1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model. Prompt changes go in the same run, because each changes what the model does:
