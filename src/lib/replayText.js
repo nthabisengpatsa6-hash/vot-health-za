@@ -1,4 +1,4 @@
-// What the replay and Near me say, in Lemoha's own words: counts against
+// What the replay and Near me say, in the app's own words: counts against
 // usual, never chances, and nothing that names or hints at what was planted
 // (test/unit/replay.test.js checks every sentence for every day of both
 // runs). The clinicians' own words on the cards are theirs, not ours.

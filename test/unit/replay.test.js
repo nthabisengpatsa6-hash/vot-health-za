@@ -137,7 +137,7 @@ test("every area is drawn, with its name placed inside its own shape on the grid
   }
 });
 
-// Lemoha's own words on /demo and Near me (decision T2, as narrowed on
+// The app's own words on /demo and Near me (decision T2, as narrowed on
 // 29 Oct): nothing that names or hints at what was planted, and never a
 // chance. The clinicians' words on the cards are theirs, covered by
 // test/unit/sim-text.test.js.
@@ -166,7 +166,7 @@ function ourWords() {
   return all;
 }
 
-test("Lemoha's own words on the replay never hint at what was planted, and never give a chance", () => {
+test("the app's own words on the replay never hint at what was planted, and never give a chance", () => {
   const all = ourWords();
   assert.ok(all.length > 1000, `${all.length} pieces of text`);
   for (const text of all) {
