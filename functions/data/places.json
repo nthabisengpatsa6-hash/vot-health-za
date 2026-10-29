@@ -1,6 +1,6 @@
 {
   "town": "Kganya",
-  "note": "A made-up town for the Lemoha demo. Populations, services and shapes are invented, and the shapes sit on a plain x/y grid, not latitude and longitude.",
+  "note": "A made-up town for the demo. Populations, services and shapes are invented, and the shapes sit on a plain x/y grid, not latitude and longitude.",
   "waterWorks": [
     { "id": "A", "name": "Works A" },
     { "id": "B", "name": "Works B" }
