@@ -1,12 +1,32 @@
 {
   "town": "Kganya",
+  "note": "A made-up town for the Lemoha demo. Populations, services and shapes are invented, and the shapes sit on a plain x/y grid, not latitude and longitude.",
+  "waterWorks": [
+    { "id": "A", "name": "Works A" },
+    { "id": "B", "name": "Works B" }
+  ],
   "areas": [
-    { "name": "Thaga Park", "works": "A" },
-    { "name": "Leeba View", "works": "A" },
-    { "name": "Sefate Extension", "works": "A" },
-    { "name": "Nonyana Flats", "works": "A" },
-    { "name": "Mmutla Ridge", "works": "A" },
-    { "name": "Kgwedi Heights", "works": "B" },
-    { "name": "Lebone Gardens", "works": "B" }
+    { "name": "Thaga Park", "works": "A", "population": 8000, "neighbours": ["Leeba View", "Sefate Extension"], "shape": [[2, 60], [28, 62], [33, 76], [30, 92], [4, 88]] },
+    { "name": "Leeba View", "works": "A", "population": 12000, "neighbours": ["Thaga Park", "Nonyana Flats", "Kgwedi Heights"], "shape": [[28, 62], [45, 63], [62, 58], [60, 74], [58, 90], [30, 92], [33, 76]] },
+    { "name": "Sefate Extension", "works": "A", "population": 7000, "neighbours": ["Thaga Park", "Nonyana Flats", "Mmutla Ridge"], "shape": [[0, 31], [30, 30], [26, 45], [28, 62], [2, 60]] },
+    { "name": "Nonyana Flats", "works": "A", "population": 11000, "neighbours": ["Leeba View", "Sefate Extension", "Mmutla Ridge", "Lebone Gardens"], "shape": [[30, 30], [48, 27], [64, 28], [66, 42], [62, 58], [45, 63], [28, 62], [26, 45]] },
+    { "name": "Mmutla Ridge", "works": "A", "population": 5000, "neighbours": ["Sefate Extension", "Nonyana Flats"], "shape": [[3, 5], [30, 0], [60, 4], [64, 28], [48, 27], [30, 30], [0, 31]] },
+    { "name": "Kgwedi Heights", "works": "B", "population": 14000, "neighbours": ["Leeba View", "Lebone Gardens"], "shape": [[62, 58], [80, 60], [98, 56], [96, 86], [58, 90], [60, 74]] },
+    { "name": "Lebone Gardens", "works": "B", "population": 12000, "neighbours": ["Kgwedi Heights", "Nonyana Flats"], "shape": [[64, 28], [97, 30], [98, 56], [80, 60], [62, 58], [66, 42]] }
+  ],
+  "facilities": [
+    { "name": "Thaga Park Clinic", "type": "clinic", "area": "Thaga Park", "at": [15, 74], "serves": ["Thaga Park", "Leeba View"] },
+    { "name": "Nonyana Flats Clinic", "type": "clinic", "area": "Nonyana Flats", "at": [46, 46], "serves": ["Nonyana Flats", "Sefate Extension"] },
+    { "name": "Mmutla Ridge Clinic", "type": "clinic", "area": "Mmutla Ridge", "at": [30, 15], "serves": ["Mmutla Ridge"] },
+    { "name": "Lebone Gardens Clinic", "type": "clinic", "area": "Lebone Gardens", "at": [82, 40], "serves": ["Lebone Gardens", "Kgwedi Heights"] },
+    { "name": "Kgwedi Heights Hospital", "type": "hospital", "area": "Kgwedi Heights", "at": [80, 74], "serves": ["Thaga Park", "Leeba View", "Sefate Extension", "Nonyana Flats", "Mmutla Ridge", "Kgwedi Heights", "Lebone Gardens"] }
+  ],
+  "schools": [
+    { "name": "Leeba View Primary School", "area": "Leeba View", "at": [46, 80], "catchment": ["Leeba View", "Thaga Park", "Kgwedi Heights"] },
+    { "name": "Nonyana Flats Primary School", "area": "Nonyana Flats", "at": [40, 38], "catchment": ["Nonyana Flats", "Sefate Extension", "Mmutla Ridge", "Lebone Gardens"] }
+  ],
+  "shops": [
+    { "name": "Leeba View spaza shop", "description": "a spaza shop near the taxi rank in Leeba View", "area": "Leeba View", "at": [44, 70], "serves": ["Leeba View", "Thaga Park"] },
+    { "name": "Lebone Gardens spaza shop", "description": "a spaza shop next to the bus stop in Lebone Gardens", "area": "Lebone Gardens", "at": [74, 50], "serves": ["Lebone Gardens", "Nonyana Flats"] }
   ]
 }
