@@ -1,15 +1,10 @@
 import { useId } from "react";
+import { LEVELS } from "../config/levels";
 
 // Watch, Signal and Alert always show their word and their own pattern or
 // shape, never colour alone: Watch is indigo with a dashed ochre border,
 // Signal is orange with the sparse print, Alert is crimson with the dense
 // print. The print appears only here and on the map (docs/DESIGN.md).
-const LEVELS = {
-  watch: { label: "Watch", meaning: "Clearly more cases than usual." },
-  signal: { label: "Signal", meaning: "Reported by two or more people, or twice the usual number." },
-  alert: { label: "Alert", meaning: "A Signal with a likely common source, or signs of severe illness." },
-};
-
 const CORNERS_12 = [[0, 0], [12, 0], [0, 12], [12, 12]];
 const CORNERS_16 = [[0, 0], [16, 0], [0, 16], [16, 16]];
 
@@ -56,9 +51,11 @@ function LevelSwatch({ level }) {
   );
 }
 
-function DensePrint({ id }) {
+// transform scales the print on the map, so it stays the same size on
+// screen whatever the map's size.
+export function DensePrint({ id, transform }) {
   return (
-    <pattern id={id} width="12" height="12" patternUnits="userSpaceOnUse">
+    <pattern id={id} width="12" height="12" patternUnits="userSpaceOnUse" patternTransform={transform}>
       <polygon className="print-light" points="6,2 9.5,6 6,10 2.5,6" fillOpacity="0.5" />
       <circle className="print-dot" cx="6" cy="6" r="1" />
       {CORNERS_12.map(([cx, cy]) => <circle key={`${cx}-${cy}`} className="print-light" cx={cx} cy={cy} r="1.1" fillOpacity="0.5" />)}
@@ -66,9 +63,9 @@ function DensePrint({ id }) {
   );
 }
 
-function SparsePrint({ id }) {
+export function SparsePrint({ id, transform }) {
   return (
-    <pattern id={id} width="16" height="16" patternUnits="userSpaceOnUse">
+    <pattern id={id} width="16" height="16" patternUnits="userSpaceOnUse" patternTransform={transform}>
       <circle className="print-light" cx="8" cy="8" r="1.5" fillOpacity="0.55" />
       {CORNERS_16.map(([cx, cy]) => <circle key={`${cx}-${cy}`} className="print-light" cx={cx} cy={cy} r="0.9" fillOpacity="0.4" />)}
     </pattern>

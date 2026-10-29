@@ -837,6 +837,390 @@ textarea {
   color: var(--color-ink-muted);
 }
 
+/* The map (docs/DESIGN.md, "The map"): the one bold surface, a piece of
+   indigo cloth. A level is never colour alone: Watch is a dashed outline,
+   Signal and Alert their colour with the print, and a level area's name sits
+   in an indigo chip with its level word under it. */
+
+.town-map {
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  background: var(--color-indigo);
+  border-radius: var(--radius-card);
+}
+
+.town-map-inner {
+  position: relative;
+}
+
+.town-map-drawing {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.map-area {
+  stroke: var(--color-indigo-map-line);
+  stroke-width: var(--map-area-line);
+  vector-effect: non-scaling-stroke;
+}
+
+.map-area.is-quiet {
+  fill: var(--color-indigo-map);
+}
+
+.map-area.is-signal {
+  fill: var(--color-level-signal);
+}
+
+.map-area.is-alert {
+  fill: var(--color-level-alert);
+}
+
+.map-print,
+.map-watch {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.map-print.is-on,
+.map-watch.is-on {
+  opacity: 1;
+}
+
+/* Twice the outline's width, clipped to the area, so 3 px show just inside
+   its edge. */
+.map-watch {
+  fill: none;
+  stroke: var(--color-level-watch);
+  stroke-width: calc(var(--map-watch-outline) * 2);
+  stroke-dasharray: var(--map-watch-dash);
+  vector-effect: non-scaling-stroke;
+}
+
+.map-shape.is-choosable {
+  cursor: pointer;
+}
+
+/* The area whose sheet is open, or the clinician's own area on Near me. */
+.map-outline {
+  fill: none;
+  stroke: var(--color-white);
+  stroke-width: var(--map-outline);
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.map-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-white);
+  font: var(--type-label);
+  font-weight: 600;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+button.map-label {
+  cursor: pointer;
+}
+
+/* On indigo the focus ring is white (docs/DESIGN.md). */
+.map-label:focus-visible {
+  outline-color: var(--color-white);
+  border-radius: var(--radius-chip);
+}
+
+.map-name,
+.map-chip {
+  display: grid;
+  justify-items: center;
+}
+
+.map-chip {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-chip);
+  background: var(--color-indigo);
+  font-weight: 700;
+}
+
+/* The clinician's own area on Near me: a white tag, like a supply zone's. */
+.map-tag {
+  margin-top: var(--space-1);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-tag);
+  background: var(--color-white);
+  color: var(--color-indigo);
+  font-weight: 700;
+}
+
+/* The bottom sheet: the only shadow in the app. It doesn't block the page,
+   and it appears without sliding (it isn't one of the motion moments). */
+
+.sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  max-width: var(--content-width);
+  max-height: var(--sheet-max-height);
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: var(--space-3) var(--gutter) calc(var(--space-5) + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  box-shadow: var(--shadow-sheet);
+}
+
+.sheet-grabber {
+  display: block;
+  width: var(--grabber-width);
+  height: var(--grabber-height);
+  margin: 0 auto var(--space-3);
+  border-radius: var(--radius-square);
+  background: var(--color-indigo-disabled);
+}
+
+.sheet-signal {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+
+.sheet-signal h3 {
+  margin: 0 0 var(--space-2);
+  font: var(--type-value);
+  color: var(--color-ink);
+}
+
+.sheet-signal p {
+  margin: 0 0 var(--space-2);
+}
+
+.sheet-close {
+  min-height: var(--button-height-sheet);
+  margin-top: var(--space-4);
+}
+
+/* The public replay at /demo: its own header, with the Simulation pill
+   always in view. */
+
+.demo-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 0 var(--gutter) var(--space-2);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.demo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  max-width: var(--content-width);
+  min-height: var(--header-height);
+  margin: 0 auto;
+}
+
+.demo-pill {
+  margin: 0 auto;
+}
+
+.demo-main {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-6) var(--gutter) var(--space-8);
+}
+
+/* Room to scroll the end of the page above the open sheet. */
+.demo.has-sheet .demo-main {
+  padding-bottom: var(--sheet-max-height);
+}
+
+.run-note {
+  margin: var(--space-2) 0 0;
+}
+
+.replay-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.replay-play {
+  width: auto;
+  min-width: 8rem;
+}
+
+.replay-day {
+  display: grid;
+  margin: 0;
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-muted);
+}
+
+.replay-day strong {
+  font: var(--type-value);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+/* The day slider: a plain track and an indigo thumb, 44 px tall to touch. */
+.replay-slider {
+  display: block;
+  width: 100%;
+  height: var(--tap-min);
+  margin: var(--space-3) 0 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.replay-slider:disabled {
+  cursor: default;
+}
+
+.replay-slider::-webkit-slider-runnable-track {
+  height: var(--slider-track);
+  border-radius: var(--slider-track);
+  background: var(--color-indigo-disabled);
+}
+
+.replay-slider::-moz-range-track {
+  height: var(--slider-track);
+  border-radius: var(--slider-track);
+  background: var(--color-indigo-disabled);
+}
+
+.replay-slider::-webkit-slider-thumb {
+  width: var(--slider-thumb);
+  height: var(--slider-thumb);
+  margin-top: calc((var(--slider-track) - var(--slider-thumb)) / 2);
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-indigo);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.replay-slider::-moz-range-thumb {
+  width: var(--slider-thumb);
+  height: var(--slider-thumb);
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-indigo);
+}
+
+.replay-ends {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font: var(--type-label);
+  color: var(--color-ink-muted);
+}
+
+.replay-cards {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.replay-card {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.replay-card p {
+  margin: 0;
+}
+
+.replay-card-head {
+  font-weight: 600;
+}
+
+.replay-card .replay-card-label {
+  margin-top: var(--space-2);
+  font: var(--type-label);
+  color: var(--color-ink-muted);
+}
+
+/* The clinician's own words: curly quotes, the opening one hanging in the
+   margin so the text lines up with everything else (docs/DESIGN.md). */
+.replay-card .voice-quote {
+  margin: var(--space-1) 0;
+  font: var(--type-voice);
+  text-indent: var(--hanging-quote);
+}
+
+.area-list {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.area-list li + li {
+  border-top: 1px solid var(--color-line);
+}
+
+.area-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-card);
+  background: none;
+  color: var(--color-ink);
+  font: var(--type-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.area-row:disabled {
+  cursor: default;
+}
+
+.area-row-name {
+  font-weight: 700;
+}
+
+.area-row .level {
+  align-items: center;
+}
+
+.area-row-quiet {
+  font: var(--type-label);
+  color: var(--color-ink-muted);
+}
+
+/* Sign-in: the way in for visitors without an account. */
+.auth-demo {
+  margin-bottom: var(--space-5);
+}
+
 /* Report: recording */
 
 .record-hint {
@@ -1324,6 +1708,17 @@ textarea {
     transform-box: fill-box;
     transform-origin: center;
     animation: wave-bar 1.2s ease-in-out calc(var(--i) * 60ms) infinite;
+  }
+
+  /* A level change on the map: the area's colour changes and its print or
+     outline fades in. */
+  .map-area {
+    transition: fill var(--motion-level);
+  }
+
+  .map-print,
+  .map-watch {
+    transition: opacity var(--motion-level);
   }
 
   .record-button.is-recording .record-circle::after {

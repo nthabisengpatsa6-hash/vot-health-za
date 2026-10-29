@@ -102,6 +102,14 @@
   --map-zone-line: 2.5px;
   --map-zone-dash: 0.5 7;
   --map-zone-opacity: 0.85;
+  --map-outline: 3px;                                       /* the chosen area, or your area */
+
+  /* The bottom sheet and the replay's day slider */
+  --sheet-max-height: 55dvh;
+  --grabber-width: 40px;
+  --grabber-height: 4px;
+  --slider-track: 6px;
+  --slider-thumb: 24px;
 
   /* Motion. All of it is switched off with prefers-reduced-motion. */
   --motion-state: 120ms;
