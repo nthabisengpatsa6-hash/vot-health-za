@@ -10,4 +10,4 @@ No patient data is ever stored. The demo uses made-up data only.
 
 ## Fonts
 
-Hanken Grotesk and Source Serif 4, both under the SIL Open Font License 1.1, self-hosted with Fontsource.
+Hanken Grotesk and Source Serif 4, both under the SIL Open Font License 1.1, self-hosted with Fontsource (built from the Google Fonts releases). The licences, with each font's copyright line, are in public/fonts/hanken-grotesk/OFL.txt and public/fonts/source-serif-4/OFL.txt, and are served with the app.

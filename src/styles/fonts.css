@@ -2,7 +2,9 @@
    latin and latin-ext files are loaded; latin-ext covers letters used in some
    South African languages, such as Tshivenda. A phone downloads a file only
    when the page uses a character in its range. The ranges are Fontsource's
-   own. Both fonts are under the SIL Open Font License 1.1. */
+   own. Both fonts are under the SIL Open Font License 1.1; the licences,
+   copied from the Google Fonts releases the files are built from, are in
+   public/fonts/hanken-grotesk/OFL.txt and public/fonts/source-serif-4/OFL.txt. */
 
 /* Hanken Grotesk: everything the app says */
 @font-face {
