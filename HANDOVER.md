@@ -1,37 +1,39 @@
 # HANDOVER
 
-**Last updated:** 2026-10-29 08:21 SAST
+**Last updated:** 2026-10-29 09:41 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. The repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
-Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinician records a voice note, two "ears" transcribe it in parallel (Muse Voice Transcribe and Muse Spark audio), Muse Spark 1.3 builds draft case cards from both behind code guards, the clinician checks the cards, and they're saved. Two notes from Nthabiseng's phone on mobile data worked end to end (22 and 30 s in all). Task 11 (the Observations box, the sign-in domain, Hosting cache headers, font licences, and this tidy) is in progress. Today, Near me, Signal detail and Replay are still placeholders. What comes next is under Next steps.
+Thu 29 Oct. The Report flow is live end to end at https://lemoha.co.za: a clinician records a voice note, two "ears" transcribe it in parallel (Muse Voice Transcribe and Muse Spark audio), Muse Spark 1.3 builds draft case cards from both behind code guards, the clinician checks the cards, and they're saved. Two notes from Nthabiseng's phone on mobile data worked end to end (22 and 30 s in all). Task 11 is done and live (29 Oct): Observations are optional and never block saving, "Answer N more to save" goes to the first unanswered question, sign-in goes through lemoha.co.za, Hosting sends proper cache headers, and the font licences are in the repo. Its phone checks are with Nthabiseng (Next steps 3). Today, Near me, Signal detail and Replay are still placeholders. What comes next is under Next steps.
 
 ## Live setup
 - Live at https://lemoha.co.za and https://vot-health-za.web.app (Firebase Hosting). https://www.lemoha.co.za returns 301 to https://lemoha.co.za. DNS: lemoha.co.za A 199.36.158.100; www CNAME vot-health-za.web.app.
 - Firebase project vot-health-za (display name "Fola", web app "Fola web"; the ID is in .firebaserc). Blaze plan with a USD 10 budget alert (its 50% alert is the planned R100 warning). Firestore and Functions in africa-south1; Firestore's location can never change.
-- Deployed on 28 Oct (Task 10 Part C; details in docs/HISTORY.md):
-  - Functions, from 919bb7e: processNote (1 GiB, concurrency 8, timeout 300 s, min 0 and max 5 instances, secret META_API_KEY) and checkMetaConnection, both in africa-south1. All functions are capped at 10 instances (setGlobalOptions). Both refuse a signed-out call. Neither sets `cors`, so onCall's default allows any origin.
-  - Firestore rules: users/{uid} and cards/{cardId}; everything else, noteUsage included, deny-all. No query needs an index.
-  - Hosting, from f58beb4 (14 files). Cache-Control is max-age=3600 on everything until Task 11's headers are deployed.
-- Sign-in: Google (a popup) or email and password. authDomain is vot-health-za.firebaseapp.com until Task 11's Hosting deploy moves it to lemoha.co.za. The OAuth redirect URI https://lemoha.co.za/__/auth/handler was added by Nthabiseng on 29 Oct.
+- Deployed (details in docs/HISTORY.md, Task 10 Part C and Task 11):
+  - Functions, both in africa-south1. processNote from aeb9073 (29 Oct; code hash 851f9cbd…): 1 GiB, concurrency 8, timeout 300 s, min 0 and max 5 instances, secret META_API_KEY. checkMetaConnection from 919bb7e (28 Oct). All functions are capped at 10 instances (setGlobalOptions). Both refuse a signed-out call (401 UNAUTHENTICATED). Neither sets `cors`, so onCall's default allows any origin.
+  - Firestore rules (28 Oct): users/{uid} and cards/{cardId}; everything else, noteUsage included, deny-all. No query needs an index.
+  - Hosting from 388c790 (29 Oct; 16 files, every live file identical to dist/). Cache-Control: no-cache on everything (index.html, every app address such as /report, the manifest, icons, the licence files), and `public, max-age=31536000, immutable` on Vite's hashed /assets/ files. Firebase's own /__/ paths (the sign-in handler) keep Firebase's headers.
+- Sign-in: Google (a popup) or email and password, with authDomain lemoha.co.za (since 29 Oct), so Google's popup opens https://lemoha.co.za/__/auth/handler (live: 200). Nthabiseng added that OAuth redirect URI on 29 Oct, and lemoha.co.za is in Firebase Auth's authorized domains. https://vot-health-za.web.app uses the same authDomain.
 - Models: muse-voice-transcribe-1.0 and the Muse Spark audio ear muse-spark-1.2 (SPARK_AUDIO_MODEL), card extraction muse-spark-1.3 at effort low (EXTRACT_EFFORT). Never a "-contributor" model ID.
 - processNote runs as the default compute service account, which has Cloud Build Service Account and Cloud Datastore User (added on 28 Oct).
 - Two permission changes were made on purpose and should stay:
   - the Cloud Build builder role on the default compute service account, needed for deploys
   - allUsers as Cloud Run Invoker plus a project-level org-policy exception, needed so callable functions can be reached at all. The sign-in check inside each function is the real gate.
 - Test accounts 1 and 2 (made-up @example.com addresses, used on 28 Oct) are deleted, in Firestore and sign-in. Nthabiseng's phone account holds the only live test data (In progress).
-- Latest scoring, score-006 (27 Oct; Stage 1 text, `--repeat 3 --effort low`): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions. Earlier runs are in docs/HISTORY.md.
+- Latest scoring, score-007 (29 Oct, after Task 11's observations guard; Stage 1 text, `--repeat 3 --effort low`): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions; the same as score-006 (27 Oct). Earlier runs are in docs/HISTORY.md.
 
 ## What's built
 - Sign-in (Google, or email and password with reset; plain-English errors), a one-time profile at users/{uid} (role, facility type, area and two server timestamps; editable on the Profile screen), and the mobile layout: a header with the wordmark, Replay and Profile, and bottom navigation (Report, Today, Near me).
 - Report: hold or tap to record (90 s limit), the voice note row for playback, Send, progress stages that processNote itself streams, card review, then Confirm and save. The audio lives only in memory and is never stored.
 - processNote: sign-in, the WAV check (120 s, 6 MB), the daily limit (40 notes per user per SAST day, counted on noteUsage/{uid}), both ears in parallel (at most 30 s more for the second), the card step with code guards, and one note_timing log line per call. In the local emulators it returns 5 prepared made-up results instead (practice mode).
 - Card review: unsure fields start empty and are question blocks in their place; the transcript is read-only and never stored; fixed notices (single source, advice with the two hotlines, the NMC reminder, not a report). Saved cards have exactly 17 fields, and firestore.rules checks them against the reporter's own profile.
+  - Observations are optional and never asked: "Anything else you noticed?" (Sicker than usual; Not getting better with usual treatment), then "Supplies" (Running short of anything?, with "What is running short?" only while ticked). A box starts ticked only when the note said so. unusualSymptoms is never shown and always saved as false.
+  - While answers are missing, the save button says "Answer N more to save" and looks disabled, but a tap (or Enter) jumps instantly to the first unanswered question and focuses its first control; the save itself refuses until every kept card is complete. For half a second after a jump, an invisible cover takes taps, so a quick second tap can't land on an answer.
 - Design: the Shweshwe direction (docs/DESIGN.md), tokens in src/styles/tokens.css, self-hosted Hanken Grotesk and Source Serif 4, the ring logo, favicon, app icons and the web app manifest.
-- Tests: web 33, Functions 77, rules 89 (what each covers is under "Check"). Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
+- Tests: web 42, Functions 79, rules 89 (what each covers is under "Check"). Functions tests use node:test on plain modules, because firebase-functions-test doesn't support firebase-admin 14. The browser checks are local scripts outside the repo; docs/HISTORY.md lists what each task checked.
 
 ## Working rules
 CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "approved"; a separate STOP for every permanent or risky action. Also:
@@ -40,7 +42,7 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 - Deploys: Firebase CLI only (gcloud's sign-in has expired). No --force on any deploy. If the CLI asks any question, stop and show the exact words; don't answer it. Don't trust the CLI's exit code: "Error: An unexpected error has occurred" sometimes follows a successful deploy, so always check the live result. Never run anything that prints a secret's value.
 
 ## In progress
-- Task 11 (29 Oct): the Observations box, the sign-in domain, Hosting cache headers, font licences, PROJECT_CONTEXT, and this HANDOVER tidy (Next steps 3).
+- Task 11's phone checks, with Nthabiseng (Next steps 3).
 - Task 10 Part D, the rest of the phone test (Next steps 2).
 - Delete list, after Part D and in any case before Day 4 (all live test cards must be gone before signals read cards):
   - Nthabiseng's phone account's data: its users and noteUsage documents, and every test card it saved. Its email isn't recorded here.
@@ -67,16 +69,13 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
    6. Afterwards: delete the phone account's data (In progress).
 
    Also worth watching on the phones (from earlier tasks): iPhone Safari has never been tested (no Safari on Windows), so check it records, plays back, sends, shows the stages and saves, the microphone permission steps, and that holding the record button doesn't open a long-press menu; the wordmark's "o" at the phone's own screen density.
-3. Task 11, in progress (29 Oct):
-   - Review-screen fix, from the phone test. The Observations box blocked saving ("Answer 1 more to save") without looking like a question, so a box ("More severe than usual") was ticked just to save, and the card stored a false severity flag. Agreed direction:
-     1. Observations are optional. They never block saving or count as an unanswered question. The card ticks a box only when the note says so; otherwise all start unticked.
-     2. Patient flags, reworded: "Sicker than usual" (moreSevere) and "Not getting better with usual treatment" (notResponding), under a heading like "Anything else you noticed?".
-     3. Hide "Unusual symptoms" from the review screen; unusualSymptoms stays false. The "Something unusual" symptom group covers it. No change to the 17 fields or the rules.
-     4. Supplies move to their own optional line below, worded about the clinic ("Running short of anything?"), with the suppliesNote box appearing when ticked.
-     5. Tapping "Answer N more to save" goes to the first unanswered question.
-   - The sign-in domain switch: authDomain to lemoha.co.za, so Google's account chooser stops showing vot-health-za.firebaseapp.com.
-   - Hosting cache headers: no-cache for index.html, the manifest and every unhashed file; long-lived for hashed assets (Known issues).
-   - Font licences next to the fonts; PROJECT_CONTEXT's domain and sign-in lines.
+3. Task 11's phone checks (Nthabiseng, on mobile data, with the made-up script from step 2.1, which says nothing about severity or supplies). Report back anything odd.
+   1. Google sign-in on https://lemoha.co.za: the account chooser names lemoha.co.za, and sign-in finishes.
+   2. Google sign-in on https://vot-health-za.web.app still works.
+   3. A note: both "Anything else you noticed?" boxes and "Running short of anything?" start unticked, and Save works without ticking anything once the other questions are answered.
+   4. Leave one question unanswered and tap "Answer 1 more to save": it jumps straight (no smooth scroll) to that question.
+   5. Tick "Running short of anything?": the note box appears; untick it: the box goes.
+   - If a phone still shows the old screen, close the tab and open it again (the old version was cached for up to an hour; the new headers stop that).
 4. Nthabiseng, in the consoles (by hand; no code): the name people see outside the app.
    - Firebase console → the cog next to "Project overview" → Project settings → General → "Public-facing name" → the pencil → "Lemoha" → Save. Firebase's help page says it fills %APP_NAME% in the sign-in emails (password reset); setup guides say Google sign-in uses it as the app name too.
    - Firebase console → Authentication → Templates → Password reset: check the sender name and the subject; change any "Fola" to "Lemoha".
@@ -119,7 +118,7 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 - 27 Oct — Profile: role, facilityType and area only, plus server timestamps. Never a name, phone number or ID number; the email stays in Firebase Auth. The signed-in owner may read, change and delete their own profile; nobody can list profiles. (Owner delete was Nthabiseng's call; the delete button comes later with the privacy notice.)
 - 27 Oct — Google sign-in uses a popup and a plain "Continue with Google" button with no Google logo, so we use no third-party trademark artwork. Google sign-in stores the Google name and photo in the Firebase Auth record; the app never reads, shows or copies them.
 - 27 Oct — How three Task 4 cases are read: the day patients came in isn't the onset, so it's asked; very weak, unable to walk, collapsed, unconscious, badly dehydrated, admitted or a death counts as moreSevere, in any language; schoolchildren can be 5 to 17, so their age group is asked.
-- 27 Oct — Unsure fields start empty; the AI's guess isn't filled in (Nthabiseng approved). Why: "unsure means ask", and a pre-filled guess tends to get confirmed without a look. Unsure Exposure and Observations get an explicit "None" answer.
+- 27 Oct — Unsure fields start empty; the AI's guess isn't filled in (Nthabiseng approved). Why: "unsure means ask", and a pre-filled guess tends to get confirmed without a look. An unsure Exposure gets an explicit "None" answer. (Observations are never asked since Task 11.)
 - 27 Oct — "You said ‘…’. Which area is it?" only when the area is unsure (approved). Why: the model often sets areaHeard to the same name as an area it is sure of, and asking then is noise.
 - 27 Oct — On-screen labels say "your words", not "her words" (approved): the person using the app is the clinician.
 - 27 Oct — Practice mode in the local emulators, with a "Practice result: made up, not from your recording" line (approved). Five prepared results, one hand-edited and labelled as such (approved). Fenced by FUNCTIONS_EMULATOR plus a "demo-" project ID, with the files outside functions/ so they're never deployed. Why: the emulators can't reach Meta under demo-fola, and the card screen needs every case exercised.
@@ -148,8 +147,16 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 - 28 Oct — functions/lib/admin.js is the only place that makes the default Admin app, and looks for it by name (approved). Why: firebase-functions makes its own named app to verify a signed-in caller, so "is there any app?" is the wrong check.
 - 28 Oct — Live tests run from Nthabiseng's phone, not headless Edge on the computer (her call). Why: the computer's Wi-Fi sometimes couldn't open a connection to the functions server.
 - 28 Oct — All live test cards are deleted before signals read cards (before Day 4); the phone account's data goes after Part D (Nthabiseng's call).
-- 28 Oct — Observations on card review become optional and never block saving (agreed direction; Next steps 3). Why: in the phone test, a required-looking box led to a false severity flag on a saved card.
+- 28 Oct — Observations on card review become optional and never block saving (done in Task 11). Why: in the phone test, a required-looking box led to a false severity flag on a saved card.
 - 28 Oct — Speed order for Day 7: compressed audio from the phone, then a card step that no longer writes the cleaned transcript (re-scored), then one warm instance in judging week. Why: the phone test's note_timing numbers (Next steps 5).
+- 29 Oct — Observations are never asked (approved). processNote's guard drops "observations" from unsureFields and its question, and if the model was unsure, every box starts unticked (Nthabiseng's answer: unticked, because a pre-filled severity tick is what the phone test produced). The model's request is unchanged (the prompt and the reply schema; same fingerprint before and after), so the prompt catches up in the recordings run (Next steps 1). The web app does the same for an older reply. Why: a box is ticked only when the note says so.
+- 29 Oct — unusualSymptoms is hidden and always saved as false, enforced in draftFromCard (the draft never holds true) and toCardDoc (the only place the saved card is built). Why: a tick nobody can see must never reach a card; the "Something unusual" symptom group covers it.
+- 29 Oct — "Answer N more to save" stays tappable and jumps to the first unanswered question in screen order (DESIGN.md's disabled-button line says so). The scroll uses behavior "auto" (instant; no CSS sets smooth scrolling), not "instant", which couldn't be confirmed on iPhone Safari; if a scroll form throws, the plain form and then the focus still run. Why: on the phone, the disabled button gave no way to find the missing answer.
+- 29 Oct — A half-second invisible cover after each jump (aria-hidden, can't take focus, cancels only the press) takes a quick second tap; its own timer removes it, and the keyboard and screen readers aren't blocked. Why: the browser check found that a double tap's second tap landed on an age-group option that had moved under the finger.
+- 29 Oct — Sign-in authDomain lemoha.co.za for both domains (approved). Why: Google's account chooser named vot-health-za.firebaseapp.com.
+- 29 Oct — Hosting cache headers: no-cache first for everything, then a year (immutable) for /assets/ only; test/unit/hosting.test.js keeps public/ free of an assets/ folder and Vite's hashed names unchanged, so nothing unhashed can be immutable. Why: after a redeploy, phones kept the old app for up to an hour.
+- 29 Oct — Font licences are Google Fonts' own OFL.txt copies (Nthabiseng's call), because Fontsource builds both fonts from Google Fonts' releases, the files are subsets (Modified Versions under the OFL), and Adobe's copy of the Source Serif 4 licence reserves the name "Source" while Google Fonts' release reserves none.
+- 29 Oct — HANDOVER holds the current state only; the dated record moved to docs/HISTORY.md, and neither file holds an email address or a user ID (approved).
 
 ## Open decisions (ask Nthabiseng; don't decide in code)
 - Change 'Fola' to 'Lemoha' in the extraction prompt during the next scoring run, and re-score in that same run.
@@ -213,7 +220,7 @@ Source: dev.meta.ai/docs/structured-output.
 - package.json, package-lock.json — web app libraries and npm scripts.
 - .oxlintrc.json — linter rules.
 - .firebaserc — links this folder to the Firebase project vot-health-za.
-- firebase.json — Firebase settings: Firestore (africa-south1, rules, indexes), Functions folder, Hosting from dist/, emulator ports.
+- firebase.json — Firebase settings: Firestore (africa-south1, rules, indexes), Functions folder, Hosting from dist/ with its cache headers (no-cache, then a year for /assets/), emulator ports.
 - firestore.rules — Firestore security rules: users/{uid} for its owner only; cards/{cardId} (exactly the 17 fields, no transcript) created by the reporter (matching their profile), read and deleted by the owner only, never changed; everything else (including noteUsage) deny-all. Deployed 28 Oct (Task 10 Part C).
 - firestore.indexes.json — Firestore indexes (none yet).
 - .gitignore — what git never commits (logs, env files, secrets, service-account keys, test-audio/).
@@ -231,13 +238,13 @@ Source: dev.meta.ai/docs/structured-output.
 - src/styles/fonts.css — the self-hosted fonts (Hanken Grotesk and Source Serif 4, latin and latin-ext).
 - src/config/product.js — PRODUCT_NAME, the only place the product name is set.
 - src/config/profileOptions.js — the role and facility-type lists (stored value and label).
-- src/config/cardOptions.js — the case card lists (stored value and label) and the text limits; mirrors functions/lib/cardSchema.js.
+- src/config/cardOptions.js — the case card lists (stored value and label) and the text limits; mirrors functions/lib/cardSchema.js. PATIENT_FLAGS and SUPPLIES_FLAG are the observation boxes the card shows.
 - src/config/hotlines.js — the fixed advice text and the NICD and Poisons Information Centre numbers, with their sources.
 - src/lib/firebase.js — Firebase web config; Auth, Firestore and Functions (africa-south1); on localhost, the emulators under demo-fola.
 - src/lib/api.js — callFunction(name, data) and streamFunction(name, data, onProgress): call a callable function with a 310 s timeout; streamFunction also passes on progress messages.
 - src/lib/recorder.js — the microphone and MediaRecorder, with the 90 s limit and plain error kinds.
 - src/lib/wav.js — decode and resample a recording to 24 kHz mono, the WAV encoder, base64, and the waveform's bar heights.
-- src/lib/cardDraft.js — a card while it's being checked (unsure fields empty), what still needs answering, and the exact document that's saved.
+- src/lib/cardDraft.js — a card while it's being checked (unsure fields empty; observations never asked), what still needs answering in screen order (fieldsToFix, answersNeeded, firstToFix), the save button's gate (saveButtonAction, handleSaveTap), and the exact document that's saved (unusualSymptoms always false).
 - src/lib/cards.js — saveCards: one cards/{cardId} document per card, in one batch.
 - src/lib/authErrors.js — plain-English messages for sign-in errors.
 - src/lib/places.js — the town and area names, read from functions/data/places.json.
@@ -247,7 +254,7 @@ Source: dev.meta.ai/docs/structured-output.
 - src/components/AppLayout.jsx — header (with the wordmark) and bottom navigation around the signed-in screens.
 - src/components/Wordmark.jsx — the wordmark: the lowercase name with the ring as its "o", one image to screen readers.
 - src/components/RecordButton.jsx — the hold-or-tap record button.
-- src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions; the symptom group shows as wrapping text over an invisible select.
+- src/components/CaseCardForm.jsx — one case card panel, with unsure fields highlighted and their questions; the symptom group shows as wrapping text over an invisible select; "Anything else you noticed?" and "Supplies". Each field block has the id card-N-field, which the save button's jump looks for.
 - src/components/NoteNotices.jsx — the read-only transcript ("What we heard", never saved) and the fixed notices under the cards (single source, advice and hotlines, NMC reminder).
 - src/components/LevelBadge.jsx — the Watch, Signal and Alert badges (40 px swatch with the print, and the word) and their key.
 - src/components/Icons.jsx — the line icons (drawn for this app).
@@ -265,6 +272,8 @@ Source: dev.meta.ai/docs/structured-output.
 - test/unit/design-tokens.test.js — tokens match docs/DESIGN.md, every listed contrast pair is at least 4.5:1, no font name is written outside the tokens, and colours appear only in the tokens and the allowed brand files.
 - test/unit/brand.test.js — the manifest and index.html carry PRODUCT_NAME, every icon is there at its stated size, and the wordmark's ring matches wordmark-o.svg.
 - test/unit/timing.test.js — the ?timing=1 flag and the timing line's wording.
+- test/unit/hosting.test.js — firebase.json's cache headers, and that nothing unhashed can land in /assets/.
+- public/fonts/hanken-grotesk/OFL.txt, public/fonts/source-serif-4/OFL.txt — the fonts' licences with their copyright lines, copied byte for byte from the Google Fonts releases; served with the app.
 - test/rules/users.rules.test.js — Firestore rules tests for users/{uid} (run with npm run test:rules).
 - test/rules/cards.rules.test.js — Firestore rules tests for cards/{cardId} and the closed noteUsage counter.
 - test-fixtures/practice-results/ — the 5 made-up results practice mode returns (from Stage 1 run score-006; one hand-edited, as its "edits" field says).
@@ -338,8 +347,8 @@ Other local commands:
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.
-- `npm test` — runs the 33 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; and the timing line).
-- `npm --prefix functions test` — runs the 77 Functions unit tests (WAV header, retries, code guards, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the default Admin app, the note_timing log line, the error log lines), all with fakes and no network calls.
+- `npm test` — runs the 42 web unit tests (sign-in error messages, the WAV encoder and waveform, card lists, card drafts and the 17-field saved document, optional observations, unusualSymptoms always false, the supplies note only with its tick, the answers-needed count and the first question to answer, the save button's gate; the design tokens: colours match DESIGN.md, contrast, no colours or fonts outside the tokens and brand files; the brand: manifest, icons, title, the wordmark's ring; the timing line; and Hosting's cache headers).
+- `npm --prefix functions test` — runs the 79 Functions unit tests (WAV header, retries, code guards including observations never asked, two ears, Spark and extraction requests, sign-in checks, practice mode, the daily limit, the default Admin app, the note_timing log line, the error log lines), all with fakes and no network calls.
 - `npm run test:rules` — runs the 89 Firestore rules tests (users and cards), one file after the other. It starts its own temporary Firestore emulator under demo-fola and stops it afterwards (about 40 s; needs Java). Stop `npm run emulators` first, because both use port 8080. The "Timed out" line at the very end is harmless (see Known issues).
 - If a terminal says it can't find Java, it was opened before Java was installed: close and reopen it (or VS Code).
 - `node -e "console.log(Object.keys(require('./functions/index.js')))"` — loads the Functions code on its own and lists its exports (checkMetaConnection, processNote); a quick check that functions/ finds its prompt and data files.
@@ -368,6 +377,7 @@ Other local commands:
 **Deploy (each one is a separate STOP: ask first)**
 - `npm run build`, then `firebase deploy --only hosting` — publishes the web app to the live link.
 - `npm --prefix functions run deploy` — publishes the Cloud Functions. It runs `firebase deploy --only functions` (from functions/package.json).
+- `firebase deploy --only functions:processNote` — publishes processNote alone (used on 29 Oct). Before a Functions deploy: `git status` clean and `git diff --stat <last deployed commit> HEAD -- functions/` shows only the intended files. Afterwards, `firebase functions:list --json` shows each function's settings and a code hash that changes with every deploy.
 - `firebase deploy --only firestore:rules` — publishes the Firestore security rules.
 - Secrets: `firebase functions:secrets:get META_API_KEY` shows that the secret exists and its versions, never the value. Claude Code never runs `firebase functions:secrets:access` or anything else that prints a secret's value.
 - Deleting live test data: Claude Code deletes Firestore documents only with `firebase firestore:delete` on exact paths, listed first for "approved delete". Sign-in accounts are deleted by Nthabiseng in the Firebase console (Authentication → Users), so no access token is handled in a script.
@@ -382,7 +392,7 @@ Other local commands:
 - g. The product name only where the brand rules allow it (src/config/product.js, index.html's title, public/manifest.webmanifest; "Fola" only where HANDOVER records it).
 
 ## Known issues
-- Google's account chooser shows "vot-health-za.firebaseapp.com" (the sign-in authDomain), not the app name, until the app's branding is verified by Google or the authDomain moves to lemoha.co.za (Next steps 3 and 4).
+- Google's account chooser shows the sign-in authDomain, not the app name, until Google verifies the app's branding (Next steps 4). Since 29 Oct the authDomain is lemoha.co.za, so it should show lemoha.co.za; the phone check is Next steps 3.
 - The wordmark's ring is level with "e" and "a" to within 1 px at 4x (Task 9 follow-up), checked in headless Edge as a real 4x screen. Phones at other densities (2.625x, 3x) haven't been checked; look at the wordmark in the Task 10 phone test. Measuring under DevTools device emulation shows a false 4 px jump (see the Task 9 follow-up in docs/HISTORY.md).
 - The symptom-group box's tap-to-open has only been checked in headless Edge (taps land on the select); the phones' own lists are in the Task 10 phone test.
 - The case card's arrival motion plays again when a removed card is brought back with Undo.
@@ -390,8 +400,11 @@ Other local commands:
 - Starting the emulators from a terminal opened before Java was installed fails with "Could not spawn java -version" (in that window, `$env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")` reloads the saved path so Java is found); stopping `npm run emulators` from a tool can leave its Java and Node processes holding ports 8080, 9099 and 5001 until they're ended.
 - src/lib/firebase.js has the Firebase web config written in, including its apiKey, and it is already in the repo history, which becomes public on Day 8. Firebase web keys identify the project rather than grant access (security rules do that). Day 7: restrict the Firebase web API key to the app's domains.
 - iPhone Safari has never been tested (no Safari on Windows). Edge forced to record Safari's format (audio/mp4) worked, which is the closest check available here. The deploy task's phone test covers it.
-- Hosting sends Cache-Control max-age=3600 for everything (firebase.json has no headers), so after a redeploy a phone can keep the old index.html, and with it the old app, for up to an hour. Fixed in the next small task (Next steps 3): no-cache for index.html and the manifest, long-lived for hashed assets.
-- On card review, an unsure Observations field blocks saving ("Answer 1 more to save") without looking like a question. In the phone test a box was ticked just to save, so a saved test card holds a false severity flag. Fixed in the next small task (Next steps 3).
+- A saved test card from the 28 Oct phone test holds a false severity flag (a box was ticked just to save, before Task 11). It goes with the phone account's data (In progress).
+- The local Hosting emulator on Windows never applies firebase.json's header rules: its path helper (glob-slasher) turns "/" into "\", so no glob matches. Check headers on the live site with `curl.exe -sI` instead. Firebase's reserved /__/ paths (the sign-in handler) always carry Firebase's own headers (max-age=1800).
+- The tap cover after a jump lasts 500 ms. A screen reader that activates a button by tapping its spot on screen within that half second would be absorbed; untested on VoiceOver and TalkBack. The cover doesn't block the keyboard by design, so pressing Enter twice quickly after a jump chooses the focused first option.
+- Source Serif 4's font files still carry Adobe's older copyright line, with Reserved Font Name 'Source', in their built-in name table; the licence file in public/fonts/ is Google Fonts' copy, which reserves no name (Decisions and why, 29 Oct). The font files are served unchanged.
+- The card's arrival motion has delays for its first 14 parts; a card has at most 13 today (12 without "What is unusual?"). A card given more parts would show the extra ones out of order, so add a delay line in src/index.css with any new field.
 - Headless Edge on the computer's Wi-Fi sometimes can't open a connection to the functions server (net::ERR_CONNECTION_TIMED_OUT after about 21 s), while plain connections from the same computer work. Live tests run from a phone instead.
 - gcloud's sign-in has expired: Nthabiseng runs `gcloud auth login` at a terminal before any gcloud command. The Firebase CLI still works.
 - The Functions emulator skips sign-in token verification, so anything firebase-functions does only for a verified signed-in caller never happens locally. That hid the live counter failure of 28 Oct (app/no-app: firebase-functions makes its own named Admin app to verify the token, so "no app yet" checks are wrong; fixed in 919bb7e, proven live by the phone test at 16:05 SAST). Check signed-in paths live after a Functions change that touches the Admin SDK.
