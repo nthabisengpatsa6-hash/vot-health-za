@@ -190,6 +190,23 @@ test("the main file and the /demo route reach no Firebase: the signed-in app loa
   assert.ok(importsOf(join(ROOT, "src", "lib", "loadApp.js")).some(({ path, dynamic }) => dynamic && rel(path) === "src/App.jsx"), "the signed-in app is loaded with import()");
 });
 
+test("every public replay dependency, including lazy imports, excludes the callable and Google", () => {
+  for (const [file, imports] of reachedFrom([join(ROOT, DEMO_ROUTE)])) {
+    assert.ok(!["src/lib/firebase.js", "src/lib/api.js", "src/lib/rankApi.js", "src/screens/ReplayScreen.jsx", "functions/lib/callRanker.js", "functions/lib/rankSources.js"].includes(rel(file)), "public replay reaches " + rel(file));
+    for (const { specifier } of imports) assert.doesNotMatch(specifier, /^@?firebase(\/|$)/);
+    if (/\.(js|jsx|mjs)$/.test(file)) assert.doesNotMatch(codeOnly(readFileSync(file, "utf8")), /httpsCallable|callFunction|apis\.google\.com|accounts\.google\.com/);
+  }
+});
+
+test("saved JSON is dynamically loaded only by the panel loader and excluded from initial replay imports", () => {
+  const target = "src/sim/saved-rankings/seed-1.json";
+  assert.deepEqual(importersOf(target), ["src/lib/savedRankings.js"]);
+  assert.ok(importsOf(join(ROOT, "src/lib/savedRankings.js")).find(({ path }) => path && rel(path) === target).dynamic);
+  assert.ok(![...reachedFrom([join(ROOT, DEMO_ROUTE)], { staticOnly: true }).keys()].map(rel).includes(target));
+  const sheet = codeOnly(readFileSync(join(ROOT, "src/components/AreaSheet.jsx"), "utf8"));
+  assert.match(sheet, /runId === "seeded" && \["signal", "alert"\]\.includes\(signal.level\) && <ReplayRanking/);
+});
+
 test("only the generator reads the scenario settings, and only the scorecard reads the ground truth and runs the statistics", () => {
   for (const file of importersOf("functions/shared/sim/scenarios.mjs")) assert.ok(MAY_READ_SETTINGS.includes(file), `${file} reads the scenario settings`);
   for (const file of importersOf("src/sim/groundTruth.js")) assert.ok(MAY_READ_GROUND_TRUTH.includes(file), `${file} reads the ground truth`);

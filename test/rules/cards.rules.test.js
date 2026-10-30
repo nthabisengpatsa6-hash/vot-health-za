@@ -312,4 +312,20 @@ describe("denied: changes and the note counter", () => {
     await assertFails(getDoc(doc(db, "noteUsage", OWNER)));
     await assertFails(setDoc(doc(db, "noteUsage", OWNER), { day: "2026-10-28", count: 0 }));
   });
+
+  test("clients cannot read, list, create, update or delete either ranking counter", async () => {
+    for (const uid of [OWNER, OTHER, null]) {
+      const db = dbAs(uid);
+      for (const id of [`user-${OWNER}`, "app"]) {
+        await testEnv.withSecurityRulesDisabled((context) => setDoc(doc(context.firestore(), "rankUsage", id), {day: "2026-10-30", count: 1}));
+        const ref = doc(db, "rankUsage", id);
+        await assertFails(getDoc(ref));
+        await assertFails(setDoc(ref, {day: "2026-10-30", count: 0}));
+        await assertFails(updateDoc(ref, {count: 0}));
+        await assertFails(deleteDoc(ref));
+      }
+      await assertFails(setDoc(doc(db, "rankUsage", "new-counter"), {day: "2026-10-30", count: 0}));
+      await assertFails(getDocs(collection(db, "rankUsage")));
+    }
+  });
 });

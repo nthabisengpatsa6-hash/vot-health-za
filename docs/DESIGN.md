@@ -162,6 +162,10 @@ The replay's controls:
 - Play and Pause is a primary button with its icon, beside the day number (field value) and the date (14 px, ink-muted).
 - The day slider: a 6 px indigo-disabled track and a 24 px indigo thumb, 44 px tall to touch, with the focus ring. No filled part, which would need a gradient.
 
+Added in Task 15b (30 Oct):
+- Inside the "Possible sources" panel, at Signal or Alert only, the sheet names sources. The app's own wording may use source words such as water, works and chlorine there. The rest of the replay's wording keeps the existing restriction. No supply-zone outlines or other map changes in this task.
+- The panel uses the existing sheet, plain dividers and text confidence words. Expandable evidence lists the backing cards' exposure words in Source Serif 4 and their onset. Saved evidence always belongs to the day its ranking was made.
+
 The prints, as SVG patterns:
 
 ```svg
@@ -199,6 +203,8 @@ Motion only happens at three moments, plus small state changes:
 1. **Processing a voice note:** the waveform bars rise and fall gently in sequence. No spinner. One honest line of text with the expected wait: "This usually takes under a minute. Please keep this screen open."
 2. **The card arriving:** the card's parts appear in reading order, each fading in and moving up 6 px, 180 ms each, 60 ms apart.
 3. **The map changing level** (Day 4 and 5): the area's colour changes over 300 ms and its print fades in.
+
+Task 15b (30 Oct): live source ranking reuses the processing waveform while waiting for the callable. It introduces no new animation, and the same reduced-motion rule applies.
 
 Small state changes (a selected option, a pressed button) take 120 ms. Nothing else animates: no entrance animations on screens, no hover effects on cards.
 

@@ -29,6 +29,12 @@ setGlobalOptions({maxInstances: 10});
 
 const metaApiKey = defineSecret("META_API_KEY");
 
+const {createRankHandler, OPTIONS: rankOptions} = require("./lib/rankSources");
+exports.rankSources = onCall(
+    {...rankOptions, secrets: [metaApiKey]},
+    createRankHandler({apiKey: () => metaApiKey.value()}),
+);
+
 // Confirms the Meta API key works by listing the models it can access.
 // Returns only the model IDs; the key and request headers are never
 // returned or logged.

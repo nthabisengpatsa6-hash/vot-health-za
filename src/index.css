@@ -1010,6 +1010,90 @@ button.map-label {
   margin-top: var(--space-4);
 }
 
+/* Possible sources shares the sheet's quiet surface and evidence rhythm. */
+.ranking-panel {
+  margin-top: var(--space-6);
+}
+
+.sheet-signal .ranking-panel h3 {
+  font: var(--type-section);
+  color: var(--color-indigo);
+}
+
+.ranked-source {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+
+.ranked-source h4 {
+  margin: 0 0 var(--space-2);
+  font: var(--type-value);
+}
+
+.ranked-source h5, .ranking-evidence-label {
+  margin: var(--space-4) 0 var(--space-2);
+  font: var(--type-body);
+  font-weight: 700;
+}
+
+.ranking-label, .ranking-confidence {
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking-tag {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-tag);
+  background: var(--color-wash);
+  color: var(--color-ink-muted-on-wash);
+  font: var(--type-label);
+}
+
+.ranking-evidence details {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ranking-evidence summary {
+  min-height: var(--tap-min);
+  padding: var(--space-3) 0;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.ranking-cards {
+  margin: 0;
+  padding: 0 0 0 var(--space-5);
+  list-style: none;
+}
+
+.ranking-cards li, .ranking-footer, .ranking-progress {
+  margin-top: var(--space-4);
+}
+
+.ranking-panel .button {
+  min-height: var(--button-height-sheet);
+  margin-top: var(--space-3);
+}
+
+.ranking-panel .voice-quote {
+  font: var(--type-voice);
+  text-indent: var(--hanging-quote);
+}
+
+.demo.is-embedded .demo-header {
+  top: var(--header-height);
+}
+
+.demo.is-embedded .demo-main {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.demo.is-embedded .sheet {
+  bottom: var(--tab-bar-height);
+}
+
 /* The public replay at /demo: its own header, with the Simulation pill
    always in view. */
 

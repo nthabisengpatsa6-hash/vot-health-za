@@ -19,7 +19,7 @@ export default function AppLayout() {
       <header className="app-header">
         <Link to="/report" className="header-wordmark"><Wordmark /></Link>
         <nav className="header-links" aria-label="More">
-          <NavLink to="/demo" className="header-link">
+          <NavLink to="/app/replay" className="header-link">
             <ReplayIcon />
             Replay
           </NavLink>

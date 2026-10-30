@@ -2,14 +2,16 @@ import { useEffect, useRef } from "react";
 import { LEVEL_ORDER } from "../config/levels";
 import { areaLine, cardsLine, groupLabel, nothingFoundLine, placeLine, whyLine } from "../lib/replayText";
 import LevelBadge from "./LevelBadge";
+import ReplayRanking from "./ReplayRanking";
 
 const rank = (signal) => LEVEL_ORDER.indexOf(signal.level);
 
 // One area on the day shown: its level and, for each signal it's part of,
-// the counts against usual and why it has its level. Never a chance, never
-// a source by name. It doesn't block the page (docs/DESIGN.md, "The map"),
+// the counts against usual and why it has its level. Sources are named
+// only inside Possible sources at Signal/Alert (docs/DESIGN.md).
+// It doesn't block the page (docs/DESIGN.md, "The map"),
 // so Play and the day slider keep working and its numbers follow the day.
-export default function AreaSheet({ area, result, since, onClose }) {
+export default function AreaSheet({ area, result, since, onClose, replay, day, runId, renderRanking }) {
   const heading = useRef(null);
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function AreaSheet({ area, result, since, onClose }) {
           {signal.areas.length > 1 && <p>{areaLine(signal, area)}</p>}
           <p>{cardsLine(signal)}</p>
           <p>{whyLine(signal)}</p>
+          {runId === "seeded" && ["signal", "alert"].includes(signal.level) && <ReplayRanking key={`${day}|${area}|${signal.symptomGroup}`} replay={replay} day={day} area={area} signal={signal} renderPanel={renderRanking} />}
         </div>
       ))}
       <button type="button" className="button button-secondary sheet-close" onClick={onClose}>Close</button>

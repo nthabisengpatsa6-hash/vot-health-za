@@ -15,6 +15,7 @@ import SignInScreen from "./screens/SignInScreen";
 
 // Near me carries the map, so it loads only when it's opened.
 const NearMeScreen = lazy(() => import("./screens/NearMeScreen"));
+const ReplayScreen = lazy(() => import("./screens/ReplayScreen"));
 
 // What each placeholder says until its screen is built.
 const SCREENS = {
@@ -45,6 +46,7 @@ function SessionContent({ session }) {
         <Route path="/report" element={<ReportScreen key={user.uid} user={user} profile={profile} />} />
         <Route path="/today" element={<PlaceholderScreen {...SCREENS.today}><AreaNote area={profile.area} /><LevelKey /></PlaceholderScreen>} />
         <Route path="/near-me" element={<NearMeScreen area={profile.area} />} />
+        <Route path="/app/replay" element={<ReplayScreen key={user.uid} />} />
         <Route path="/signals/:signalId" element={<SignalDetailPlaceholder />} />
         <Route path="/profile" element={<ProfileScreen key={user.uid} user={user} profile={profile} />} />
         <Route path="*" element={<Navigate to="/report" replace />} />

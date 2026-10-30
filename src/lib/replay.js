@@ -44,6 +44,7 @@ export function createReplay({ createRun, computeSignals, dayEnd, dayOfDate, tow
   return {
     dateOf: (day) => first.days.find((entry) => entry.day === day).date,
     resultFor,
+    cardsUpTo: (runId, day) => runFor(runId).cardsUpTo(day),
     // The cards created on that replay day, newest first.
     cardsOn(runId, day) {
       const run = runFor(runId);

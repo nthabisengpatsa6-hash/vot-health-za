@@ -8,6 +8,7 @@ import TownMap from "../components/TownMap";
 import Wordmark from "../components/Wordmark";
 import { LEVEL_ORDER } from "../config/levels";
 import { PRODUCT_NAME } from "../config/product";
+import { LIVE_REPLAY_FOOTER } from "../config/rankingCopy";
 import { createReplay, LAST_DAY, REPLAY_DAYS, RUNS } from "../lib/replay";
 import { BANNER, cardMeta, dateLabel, dayHeading, FOOTER, groupLabel, intro, levelsAnnouncement, RUN_NOTE, sinceLine } from "../lib/replayText";
 import { MAP_AREAS, TOWN_FILE } from "../lib/townMap";
@@ -28,7 +29,7 @@ const SECONDS_PER_DAY = 1.5;
 const SHOWN_CARDS = 3;
 const rankOf = (level) => LEVEL_ORDER.indexOf(level);
 
-export default function DemoScreen() {
+export default function DemoScreen({ embedded = false, renderRanking }) {
   const [replay, setReplay] = useState(null);
   const [failed, setFailed] = useState(false);
   const [runId, setRunId] = useState(RUNS[0].id);
@@ -97,18 +98,19 @@ export default function DemoScreen() {
   }
   // Highest level first, then the town file's order.
   const areas = MAP_AREAS.map((area) => area.name).sort((a, b) => rankOf(levels[b]) - rankOf(levels[a]));
+  const Content = embedded ? "section" : "main";
 
   return (
-    <div className={selected ? "demo has-sheet" : "demo"}>
+    <div className={`demo${selected ? " has-sheet" : ""}${embedded ? " is-embedded" : ""}`}>
       <header className="demo-header">
-        <div className="demo-bar">
+        {!embedded && <div className="demo-bar">
           <Link to="/" className="header-wordmark"><Wordmark /></Link>
           <Link to="/" className="header-link">Sign in</Link>
-        </div>
+        </div>}
         <p className="pill demo-pill">{BANNER}</p>
       </header>
 
-      <main className="demo-main">
+      <Content className="demo-main">
         <h1>Replay</h1>
         <p className="lead">{intro({ product: PRODUCT_NAME, town: TOWN_FILE.town, days: REPLAY_DAYS })}</p>
 
@@ -161,11 +163,11 @@ export default function DemoScreen() {
 
         <h2>What the levels mean</h2>
         <LevelKey />
-        <p className="note">{FOOTER}</p>
-        <Link to="/" className="button button-secondary">Health professionals: sign in</Link>
-      </main>
+        <p className="note">{embedded ? LIVE_REPLAY_FOOTER : FOOTER}</p>
+        {!embedded && <Link to="/" className="button button-secondary">Health professionals: sign in</Link>}
+      </Content>
 
-      {selected && result && <AreaSheet area={selected} result={result} since={since} onClose={closeSheet} />}
+      {selected && result && <AreaSheet area={selected} result={result} since={since} onClose={closeSheet} replay={replay} day={day} runId={runId} renderRanking={renderRanking} />}
     </div>
   );
 }

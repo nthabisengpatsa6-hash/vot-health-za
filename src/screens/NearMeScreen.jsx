@@ -19,7 +19,7 @@ export default function NearMeScreen({ area }) {
       <Message kind="info">
         <p>{notYet}</p>
         <p>{howItWorks}</p>
-        <Link to="/demo" className="button button-secondary">Watch the replay</Link>
+        <Link to="/app/replay" className="button button-secondary">Watch the replay</Link>
       </Message>
       <h2>What the levels will mean</h2>
       <LevelKey />
