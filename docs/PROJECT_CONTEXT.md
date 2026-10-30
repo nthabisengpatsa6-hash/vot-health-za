@@ -2,8 +2,8 @@
 
 > The product is Lemoha, Sesotho for "to notice" (working name Fola until 28 Oct 2026). Domain: lemoha.co.za, bought and connected to Firebase Hosting on 28 Oct 2026; www.lemoha.co.za redirects (301) to lemoha.co.za.
 > This file changes only when a decision changes. Day-to-day state lives in HANDOVER.md.
-> This repo is private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Never put keys, passwords, tokens or personal data here.
-> Last decision change: 29 Oct 2026.
+> Organisers confirmed the repo may stay private until submission but must be public before submitting. The plan remains Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. Never put keys, passwords, tokens or personal data here.
+> Last decision change: 30 Oct 2026.
 
 ## 1. The hackathon
 
@@ -29,7 +29,7 @@
 | 16 Nov | Community vote winner announced |
 
 **Rules that shape the code**
-- Private until Day 8 (Tue 3 Nov), then made public. Treat it as public now: the full history becomes visible. Teams of up to 4; this is a solo build.
+- Organisers confirmed on 30 Oct: the repo may stay private until submission but must be public before submitting. Planned public date: Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. Teams of up to 4; this is a solo build.
 - Must use Meta's models.
 - New work only. The demo may show only what was built during the hackathon, with new work clearly identified, or the project is disqualified. Don't copy code from any other project, including Nthabiseng's earlier products.
 - No code, data or assets we don't have the rights to. Check a dependency's licence before adding it (MIT, Apache-2.0, BSD and ISC are fine; OFL-1.1, for fonts only).
