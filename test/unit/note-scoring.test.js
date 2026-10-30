@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {scoreSingle, scoreNote, wholeWord, pairCards, normalizeCard, falseInsertions, expectedDifferences} from "../../scripts/lib/noteScoring.mjs";
+import {scoreSingle, scoreNote, wholeWord, termMatch, pairCards, normalizeCard, falseInsertions, expectedDifferences} from "../../scripts/lib/noteScoring.mjs";
 import old from "../../test-fixtures/expected-cards.json" with {type:"json"};
 import recordings from "../../test-fixtures/recordings-expected.json" with {type:"json"};
 
@@ -61,4 +61,24 @@ test("expected fixture mapping preserves labels and reports differences without 
 test("listed-word additions and swaps are detected term by term", () => {
   const result = falseInsertions({cards:[{words:"vetkoek"}]}, "magwinya");
   assert.deepEqual(result.extra, ["vetkoek"]); assert.deepEqual(result.missing, ["magwinya"]);
+});
+
+test("listed trailing-s variants match bidirectionally without general stemming", () => {
+  for (const [text, term] of [["VETKOEKS,", "vetkoek"], ["vetkoek", "vetkoeks"], ["at taxi ranks", "taxi rank"], ["at a taxi rank", "taxi ranks"]]) assert.equal(termMatch(text, term), true);
+  for (const [text, term] of [["vetkoekss", "vetkoek"], ["supervetkoeks", "vetkoek"], ["counts", "count"], ["count", "counts"], ["boerewor", "boerewors"], ["bunny chowshed", "bunny chow"], ["droewors", "droëwors"], ["vomiting", "ting"]]) assert.equal(termMatch(text, term), false);
+  assert.equal(wholeWord("vetkoeks", "vetkoek"), false);
+});
+test("listed plurals neither add nor remove a term, while real swaps still fail", () => {
+  for (const [input, output] of [["vetkoeks and spazas", "vetkoek and spaza"], ["vetkoek and spaza", "vetkoeks and spazas"]]) assert.deepEqual(falseInsertions({cards:[{words:output}]}, input), {extra:[], missing:[]});
+  assert.deepEqual(falseInsertions({cards:[{words:"vetkoeks"}]}, "magwinya"), {extra:["vetkoek"], missing:["magwinya"]});
+  assert.deepEqual(falseInsertions({cards:[{words:"nothing listed"}]}, "vetkoeks"), {extra:[], missing:["vetkoek"]});
+});
+test("key-term scoring applies listed plurals while preserving uncertainty outcomes", () => {
+  const expected = {id:"synthetic", expectedCards:[{card:"synthetic", symptomGroup:"diarrhoea_vomiting", exposureKeyTerms:[["vetkoek"], ["count"]]}]};
+  const reply = {cards:[{symptomGroup:"diarrhoea_vomiting", exposure:{words:"vetkoeks and counts"}, unsureFields:[]}]};
+  assert.deepEqual(scoreNote(expected, reply).fields.map((field) => field.outcome), ["correct", "correct", "confidently wrong"]);
+  reply.cards[0].unsureFields = ["exposure"];
+  assert.deepEqual(scoreNote(expected, reply).fields.map((field) => field.outcome), ["correct", "unnecessary ask", "caught by ask"]);
+  expected.expectedCards[0].exposureKeyTerms = [["vetkoeks"]]; reply.cards[0].exposure.words = "vetkoek";
+  assert.equal(scoreNote(expected, reply).fields.at(-1).outcome, "unnecessary ask");
 });

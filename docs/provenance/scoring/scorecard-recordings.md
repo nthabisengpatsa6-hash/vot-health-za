@@ -2,7 +2,7 @@
 
 10 recordings; 10 expected cards. Made-up scenarios read by volunteers.
 No recording-derived value or word appears in this file. Local grouped timings measure this connection, not the deployed region or a production target.
-Recording repeats: 3. Corrected expected fields: 1. Missing results: 0.
+Recording repeats: 3. Corrected expected fields: 2. Missing results: 0.
 
 ## Configuration provenance
 
@@ -444,7 +444,7 @@ A completed pipeline can use one ear when the other is unavailable; the componen
 | n05 | A-min | 2 | n05 | onset | caught by ask |
 | n05 | A-min | 2 | n05 | exposureTypes:food | correct |
 | n05 | A-min | 2 | n05 | observations:moreSevere | missed |
-| n05 | A-min | 2 | n05 | exposureKeyTerms:1 | confidently wrong |
+| n05 | A-min | 2 | n05 | exposureKeyTerms:1 | correct |
 | n05 | A-min | 2 | n05 | exposureKeyTerms:2 | correct |
 | n05 | B | 2 | n05 | symptomGroup | correct |
 | n05 | B | 2 | n05 | caseCount | correct |
@@ -1036,7 +1036,7 @@ A completed pipeline can use one ear when the other is unavailable; the componen
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Baseline | 4 | 6 | 8 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
 | A | 2 | 6 | 11 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
-| A-min | 1 | 8 | 12 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+| A-min | 0 | 8 | 12 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
 | B | 1 | 6 | 35 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 ## Timings in milliseconds
@@ -1076,7 +1076,7 @@ Resumed pipelines that reuse completed calls have no new comparable end-to-end m
 | --- | --- | --- | --- | --- | --- | --- |
 | Baseline | 11 | 1 | 0 | 1 | 0 | 0 |
 | A | 13 | 1 | 0 | 1 | 0 | 0 |
-| A-min | 9 | 0 | 0 | 0 | 0 | 0 |
+| A-min | 8 | 0 | 0 | 0 | 0 | 0 |
 | B | 29 | 5 | 0 | 5 | 0 | 0 |
 
 ## Rule OFF and ON totals
@@ -1087,8 +1087,8 @@ Resumed pipelines that reuse completed calls have no new comparable end-to-end m
 | Baseline | ON | 4 | 6 | 8 |
 | A | OFF | 2 | 6 | 11 |
 | A | ON | 2 | 6 | 11 |
-| A-min | OFF | 1 | 8 | 12 |
-| A-min | ON | 1 | 8 | 12 |
+| A-min | OFF | 0 | 8 | 12 |
+| A-min | ON | 0 | 8 | 12 |
 | B | OFF | 1 | 6 | 35 |
 | B | ON | 1 | 6 | 35 |
 
@@ -1164,14 +1164,14 @@ Rule: 0 confidently wrong fields caught; 0 unnecessary asks added across 30 card
     "consistentRuns": 3
   },
   "effort": {
-    "minimalCW": 1,
+    "minimalCW": 0,
     "lowCW": 2,
     "minimalEarsMs": 9395,
     "lowEarsMs": 9882.5,
     "consistentRuns": 2
   },
   "audio": {
-    "referenceCW": 1,
+    "referenceCW": 0,
     "candidateCW": 1,
     "referenceAsks": 20,
     "candidateAsks": 41,

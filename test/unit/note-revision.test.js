@@ -97,6 +97,10 @@ test("card-only runner uses saved ears once and labels only new card timing", as
   assert.match(report.decision.recommendation, /pending/); assert.equal(report.decision.knownLimitation, null);
   const local = []; generateRevisionReport({root, local:{listenedAt:"2026-10-30", corrections:{}}, write:false, showLocal:true, print:(line) => local.push(line)});
   assert.ok(local.join("\n").includes("SyntheticPrivateEarCanary"));
+  put(revisionPaths(root).private, [{...saved, outcome:"schema", payload:{rawOutput:"SyntheticRejectedCanary"}}]);
+  const failed = [], unavailable = generateRevisionReport({root, local:{listenedAt:"2026-10-30", corrections:{}}, write:false, print:(line) => failed.push(line)});
+  assert.equal(unavailable.decision.complete, false); assert.ok(!failed.join("\n").includes("Canary"));
+  assert.ok(unavailable.markdown.includes("schema"));
 });
 test("saved A-min source validation refuses missing or mismatched ears with IDs only", () => {
   const root = temp(), rows = [], config = configurations().find((item) => item.name === "A-min");

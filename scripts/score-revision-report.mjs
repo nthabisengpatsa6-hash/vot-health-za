@@ -7,6 +7,7 @@ import {ideal, special, readCorrections, requireListened} from "./lib/notePlans.
 import {assertPublic, paths, readLines} from "./lib/noteArtifacts.mjs";
 import {falseInsertions, specialOutcome, scoreNote, legacyExpected} from "./lib/noteScoring.mjs";
 import expected from "../test-fixtures/expected-cards.json" with {type:"json"};
+import {authoredComparison, outcomeVariation, cardTimings} from "./lib/revisionComparison.mjs";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const unique = (rows) => [...new Map(rows.map((row) => [row.callId, row])).values()];
 
@@ -62,35 +63,50 @@ export function generateRevisionReport({root = ROOT, local, print = console.log,
   const sections = ["# A2 card-only scoring", "", "10 recordings; 10 expected cards; three runs. Recording-derived values and excerpts never appear here.",
     `Candidate extraction hash: ${A2.extractionHash}. Source ears: saved A-min, muse-spark-1.2 minimal and Voice with 53 keywords. New ear calls: zero. Rule off.`,
     `Local corrected expected fields: ${Object.values(local.corrections || {}).reduce((n, row) => n + Object.keys(row).length, 0)}. Missing logical results: ${missing.length}.`, "",
+    "## Call provenance", "", table(["Provider", "Model", "Effort", "Extraction hash", "Git commit", "Dirty"],
+      [...new Map([...metaCalls, ...baseFixtures, ...rankings, ...(probe ? [probe] : [])].map((row) => [JSON.stringify([row.provider, row.model, row.effort, row.extractionHash, row.gitCommit, row.dirty]), row])).values()]
+        .map((row) => [row.provider, row.model, row.effort, row.extractionHash, row.gitCommit, row.dirty])),
+    "The dirty flag describes the whole working tree; a dirty-file list was not captured by the runner.", "",
     "## Revision records and recorded cost", "", table(["Provider", "Planned logical calls", "Saved call records", "Successful", "Unavailable", "Recorded USD"],
       [["meta", 49, metaCalls.length, metaCalls.filter((row) => row.outcome === "ok").length, metaCalls.filter((row) => row.outcome !== "ok").length, ledger.filter((row) => metaIds.has(row.callId)).reduce((sum, row) => sum + (row.usd || 0), 0)],
         ["baseten", 15, baseIds.size, [...baseFixtures, ...rankings, ...(probe ? [probe] : [])].filter((row) => row.outcome === "ok").length, [...baseFixtures, ...rankings, ...(probe ? [probe] : [])].filter((row) => row.outcome !== "ok").length, ledger.filter((row) => baseIds.has(row.callId)).reduce((sum, row) => sum + (row.usd || 0), 0)]]),
     `Derived pipeline summaries: ${evaluated.length}; these are not extra calls. Shared-ledger recorded total USD ${ledger.reduce((sum, row) => sum + (row.usd || 0), 0).toFixed(6)}. Successful responses with missing usage pause the runner.`, "",
+    `Meta runner saved counter: ${metaCalls.length + evaluated.length} = ${metaCalls.length} call records + ${evaluated.length} derived pipeline summaries.`,
+    ...(probe ? [`Baseten runner saved counter: ${fixtures.length + baseIds.size} = ${fixtures.length} previously saved Meta authored reference records + ${baseIds.size} Baseten call records. The separate Baseten log duplicates metadata for its ${baseIds.size} calls; it adds no calls.`] : []), "",
     "## Recording outcome totals", "", table(["Configuration", "Valid pipelines", "CW", "Caught", "Unnecessary", "Missed", "Extra", "Extra cards", "Missing cards", "Name leaks", "JSON failures"], configs.map((name) => {
       const stats = aggregate(all, name); return [name, stats.valid, ...Object.values(stats.totals)];
-    })), "", "## Per-recording outcomes", "", table(["Recording", "Card", "Field", "Run", "Outcome"], evaluated.flatMap((item) => item.score ?
+    })), "", "## Field outcome variation across runs", "", table(["Configuration", "Fields with differing outcomes"], configs.map((name) => [name, outcomeVariation(all, name)])),
+    "Counts compare outcome labels for each recording/card/field across repeats; they do not reveal field values.", "",
+    "## n05 key-term outcomes", "", table(["Run", "Key term 1", "Key term 2"], evaluated.filter((item) => item.row.id === "n05").map((item) => [item.row.run,
+      ...[1, 2].map((index) => item.score?.fields.find((field) => field.field === `exposureKeyTerms:${index}`)?.outcome || "unavailable")])),
+    "", "## Per-recording outcomes", "", table(["Recording", "Card", "Field", "Run", "Outcome"], evaluated.flatMap((item) => item.score ?
       item.score.fields.map((field) => [item.row.id, field.card, field.field, item.row.run, field.outcome]) : [[item.row.id, "none", "pipeline", item.row.run, item.row.outcome]])), "",
     "## Card-step timing only", "", "The A2 ears are reused: no new conversion, Voice, audio-ear, both-ears or end-to-end timing is claimed.", "",
-    table(["Configuration", "Samples", "Median milliseconds", "Maximum milliseconds"], ["A-min", "A2"].map((name) => {
-      const values = all.filter((item) => item.row.configuration === name && (name !== "A2" || item.row.cardTimingComparable)).map((item) => item.row.timings.cardMs).filter(Number.isFinite);
-      return [name, values.length, median(values), values.length ? Math.max(...values) : null];
-    })), "", "## Authored special fixtures", "", table(["Fixture", "Run", "Outcome"], fixtures.filter((row) => special.some((item) => item.id === row.id)).map((row) => [row.id, row.run,
+    table(["Configuration", "Run", "Samples", "Median milliseconds", "Maximum milliseconds"], ["A-min", "A2"].flatMap((name) => [undefined, 1, 2, 3].map((run) => {
+      const values = cardTimings(all, name, run);
+      return [name, run ?? "all", values.length, median(values), values.length ? Math.max(...values) : null];
+    }))), "", "## Authored special fixtures", "", table(["Fixture", "Run", "Outcome"], fixtures.filter((row) => special.some((item) => item.id === row.id)).map((row) => [row.id, row.run,
       row.payload?.reply ? specialOutcome(special.find((item) => item.id === row.id), row.payload.reply) ? "pass" : "fail" : row.outcome])), "",
     "## Existing authored fixtures", "", table(["Fixture", "Outcome", "Listed-word insertion failure"], fixtures.filter((row) => Object.hasOwn(ideal, row.id)).map((row) => [row.id, row.outcome,
       row.payload?.reply ? Boolean(falseInsertions(row.payload.reply, ideal[row.id]).extra.length) : "unavailable"])), "",
-    "## A2 checks and marker counts", "", table(["Recording", "Run", "Cards", "Count check", "Names check", "Transcript name count", "Condition check", "Advice flag check", "Advice check", "Markers found", "Mapped", "Unmapped", "Recording suspects", "Capital suspects"], evaluated.map((item) => [item.row.id, item.row.run, item.row.payload?.reply.cards.length ?? 0,
+    "## A2 checks and marker counts", "", table(["Recording", "Run", "Cards", "Count check", "Names check", "Transcript name count", "Condition check", "Advice flag check", "Advice check", "Markers found", "Mapped", "Unmapped", "Recording suspects", "Capital suspects"], evaluated.map((item) => [item.row.id, item.row.run, item.row.payload?.reply?.cards?.length ?? 0,
       ...["cardCount", "names", "transcriptNames", "notifiable", "adviceRequested", "advice"].map((key) => item.score?.checks[key] ?? "unavailable"), item.markers.found, item.markers.mapped, item.markers.unmapped, item.suspects.length, item.capitals.length])), "",
     "## Baseten", "", !probe ? "Not run." : `Exact example probe: ${probe.outcome}; HTTP ${probe.failure?.status ?? "200"}; attempts ${probe.attempts}. No reasoning text is retained.`, "",
-    table(["Fixture", "Provider", "Outcome", "CW", "Caught", "Unnecessary", "Milliseconds", "Input tokens", "Output tokens including reasoning"], revisionBasetenPlans().flatMap((plan) => [["meta", fixtures.find((row) => row.id === plan.id && row.run === 1)], ["baseten", baseFixtures.find((row) => row.id === plan.id)]].map(([provider, row]) => {
+    table(["Fixture", "Provider", "Outcome", "CW", "Caught", "Unnecessary", "Extra cards", "Missing cards", "JSON failure", "Schema failure", "Milliseconds", "Input tokens", "Output tokens including reasoning", "Reasoning tokens"], revisionBasetenPlans().flatMap((plan) => [["meta", fixtures.find((row) => row.id === plan.id && row.run === 1)], ["baseten", baseFixtures.find((row) => row.id === plan.id)]].map(([provider, row]) => {
       const score = row?.payload?.reply && expected[plan.id] ? scoreNote(legacyExpected(plan.id, expected[plan.id]), row.payload.reply) : null;
       const word = special.find((item) => item.id === plan.id);
       return [plan.id, provider, !row ? probe?.failure ? "skipped" : "missing" : word && row.payload?.reply ? specialOutcome(word, row.payload.reply) ? "pass" : "fail" : row.outcome,
-        score?.totals.confidentlyWrong, score?.totals.caughtByAsk, score?.totals.unnecessaryAsk, row?.timings.callMs, row?.tokens.input, row?.tokens.output];
-    }))), "", "## Baseten frozen-ranking comparison", "", table(["Input", "Provider", "Source order", "Guard changes", "Milliseconds", "Input tokens", "Output tokens including reasoning"], rankings.flatMap((row) => {
+        score?.totals.confidentlyWrong, score?.totals.caughtByAsk, score?.totals.unnecessaryAsk, score?.totals.extraCards, score?.totals.missingCards, row ? row.outcome === "bad-reply" : null, row ? row.outcome === "schema" : null,
+        row?.timings?.callMs, row?.tokens?.input, row?.tokens?.output, row?.tokens?.reasoning];
+    }))), "", "## Authored field outcome comparison", "", "Meta uses muse-spark-1.3 low with A2, run 1. Special fixtures use only their explicit authored assertions; other fields have no expectations and are not scored.", "",
+    table(["Fixture", "Card", "Field", "Meta outcome", "Baseten outcome"], revisionBasetenPlans().flatMap((plan) => authoredComparison(plan.id,
+      fixtures.find((row) => row.id === plan.id && row.run === 1)?.payload?.reply, baseFixtures.find((row) => row.id === plan.id)?.payload?.reply)
+      .map((field) => [field.id, field.card, field.field, field.meta, field.baseten]))),
+    "", "## Baseten frozen-ranking comparison", "", table(["Input", "Provider", "Top source", "Source order", "Guard changes", "Guard counts", "Milliseconds", "Input tokens", "Output tokens including reasoning", "Reasoning tokens"], rankings.flatMap((row) => {
       const payload = row.payload, order = (ranking) => ranking?.sources?.map((source) => source.sourceId).join(", ") || "unavailable";
       const drops = (value) => value ? Object.values(value).reduce((n, count) => n + count, 0) : null;
-      return [[row.id, "meta", order(payload?.original?.ranking), drops(payload?.original?.dropCounts), payload?.original?.ms, payload?.original?.tokens?.input, payload?.original?.tokens?.output],
-        [row.id, "baseten", order(payload?.ranking), drops(payload?.dropCounts), row.timings.callMs, row.tokens.input, row.tokens.output]];
+      return [[row.id, "meta", payload?.original?.ranking?.sources?.[0]?.sourceId, order(payload?.original?.ranking), drops(payload?.original?.dropCounts), JSON.stringify(payload?.original?.dropCounts), payload?.original?.ms, payload?.original?.tokens?.input, payload?.original?.tokens?.output, payload?.original?.tokens?.reasoning],
+        [row.id, "baseten", payload?.ranking?.sources?.[0]?.sourceId, order(payload?.ranking), drops(payload?.dropCounts), JSON.stringify(payload?.dropCounts), row.timings.callMs, row.tokens.input, row.tokens.output, row.tokens.reasoning]];
     })), "", "## Recommendation for review", "", decision.recommendation, decision.knownLimitation || (decision.gate ? "All requested gate checks met." : "The gate remains pending."),
     "Fallback compares A-min (A prompt at the chosen minimal effort) with A2. A-min wins an exact CW tie. Production settings remain unchanged until separately approved.",
     "```json", JSON.stringify(decision.checks, null, 2), "```", "", "## Unavailable records", "", table(["ID", "Run", "Provider", "Stage", "Outcome", "HTTP status"], unavailable.map((row) => [row.id, row.run, row.provider, row.stage, row.outcome, row.failure?.status])), "",

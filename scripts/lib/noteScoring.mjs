@@ -21,6 +21,19 @@ export function wholeWord(text, term) {
   const a = tokens(text), b = tokens(term);
   return b.length > 0 && a.some((_, i) => b.every((word, n) => a[i + n] === word));
 }
+// Only listed terms accept one additional trailing s. Keep the canonical
+// spelling intact (for example boerewors must never become boerewor).
+const listedVariants = new Map();
+for (const term of TERMS) {
+  const singular = tokens(term), plural = [...singular];
+  plural[plural.length - 1] += "s";
+  const forms = [singular.join(" "), plural.join(" ")];
+  for (const form of forms) listedVariants.set(form, forms);
+}
+export function termMatch(text, term) {
+  const forms = listedVariants.get(tokens(term).join(" "));
+  return forms ? forms.some((form) => wholeWord(text, form)) : wholeWord(text, term);
+}
 export const mapLabel = (value) => LABELS[value] ?? value;
 
 export function normalizeCard(card) {
@@ -91,10 +104,10 @@ export const freeText = (card) => [card.symptomsInWords, card.unusualDescription
   card.areaHeard, card.exposure?.words, card.observations?.suppliesNote].filter(Boolean);
 
 export function falseInsertions(reply, input) {
-  const said = TERMS.filter((term) => wholeWord(input, term));
+  const said = TERMS.filter((term) => termMatch(input, term));
   const output = textValues(reply).join(" ");
-  return {extra:TERMS.filter((term) => wholeWord(output, term) && !said.includes(term)),
-    missing:said.filter((term) => !wholeWord(output, term))};
+  return {extra:TERMS.filter((term) => termMatch(output, term) && !said.includes(term)),
+    missing:said.filter((term) => !termMatch(output, term))};
 }
 
 export function capitalisedWords(reply) {
@@ -146,7 +159,7 @@ export function scoreNote(recording, reply) {
       }
     }
     for (const [i, group] of (want.exposureKeyTerms || []).entries()) {
-      add(want.card, `exposureKeyTerms:${i + 1}`, group.some((term) => wholeWord(got.exposure?.words, term)) ?
+      add(want.card, `exposureKeyTerms:${i + 1}`, group.some((term) => termMatch(got.exposure?.words, term)) ?
         (unsure.has("exposure") ? "unnecessary ask" : "correct") : (unsure.has("exposure") ? "caught by ask" : "confidently wrong"));
     }
   }
