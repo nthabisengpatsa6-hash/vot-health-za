@@ -432,6 +432,17 @@ Three expected answers were wrong (n01 and n06 onset, n09's school-age group) an
 ### Stage 1 after Task 11's observations guard (29 Oct)
 score-007, run by Nthabiseng the same way as score-006 (`--stage text --repeat 3 --effort low`, 30 calls, about $0.24): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions, no failed calls; extraction 5.2 s on average (1.5–9.6 s). No card marked observations unsure, as in score-006. The model's request didn't change, so the run measures run-to-run variation; none showed.
 
+### 30 Oct 2026 ? Task 15a: source ranking, saved tuning runs and freeze
+- Canonical generator moved into functions/shared/sim/ as pure .mjs modules; groundTruth.js and scorecard.js stay outside functions/. All 40 seed/scenario fingerprints match; held-out seeds were generated only in memory for the approved fingerprint check, never scored or ranked. Old paths remain compatibility shims, with production imports forbidden and deletion deferred for explicit approval.
+- toCardDoc and its field definitions moved into pure shared modules with the original frontend exports preserved. Every existing fixture's saved-card fingerprint matches; all existing card and rules tests pass unchanged. Next Hosting deploy needs a phone record/check/save regression.
+- Added pure ranking input, evidence validation, short-to-real citation mapping and signal matching; Node-only Meta client with an 8,000-token cap, 60 s attempts, invalid-JSON retry only, hidden terminal key entry and resumable per-seed provenance. No probability, account, scenario or hidden-truth fields reach input. No whole cards or transcripts are stored.
+- Nthabi ran 79 calls: main 67 low, effort 5 medium, repeat 2 low and swap 5 low; zero retries, unavailable results or drops/repairs. About $1.13 at documented Standard rates; 426,920 input and 141,399 output tokens. Low averaged 9.7 s per call; medium 21 s. Matched medium comparisons preserved all source ranks, taking about 2x time and 2.5x output.
+- Saved scorecard includes the statistics lead and clue counts at each first Alert. Works A ranks first at the first Alert in 7 of 10 tuning seeds, and in every seed by day 19. Statistics initially lead with the shop in seeds 2, 4, 5, 8 and 9. The school red herring ranks above works A initially in seeds 2, 8 and 9, when school-event mentions outnumber water mentions; works A ranks first by day 18 or 19. All quiet runs plan zero calls. Three seed-one first-Alert calls all lead with works A.
+- With identical numerical statistics, swapping clues decides the winner when the comparisons are close (seed 5). The shop moves up without overturning a clear statistical lead in seeds 1, 3, 7 and 10. Known reason limitation: "stayed normal" can overstate "not raised"; Task 15b must show facts in the app's own wording and label reasons as Muse Spark's summary.
+- Approved freeze: thresholds unchanged, effort low; signal hash abc36af17d67a689, prompt hash 01622c7f95af2326, extraction hash cddb48328a27f866. No prompt, settings or schema change after results. Added the signal-hash test with its tuning-log failure message.
+- VS Code panel workflow recorded in HANDOVER: extension rolled back one version from 26.1021.22027; Auto Update off; Ask for approval mode; A/B read-only by instruction; commit messages in ignored .scratch/.
+- Replay-only chunks 44,991 to 43,165 bytes; tests web 150, Functions 90, rules 93, plus lint/build and scans. No deploy, rules change, live Firestore access or push.
+
 ## Replaced decisions
 Decisions that a later one replaced, with what replaced them.
 - 27 Oct — Hints off by default. Language bias is dropped. Keywords get re-tested with place-name notes. Why: in Task 2, hints increased repeated words (a doubled word in 2 of 7 calls without hints, 5 of 7 with keywords, 7 of 7 with keywords plus language).
@@ -448,6 +459,7 @@ Decisions that a later one replaced, with what replaced them.
   - Narrowed the same day: the ban covers Lemoha's own wording, not the clinicians' words on the cards, which now show their exposure words too (HANDOVER, T2).
 
 ## Change log (newest first)
+- 2026-10-30 ? Task 15a: shared generator, source-ranking engine, 79 saved tuning/experiment calls and honest scorecard; approved low-effort freeze (abc36af17d67a689), unchanged thresholds and extraction inputs. Details in the 30 Oct build-log entry and HANDOVER tuning log. Nothing deployed.
 - 2026-10-29 — Task 14: the public /demo replay and the Near me map (deployed).
   - /demo above the sign-in gate (T1): seed 1's seeded and quiet runs (T2), Play and a day slider, the map, the day's cards in the clinicians' words, the area list and sheet with counts against usual and why each level. /replay redirects to it.
   - Near me (T3): the map with your area marked and an honest note; no Firestore reads.

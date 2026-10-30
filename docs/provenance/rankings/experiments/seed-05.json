@@ -1,0 +1,2550 @@
+{
+  "records": [
+    {
+      "recordId": "b78def910e85134d81b4adad0f902b961d1e13cdd1d380d455160932f31e0afc",
+      "runSet": "effort",
+      "seed": 5,
+      "day": 17,
+      "signalKey": "diarrhoea_vomiting|Thaga Park+Leeba View+Sefate Extension|day-16",
+      "repeat": 0,
+      "inputHash": "ccd8adec75c2bf4e59aad7c1b431833d50b9cea39edad0010cb35d4934378220",
+      "input": {
+        "signal": {
+          "symptomGroup": "diarrhoea_vomiting",
+          "areas": [
+            "Thaga Park",
+            "Leeba View"
+          ],
+          "level": "alert",
+          "timeWindow": {
+            "days": 3,
+            "from": "2027-02-16",
+            "to": "2027-02-18"
+          },
+          "observed": {
+            "cards": 16,
+            "cases": 43
+          },
+          "expected": {
+            "cards": 2.71,
+            "cases": 4.93
+          },
+          "checks": {
+            "unusual": true,
+            "enoughCards": true,
+            "independentPlacesOfCare": true,
+            "twiceUsual": true,
+            "candidateSource": true,
+            "severityFlags": true
+          },
+          "placesOfCare": 3,
+          "byDay": [
+            {
+              "date": "2027-02-16",
+              "cards": 5,
+              "cases": 13
+            },
+            {
+              "date": "2027-02-17",
+              "cards": 4,
+              "cases": 9
+            },
+            {
+              "date": "2027-02-18",
+              "cards": 7,
+              "cases": 21
+            }
+          ],
+          "casesByAge": {
+            "under_5": 32,
+            "5_12": 2,
+            "adult": 9
+          },
+          "cardsByOnset": {
+            "today": 9,
+            "last_3_days": 7
+          },
+          "cardsByExposure": {
+            "water": 9,
+            "school": 1,
+            "event": 1,
+            "none": 6
+          },
+          "flags": {
+            "moreSevere": 3,
+            "notResponding": 0,
+            "severityCards": 3,
+            "shortOfSupplies": 2
+          }
+        },
+        "sources": [
+          {
+            "id": "shop:Leeba View spaza shop",
+            "type": "shop",
+            "name": "Leeba View spaza shop",
+            "catchmentAreas": [
+              "Leeba View",
+              "Thaga Park"
+            ]
+          },
+          {
+            "id": "school:Leeba View Primary School",
+            "type": "school",
+            "name": "Leeba View Primary School",
+            "catchmentAreas": [
+              "Leeba View",
+              "Thaga Park",
+              "Kgwedi Heights"
+            ]
+          },
+          {
+            "id": "school:Nonyana Flats Primary School",
+            "type": "school",
+            "name": "Nonyana Flats Primary School",
+            "catchmentAreas": [
+              "Nonyana Flats",
+              "Sefate Extension",
+              "Mmutla Ridge",
+              "Lebone Gardens"
+            ]
+          },
+          {
+            "id": "shop:Lebone Gardens spaza shop",
+            "type": "shop",
+            "name": "Lebone Gardens spaza shop",
+            "catchmentAreas": [
+              "Lebone Gardens",
+              "Nonyana Flats"
+            ]
+          },
+          {
+            "id": "water:A",
+            "type": "water",
+            "name": "Works A",
+            "catchmentAreas": [
+              "Thaga Park",
+              "Leeba View",
+              "Sefate Extension",
+              "Nonyana Flats",
+              "Mmutla Ridge"
+            ]
+          },
+          {
+            "id": "water:B",
+            "type": "water",
+            "name": "Works B",
+            "catchmentAreas": [
+              "Kgwedi Heights",
+              "Lebone Gardens"
+            ]
+          }
+        ],
+        "sourceEvidence": [
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "statisticalCandidate": true,
+            "statisticalOrder": 1,
+            "relativeRate": 5.32,
+            "inside": {
+              "areas": [
+                "Leeba View",
+                "Thaga Park"
+              ],
+              "observed": {
+                "cards": 16,
+                "cases": 43
+              },
+              "expected": {
+                "cards": 2.71,
+                "cases": 4.93
+              },
+              "casesPer1000": 2.15
+            },
+            "outside": {
+              "areas": [
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge",
+                "Kgwedi Heights",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 9,
+                "cases": 21
+              },
+              "expected": {
+                "cards": 7.03,
+                "cases": 12.82
+              },
+              "casesPer1000": 0.43
+            },
+            "supporting": [
+              {
+                "id": "f1",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              },
+              {
+                "id": "f2",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f3",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              }
+            ],
+            "contradicting": []
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 2.7,
+            "inside": {
+              "areas": [
+                "Leeba View",
+                "Thaga Park",
+                "Kgwedi Heights"
+              ],
+              "observed": {
+                "cards": 18,
+                "cases": 46
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 8.63
+              },
+              "casesPer1000": 1.35
+            },
+            "outside": {
+              "areas": [
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 7,
+                "cases": 18
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 9.12
+              },
+              "casesPer1000": 0.51
+            },
+            "supporting": [
+              {
+                "id": "f4",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              },
+              {
+                "id": "f5",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f6",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              },
+              {
+                "id": "f7",
+                "kind": "exposureMentioned",
+                "type": "school",
+                "cards": 1,
+                "cardIds": [
+                  "c16"
+                ]
+              },
+              {
+                "id": "f8",
+                "kind": "exposureMentioned",
+                "type": "event",
+                "cards": 1,
+                "cardIds": [
+                  "c16"
+                ]
+              },
+              {
+                "id": "f9",
+                "kind": "nameMentioned",
+                "cards": 1,
+                "cardIds": [
+                  "c16"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "id": "f10",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              }
+            ]
+          },
+          {
+            "sourceId": "school:Nonyana Flats Primary School",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 0.37,
+            "inside": {
+              "areas": [
+                "Nonyana Flats",
+                "Sefate Extension",
+                "Mmutla Ridge",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 7,
+                "cases": 18
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 9.12
+              },
+              "casesPer1000": 0.51
+            },
+            "outside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Kgwedi Heights"
+              ],
+              "observed": {
+                "cards": 18,
+                "cases": 46
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 8.63
+              },
+              "casesPer1000": 1.35
+            },
+            "supporting": [],
+            "contradicting": [
+              {
+                "id": "f11",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": []
+              },
+              {
+                "id": "f12",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": []
+              },
+              {
+                "id": "f13",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              },
+              {
+                "id": "f14",
+                "kind": "insideAreaNotRaised",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "id": "f15",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f16",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              }
+            ]
+          },
+          {
+            "sourceId": "shop:Lebone Gardens spaza shop",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 0.38,
+            "inside": {
+              "areas": [
+                "Lebone Gardens",
+                "Nonyana Flats"
+              ],
+              "observed": {
+                "cards": 5,
+                "cases": 11
+              },
+              "expected": {
+                "cards": 3.39,
+                "cases": 6.23
+              },
+              "casesPer1000": 0.48
+            },
+            "outside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Sefate Extension",
+                "Mmutla Ridge",
+                "Kgwedi Heights"
+              ],
+              "observed": {
+                "cards": 20,
+                "cases": 53
+              },
+              "expected": {
+                "cards": 6.35,
+                "cases": 11.53
+              },
+              "casesPer1000": 1.15
+            },
+            "supporting": [],
+            "contradicting": [
+              {
+                "id": "f17",
+                "kind": "insideAreaNotRaised",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "id": "f18",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": []
+              },
+              {
+                "id": "f19",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f20",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              }
+            ]
+          },
+          {
+            "sourceId": "water:A",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 5.59,
+            "inside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge"
+              ],
+              "observed": {
+                "cards": 22,
+                "cases": 60
+              },
+              "expected": {
+                "cards": 5.8,
+                "cases": 10.73
+              },
+              "casesPer1000": 1.4
+            },
+            "outside": {
+              "areas": [
+                "Kgwedi Heights",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 3,
+                "cases": 4
+              },
+              "expected": {
+                "cards": 3.95,
+                "cases": 7.03
+              },
+              "casesPer1000": 0.15
+            },
+            "supporting": [
+              {
+                "id": "f21",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f22",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              },
+              {
+                "id": "f23",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              },
+              {
+                "id": "f24",
+                "kind": "exposureMentioned",
+                "type": "water",
+                "cards": 10,
+                "cardIds": [
+                  "c15",
+                  "c12",
+                  "c10",
+                  "c8",
+                  "c7",
+                  "c6",
+                  "c5",
+                  "c4",
+                  "c3"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "id": "f25",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": []
+              },
+              {
+                "id": "f26",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": []
+              },
+              {
+                "id": "f27",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ]
+          },
+          {
+            "sourceId": "water:B",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 0.1,
+            "inside": {
+              "areas": [
+                "Kgwedi Heights",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 3,
+                "cases": 4
+              },
+              "expected": {
+                "cards": 3.95,
+                "cases": 7.03
+              },
+              "casesPer1000": 0.15
+            },
+            "outside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge"
+              ],
+              "observed": {
+                "cards": 22,
+                "cases": 60
+              },
+              "expected": {
+                "cards": 5.8,
+                "cases": 10.73
+              },
+              "casesPer1000": 1.4
+            },
+            "supporting": [],
+            "contradicting": [
+              {
+                "id": "f28",
+                "kind": "insideAreaNotRaised",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              },
+              {
+                "id": "f29",
+                "kind": "insideAreaNotRaised",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "id": "f30",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f31",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "id": "c1",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 2,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "last_3_days",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c2",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "today",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": true,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": true
+            }
+          },
+          {
+            "id": "c3",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "mothers say the tap water looks dirty"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": true
+            }
+          },
+          {
+            "id": "c4",
+            "date": "2027-02-18",
+            "area": "Thaga Park",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "metsi a pompo a nkga"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c5",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "the tap water had a bad smell"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c6",
+            "date": "2027-02-18",
+            "area": "Thaga Park",
+            "caseCount": 5,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "the tap water tastes strange"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c7",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 1,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "the tap water tastes strange"
+            },
+            "onset": "today",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c8",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "the tap water had a bad smell"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": true,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c9",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c10",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 3,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "ba re metsi a pompo a ditshila"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": true,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c11",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c12",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 3,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "the tap water had a bad smell"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c13",
+            "date": "2027-02-16",
+            "area": "Thaga Park",
+            "caseCount": 4,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c14",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "today",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c15",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 3,
+            "exposure": {
+              "types": [
+                "water"
+              ],
+              "words": "the tap water had a bad smell"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c16",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 2,
+            "exposure": {
+              "types": [
+                "school",
+                "event"
+              ],
+              "words": "learners got sick after the sports day at Leeba View Primary School"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "5_12",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          }
+        ],
+        "cardsOmitted": 0,
+        "sourcesOmitted": 0
+      },
+      "rawOutput": "{\n  \"sources\": [\n    {\n      \"confidence\": \"medium\",\n      \"contradicting\": [\n        \"f25\",\n        \"f26\",\n        \"f27\"\n      ],\n      \"rank\": 1,\n      \"reason\": \"Signal areas raised with 9 cards reporting dirty, smelly or strange tap water, but three other areas on same supply not raised.\",\n      \"sourceId\": \"water:A\",\n      \"supporting\": [\n        \"f21\",\n        \"f22\",\n        \"f23\",\n        \"f24\",\n        \"c3\",\n        \"c5\",\n        \"c6\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [],\n      \"rank\": 2,\n      \"reason\": \"Signal matches shop catchment exactly with outside areas near usual, but no shop or food mention appears in cards.\",\n      \"sourceId\": \"shop:Leeba View spaza shop\",\n      \"supporting\": [\n        \"f1\",\n        \"f2\",\n        \"f3\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [\n        \"f10\"\n      ],\n      \"rank\": 3,\n      \"reason\": \"One card mentions illness after sports day at the school, but most signal cases are under 5 and another catchment area is normal.\",\n      \"sourceId\": \"school:Leeba View Primary School\",\n      \"supporting\": [\n        \"f4\",\n        \"f5\",\n        \"f7\",\n        \"f9\",\n        \"c16\"\n      ]\n    }\n  ]\n}",
+      "rawAttempts": [
+        "{\n  \"sources\": [\n    {\n      \"confidence\": \"medium\",\n      \"contradicting\": [\n        \"f25\",\n        \"f26\",\n        \"f27\"\n      ],\n      \"rank\": 1,\n      \"reason\": \"Signal areas raised with 9 cards reporting dirty, smelly or strange tap water, but three other areas on same supply not raised.\",\n      \"sourceId\": \"water:A\",\n      \"supporting\": [\n        \"f21\",\n        \"f22\",\n        \"f23\",\n        \"f24\",\n        \"c3\",\n        \"c5\",\n        \"c6\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [],\n      \"rank\": 2,\n      \"reason\": \"Signal matches shop catchment exactly with outside areas near usual, but no shop or food mention appears in cards.\",\n      \"sourceId\": \"shop:Leeba View spaza shop\",\n      \"supporting\": [\n        \"f1\",\n        \"f2\",\n        \"f3\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [\n        \"f10\"\n      ],\n      \"rank\": 3,\n      \"reason\": \"One card mentions illness after sports day at the school, but most signal cases are under 5 and another catchment area is normal.\",\n      \"sourceId\": \"school:Leeba View Primary School\",\n      \"supporting\": [\n        \"f4\",\n        \"f5\",\n        \"f7\",\n        \"f9\",\n        \"c16\"\n      ]\n    }\n  ]\n}"
+      ],
+      "cleanedRanking": {
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-10"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08"
+                ]
+              },
+              "sim-2027-02-18-08",
+              "sim-2027-02-18-05",
+              "sim-2027-02-18-02"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "Signal areas raised with 9 cards reporting dirty, smelly or strange tap water, but three other areas on same supply not raised.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-12"
+                ]
+              }
+            ],
+            "contradicting": [],
+            "reason": "Signal matches shop catchment exactly with outside areas near usual, but no shop or food mention appears in cards.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-02"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-02"
+                ]
+              },
+              "sim-2027-02-16-02"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-10"
+                ]
+              }
+            ],
+            "reason": "One card mentions illness after sports day at the school, but most signal cases are under 5 and another catchment area is normal.",
+            "fromClinicianCluesOnly": true
+          }
+        ]
+      },
+      "dropCounts": {
+        "invalidJson": 0,
+        "invalidShape": 0,
+        "unknownSource": 0,
+        "unknownCitation": 0,
+        "noSupporting": 0,
+        "invalidConfidence": 0,
+        "extraSources": 0,
+        "duplicateSource": 0,
+        "ranksRepaired": 0,
+        "bannedReason": 0,
+        "idInReason": 0,
+        "invalidReason": 0
+      },
+      "clueCounts": {
+        "water": 9,
+        "food": 0,
+        "schoolEvent": 1,
+        "namedPlace": 1
+      },
+      "model": "muse-spark-1.3",
+      "effort": "medium",
+      "promptHash": "01622c7f95af2326",
+      "date": "2026-10-30T03:54:52.960Z",
+      "ms": 16803,
+      "tokens": {
+        "input": 4522,
+        "output": 3405
+      },
+      "attempts": 1,
+      "outcome": "ok"
+    },
+    {
+      "recordId": "90550f8c44fd09a37a36e9b71e8000c6d32a5932946aa19e6591ab4adeecafa6",
+      "runSet": "swap",
+      "seed": 5,
+      "day": 17,
+      "signalKey": "diarrhoea_vomiting|Thaga Park+Leeba View+Sefate Extension|day-16",
+      "repeat": 0,
+      "inputHash": "8ae657736263a2a00228be526c61776ff045d4fe0536b4cc784eeafa4ba78d4a",
+      "input": {
+        "signal": {
+          "symptomGroup": "diarrhoea_vomiting",
+          "areas": [
+            "Thaga Park",
+            "Leeba View"
+          ],
+          "level": "alert",
+          "timeWindow": {
+            "days": 3,
+            "from": "2027-02-16",
+            "to": "2027-02-18"
+          },
+          "observed": {
+            "cards": 16,
+            "cases": 43
+          },
+          "expected": {
+            "cards": 2.71,
+            "cases": 4.93
+          },
+          "checks": {
+            "unusual": true,
+            "enoughCards": true,
+            "independentPlacesOfCare": true,
+            "twiceUsual": true,
+            "candidateSource": true,
+            "severityFlags": true
+          },
+          "placesOfCare": 3,
+          "byDay": [
+            {
+              "date": "2027-02-16",
+              "cards": 5,
+              "cases": 13
+            },
+            {
+              "date": "2027-02-17",
+              "cards": 4,
+              "cases": 9
+            },
+            {
+              "date": "2027-02-18",
+              "cards": 7,
+              "cases": 21
+            }
+          ],
+          "casesByAge": {
+            "under_5": 32,
+            "5_12": 2,
+            "adult": 9
+          },
+          "cardsByOnset": {
+            "today": 9,
+            "last_3_days": 7
+          },
+          "cardsByExposure": {
+            "food": 9,
+            "school": 1,
+            "event": 1,
+            "none": 6
+          },
+          "flags": {
+            "moreSevere": 3,
+            "notResponding": 0,
+            "severityCards": 3,
+            "shortOfSupplies": 2
+          }
+        },
+        "sources": [
+          {
+            "id": "shop:Leeba View spaza shop",
+            "type": "shop",
+            "name": "Leeba View spaza shop",
+            "catchmentAreas": [
+              "Leeba View",
+              "Thaga Park"
+            ]
+          },
+          {
+            "id": "school:Leeba View Primary School",
+            "type": "school",
+            "name": "Leeba View Primary School",
+            "catchmentAreas": [
+              "Leeba View",
+              "Thaga Park",
+              "Kgwedi Heights"
+            ]
+          },
+          {
+            "id": "school:Nonyana Flats Primary School",
+            "type": "school",
+            "name": "Nonyana Flats Primary School",
+            "catchmentAreas": [
+              "Nonyana Flats",
+              "Sefate Extension",
+              "Mmutla Ridge",
+              "Lebone Gardens"
+            ]
+          },
+          {
+            "id": "shop:Lebone Gardens spaza shop",
+            "type": "shop",
+            "name": "Lebone Gardens spaza shop",
+            "catchmentAreas": [
+              "Lebone Gardens",
+              "Nonyana Flats"
+            ]
+          },
+          {
+            "id": "water:A",
+            "type": "water",
+            "name": "Works A",
+            "catchmentAreas": [
+              "Thaga Park",
+              "Leeba View",
+              "Sefate Extension",
+              "Nonyana Flats",
+              "Mmutla Ridge"
+            ]
+          },
+          {
+            "id": "water:B",
+            "type": "water",
+            "name": "Works B",
+            "catchmentAreas": [
+              "Kgwedi Heights",
+              "Lebone Gardens"
+            ]
+          }
+        ],
+        "sourceEvidence": [
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "statisticalCandidate": true,
+            "statisticalOrder": 1,
+            "relativeRate": 5.32,
+            "inside": {
+              "areas": [
+                "Leeba View",
+                "Thaga Park"
+              ],
+              "observed": {
+                "cards": 16,
+                "cases": 43
+              },
+              "expected": {
+                "cards": 2.71,
+                "cases": 4.93
+              },
+              "casesPer1000": 2.15
+            },
+            "outside": {
+              "areas": [
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge",
+                "Kgwedi Heights",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 9,
+                "cases": 21
+              },
+              "expected": {
+                "cards": 7.03,
+                "cases": 12.82
+              },
+              "casesPer1000": 0.43
+            },
+            "supporting": [
+              {
+                "id": "f1",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              },
+              {
+                "id": "f2",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f3",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              },
+              {
+                "id": "f4",
+                "kind": "exposureMentioned",
+                "type": "food",
+                "cards": 9,
+                "cardIds": [
+                  "c15",
+                  "c12",
+                  "c10",
+                  "c8",
+                  "c7",
+                  "c6",
+                  "c5",
+                  "c4",
+                  "c3"
+                ]
+              }
+            ],
+            "contradicting": []
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 2.7,
+            "inside": {
+              "areas": [
+                "Leeba View",
+                "Thaga Park",
+                "Kgwedi Heights"
+              ],
+              "observed": {
+                "cards": 18,
+                "cases": 46
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 8.63
+              },
+              "casesPer1000": 1.35
+            },
+            "outside": {
+              "areas": [
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 7,
+                "cases": 18
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 9.12
+              },
+              "casesPer1000": 0.51
+            },
+            "supporting": [
+              {
+                "id": "f5",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              },
+              {
+                "id": "f6",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f7",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              },
+              {
+                "id": "f8",
+                "kind": "exposureMentioned",
+                "type": "school",
+                "cards": 1,
+                "cardIds": [
+                  "c16"
+                ]
+              },
+              {
+                "id": "f9",
+                "kind": "exposureMentioned",
+                "type": "event",
+                "cards": 1,
+                "cardIds": [
+                  "c16"
+                ]
+              },
+              {
+                "id": "f10",
+                "kind": "nameMentioned",
+                "cards": 1,
+                "cardIds": [
+                  "c16"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "id": "f11",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              }
+            ]
+          },
+          {
+            "sourceId": "school:Nonyana Flats Primary School",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 0.37,
+            "inside": {
+              "areas": [
+                "Nonyana Flats",
+                "Sefate Extension",
+                "Mmutla Ridge",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 7,
+                "cases": 18
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 9.12
+              },
+              "casesPer1000": 0.51
+            },
+            "outside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Kgwedi Heights"
+              ],
+              "observed": {
+                "cards": 18,
+                "cases": 46
+              },
+              "expected": {
+                "cards": 4.87,
+                "cases": 8.63
+              },
+              "casesPer1000": 1.35
+            },
+            "supporting": [],
+            "contradicting": [
+              {
+                "id": "f12",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": []
+              },
+              {
+                "id": "f13",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": []
+              },
+              {
+                "id": "f14",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              },
+              {
+                "id": "f15",
+                "kind": "insideAreaNotRaised",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "id": "f16",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f17",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              }
+            ]
+          },
+          {
+            "sourceId": "shop:Lebone Gardens spaza shop",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 0.38,
+            "inside": {
+              "areas": [
+                "Lebone Gardens",
+                "Nonyana Flats"
+              ],
+              "observed": {
+                "cards": 5,
+                "cases": 11
+              },
+              "expected": {
+                "cards": 3.39,
+                "cases": 6.23
+              },
+              "casesPer1000": 0.48
+            },
+            "outside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Sefate Extension",
+                "Mmutla Ridge",
+                "Kgwedi Heights"
+              ],
+              "observed": {
+                "cards": 20,
+                "cases": 53
+              },
+              "expected": {
+                "cards": 6.35,
+                "cases": 11.53
+              },
+              "casesPer1000": 1.15
+            },
+            "supporting": [],
+            "contradicting": [
+              {
+                "id": "f18",
+                "kind": "insideAreaNotRaised",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "id": "f19",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": []
+              },
+              {
+                "id": "f20",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f21",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              }
+            ]
+          },
+          {
+            "sourceId": "water:A",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 5.59,
+            "inside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge"
+              ],
+              "observed": {
+                "cards": 22,
+                "cases": 60
+              },
+              "expected": {
+                "cards": 5.8,
+                "cases": 10.73
+              },
+              "casesPer1000": 1.4
+            },
+            "outside": {
+              "areas": [
+                "Kgwedi Heights",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 3,
+                "cases": 4
+              },
+              "expected": {
+                "cards": 3.95,
+                "cases": 7.03
+              },
+              "casesPer1000": 0.15
+            },
+            "supporting": [
+              {
+                "id": "f22",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f23",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              },
+              {
+                "id": "f24",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              },
+              {
+                "id": "f25",
+                "kind": "exposureMentioned",
+                "type": "water",
+                "cards": 1,
+                "cardIds": []
+              }
+            ],
+            "contradicting": [
+              {
+                "id": "f26",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": []
+              },
+              {
+                "id": "f27",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": []
+              },
+              {
+                "id": "f28",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ]
+          },
+          {
+            "sourceId": "water:B",
+            "statisticalCandidate": false,
+            "statisticalOrder": null,
+            "relativeRate": 0.1,
+            "inside": {
+              "areas": [
+                "Kgwedi Heights",
+                "Lebone Gardens"
+              ],
+              "observed": {
+                "cards": 3,
+                "cases": 4
+              },
+              "expected": {
+                "cards": 3.95,
+                "cases": 7.03
+              },
+              "casesPer1000": 0.15
+            },
+            "outside": {
+              "areas": [
+                "Thaga Park",
+                "Leeba View",
+                "Sefate Extension",
+                "Nonyana Flats",
+                "Mmutla Ridge"
+              ],
+              "observed": {
+                "cards": 22,
+                "cases": 60
+              },
+              "expected": {
+                "cards": 5.8,
+                "cases": 10.73
+              },
+              "casesPer1000": 1.4
+            },
+            "supporting": [],
+            "contradicting": [
+              {
+                "id": "f29",
+                "kind": "insideAreaNotRaised",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              },
+              {
+                "id": "f30",
+                "kind": "insideAreaNotRaised",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "id": "f31",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "c13",
+                  "c11",
+                  "c10",
+                  "c9",
+                  "c8",
+                  "c6",
+                  "c4"
+                ]
+              },
+              {
+                "id": "f32",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "c16",
+                  "c15",
+                  "c14",
+                  "c12",
+                  "c7",
+                  "c5",
+                  "c3",
+                  "c2",
+                  "c1"
+                ]
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "id": "c1",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 2,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "last_3_days",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c2",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "today",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": true,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": true
+            }
+          },
+          {
+            "id": "c3",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "ate at a family function"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": true
+            }
+          },
+          {
+            "id": "c4",
+            "date": "2027-02-18",
+            "area": "Thaga Park",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "ate leftover food"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c5",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "ate leftover food"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c6",
+            "date": "2027-02-18",
+            "area": "Thaga Park",
+            "caseCount": 5,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "bought food at the spaza shop"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c7",
+            "date": "2027-02-18",
+            "area": "Leeba View",
+            "caseCount": 1,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "bought food at the spaza shop"
+            },
+            "onset": "today",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c8",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 4,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "ate leftover food"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": true,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c9",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c10",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 3,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "food from a street vendor"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": true,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c11",
+            "date": "2027-02-17",
+            "area": "Thaga Park",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c12",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 3,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "ate leftover food"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c13",
+            "date": "2027-02-16",
+            "area": "Thaga Park",
+            "caseCount": 4,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "last_3_days",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c14",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 1,
+            "exposure": {
+              "types": [],
+              "words": null
+            },
+            "onset": "today",
+            "ageGroup": "adult",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c15",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 3,
+            "exposure": {
+              "types": [
+                "food"
+              ],
+              "words": "ate leftover food"
+            },
+            "onset": "today",
+            "ageGroup": "under_5",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          },
+          {
+            "id": "c16",
+            "date": "2027-02-16",
+            "area": "Leeba View",
+            "caseCount": 2,
+            "exposure": {
+              "types": [
+                "school",
+                "event"
+              ],
+              "words": "learners got sick after the sports day at Leeba View Primary School"
+            },
+            "onset": "last_3_days",
+            "ageGroup": "5_12",
+            "observations": {
+              "moreSevere": false,
+              "notResponding": false,
+              "unusualSymptoms": false,
+              "shortOfSupplies": false
+            }
+          }
+        ],
+        "cardsOmitted": 0,
+        "sourcesOmitted": 0
+      },
+      "rawOutput": "{\n  \"sources\": [\n    {\n      \"confidence\": \"high\",\n      \"contradicting\": [],\n      \"rank\": 1,\n      \"reason\": \"Signal matches the shop catchment with raised counts in both areas and nine food cards, two naming spaza shop food.\",\n      \"sourceId\": \"shop:Leeba View spaza shop\",\n      \"supporting\": [\n        \"f1\",\n        \"f2\",\n        \"f3\",\n        \"f4\",\n        \"c6\",\n        \"c7\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [\n        \"f11\"\n      ],\n      \"rank\": 2,\n      \"reason\": \"One card names the school sports day, but only one school exposure supports it and Kgwedi Heights shows no rise.\",\n      \"sourceId\": \"school:Leeba View Primary School\",\n      \"supporting\": [\n        \"f5\",\n        \"f6\",\n        \"f10\",\n        \"c16\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [\n        \"f26\",\n        \"f27\",\n        \"f28\"\n      ],\n      \"rank\": 3,\n      \"reason\": \"Two signal areas are raised, but three other catchment areas show no rise and no water words appear in cards.\",\n      \"sourceId\": \"water:A\",\n      \"supporting\": [\n        \"f22\",\n        \"f23\",\n        \"f24\"\n      ]\n    }\n  ]\n}",
+      "rawAttempts": [
+        "{\n  \"sources\": [\n    {\n      \"confidence\": \"high\",\n      \"contradicting\": [],\n      \"rank\": 1,\n      \"reason\": \"Signal matches the shop catchment with raised counts in both areas and nine food cards, two naming spaza shop food.\",\n      \"sourceId\": \"shop:Leeba View spaza shop\",\n      \"supporting\": [\n        \"f1\",\n        \"f2\",\n        \"f3\",\n        \"f4\",\n        \"c6\",\n        \"c7\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [\n        \"f11\"\n      ],\n      \"rank\": 2,\n      \"reason\": \"One card names the school sports day, but only one school exposure supports it and Kgwedi Heights shows no rise.\",\n      \"sourceId\": \"school:Leeba View Primary School\",\n      \"supporting\": [\n        \"f5\",\n        \"f6\",\n        \"f10\",\n        \"c16\"\n      ]\n    },\n    {\n      \"confidence\": \"low\",\n      \"contradicting\": [\n        \"f26\",\n        \"f27\",\n        \"f28\"\n      ],\n      \"rank\": 3,\n      \"reason\": \"Two signal areas are raised, but three other catchment areas show no rise and no water words appear in cards.\",\n      \"sourceId\": \"water:A\",\n      \"supporting\": [\n        \"f22\",\n        \"f23\",\n        \"f24\"\n      ]\n    }\n  ]\n}"
+      ],
+      "cleanedRanking": {
+        "sources": [
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-12"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08"
+                ]
+              },
+              "sim-2027-02-18-02",
+              "sim-2027-02-18-01"
+            ],
+            "contradicting": [],
+            "reason": "Signal matches the shop catchment with raised counts in both areas and nine food cards, two naming spaza shop food.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-02"
+                ]
+              },
+              "sim-2027-02-16-02"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-10"
+                ]
+              }
+            ],
+            "reason": "One card names the school sports day, but only one school exposure supports it and Kgwedi Heights shows no rise.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "water:A",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-10"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "Two signal areas are raised, but three other catchment areas show no rise and no water words appear in cards.",
+            "fromClinicianCluesOnly": true
+          }
+        ]
+      },
+      "dropCounts": {
+        "invalidJson": 0,
+        "invalidShape": 0,
+        "unknownSource": 0,
+        "unknownCitation": 0,
+        "noSupporting": 0,
+        "invalidConfidence": 0,
+        "extraSources": 0,
+        "duplicateSource": 0,
+        "ranksRepaired": 0,
+        "bannedReason": 0,
+        "idInReason": 0,
+        "invalidReason": 0
+      },
+      "clueCounts": {
+        "water": 0,
+        "food": 9,
+        "schoolEvent": 1,
+        "namedPlace": 1
+      },
+      "model": "muse-spark-1.3",
+      "effort": "low",
+      "promptHash": "01622c7f95af2326",
+      "date": "2026-10-30T03:56:29.650Z",
+      "ms": 9629,
+      "tokens": {
+        "input": 4521,
+        "output": 1599
+      },
+      "attempts": 1,
+      "outcome": "ok"
+    }
+  ]
+}

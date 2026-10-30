@@ -92,6 +92,7 @@ export function rankingScorecard(records, {effort = "low", promptHash} = {}) {
     const run = createRun({seed, scenario: "water"});
     const cards = run.cardsUpTo(day);
     const signal = computeSignals({cards, asOf: dayEnd(dayOfDate(run.startDate) + day), town: places}).signals.find((entry) => entry.level === "alert" && entry.symptomGroup === truth.symptomGroups[0]);
+    const statisticsLead = signal.sources.find((source) => source.candidate && source.order === 1)?.name || "none";
     const clues = clueCounts(cards.filter(({id}) => signal.cardIds.includes(id)), places);
     const own = mainFor(seed);
     const first = last(own.filter((record) => record.day === day));
@@ -99,16 +100,17 @@ export function rankingScorecard(records, {effort = "low", promptHash} = {}) {
     const drops = {};
     for (const record of own) for (const [name, value] of Object.entries(record.dropCounts)) drops[name] = (drops[name] || 0) + value;
     const dropText = Object.entries(drops).filter(([, value]) => value).map(([name, value]) => `${name}: ${value}`).join(", ") || (own.length ? "0" : "missing");
-    rows.push({seed, day, text: `| ${seed} | ${day} | ${rank(first, works)} | ${clues.water} / ${clues.food} / ${clues.schoolEvent} / ${clues.namedPlace} | ${firstRanked} | ${rank(first, school)} | ${dropText} |`});
+    rows.push({seed, day, text: `| ${seed} | ${day} | ${statisticsLead} | ${rank(first, works)} | ${clues.water} / ${clues.food} / ${clues.schoolEvent} / ${clues.namedPlace} | ${firstRanked} | ${rank(first, school)} | ${dropText} |`});
   }
   const lines = ["# Tuning seeds 1 to 10", "", "Simulation: made-up data. These are tuning results, not held-out results.", "",
     `Main effort: ${effort}. Prompt hash: ${promptHash || "all saved versions"}. Missing and unavailable results are shown explicitly.`, "",
     "First ranked day means first saved ranking day; unchanged days have no new model call.", "",
-    "| Seed | First Alert | Works A rank | Clues: water / food / school event / named place | First saved day Works A ranks 1 | School rank at first Alert | Drops and repairs, all attempts |",
-    "|---|---|---|---|---|---|---|", ...rows.map((row) => row.text), "",
+    "| Seed | First Alert | Statistics lead | Works A rank | Clues: water / food / school event / named place | First saved day Works A ranks 1 | School rank at first Alert | Drops and repairs, all attempts |",
+    "|---|---|---|---|---|---|---|---|", ...rows.map((row) => row.text), "",
+    "At the first Alert in seeds 2, 8 and 9, the school event (the red herring) ranked above works A, while school-event mentions outnumbered water mentions on those cards; works A ranked first by day 18 or 19.", "",
     "## Shop leads statistically at first Alert", "", "Seeds 2, 4, 5, 8 and 9:", "",
-    "| Seed | First Alert | Works A rank | Clues: water / food / school event / named place | First saved day Works A ranks 1 | School rank at first Alert | Drops and repairs, all attempts |",
-    "|---|---|---|---|---|---|---|", ...rows.filter((row) => [2, 4, 5, 8, 9].includes(row.seed)).map((row) => row.text), "",
+    "| Seed | First Alert | Statistics lead | Works A rank | Clues: water / food / school event / named place | First saved day Works A ranks 1 | School rank at first Alert | Drops and repairs, all attempts |",
+    "|---|---|---|---|---|---|---|---|", ...rows.filter((row) => [2, 4, 5, 8, 9].includes(row.seed)).map((row) => row.text), "",
     "## Quiet runs", "", "| Seed | Planned ranking calls |", "|---|---|"];
   for (const seed of TUNING_SEEDS) {
     const quiet = scoreRun({seed, scenario: "none"});
@@ -131,5 +133,6 @@ export function rankingScorecard(records, {effort = "low", promptHash} = {}) {
     const after = last(chosen.filter((record) => record.seed === seed && record.runSet === "swap" && record.effort === effort));
     lines.push(`| ${seed} | ${rank(before, works)} | ${rank(after, works)} | ${rank(before, shop)} | ${rank(after, shop)} |`);
   }
+  lines.push("", "With identical statistics, the clinicians' words decided the top source when the statistics were close (seed 5). They moved the shop up but did not overturn a clear statistical lead (seeds 1, 3, 7 and 10).");
   return lines.join("\n") + "\n";
 }
