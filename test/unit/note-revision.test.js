@@ -29,12 +29,12 @@ const makeRunner = (provider, fetch) => {
   return {runner, root, lines};
 };
 test("A2 changes exactly the approved local-word bullet and pins a separate candidate hash", () => {
-  const old = readFileSync(join(ROOT, "functions", "prompts", "extract-card.md"), "utf8");
+  const old = readFileSync(join(ROOT, "scripts", "prompts", "extract-card-a.md"), "utf8");
   const candidate = readFileSync(join(ROOT, "scripts", "prompts", "extract-card-a2.md"), "utf8");
   const before = old.split("\n").find((line) => line.startsWith("- If a transcript contains a sound-spelling"));
   const inserted = candidate.split("\n").filter((line) => line.startsWith("- Speech-to-text") || line.startsWith("- When the English words"));
   assert.equal(inserted.length, 2); assert.equal(candidate.replace(inserted.join("\n"), before), old);
-  assert.equal(A2.extractionHash, "d6bf8dd00961399c"); assert.notEqual(A2.prompt, SYSTEM_PROMPT);
+  assert.equal(A2.extractionHash, "d6bf8dd00961399c"); assert.equal(A2.prompt, SYSTEM_PROMPT);
   assert.equal(A2.audioModel, "muse-spark-1.2"); assert.equal(A2.audioEffort, "minimal"); assert.equal(A2.keywords.length, 53);
 });
 test("revision plans contain 49 Meta cards and a separate 15-call Baseten path", () => {

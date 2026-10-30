@@ -60,7 +60,7 @@ test("the Spark ear sends the audio with the no-invention instruction", async ()
   assert.equal(calls[0].url, "https://api.meta.ai/v1/chat/completions");
   const {body} = calls[0];
   assert.equal(body.model, "muse-spark-1.2");
-  assert.equal(body.reasoning_effort, "low");
+  assert.equal(body.reasoning_effort, "minimal");
   assert.equal(body.max_completion_tokens, 4000);
   const [text, audio] = body.messages[0].content;
   assert.match(text.text, /Never add words that were not spoken\./);

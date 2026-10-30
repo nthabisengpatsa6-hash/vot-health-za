@@ -10,7 +10,7 @@ exports.MAX_AUDIO_BYTES = 6 * 1024 * 1024;
 // pick 1.2 or 1.3. Standard-mode IDs only: "-contributor" models let Meta
 // train on what we send.
 exports.SPARK_AUDIO_MODEL = "muse-spark-1.2";
-exports.SPARK_AUDIO_EFFORT = "low";
+exports.SPARK_AUDIO_EFFORT = "minimal";
 exports.UNCERTAIN_WORDS = false;
 exports.EXTRACTION_PROVIDER = "meta";
 exports.EXTRACT_MODEL = "muse-spark-1.3";

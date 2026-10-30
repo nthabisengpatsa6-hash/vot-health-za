@@ -39,10 +39,34 @@ test("both shared pipeline ears start before either settles", async () => {
   assert.equal(heard.singleSource, false);
 });
 
-test("production defaults remain 1.2 low, Meta, and marker rule off", () => {
+test("default production requests apply only approved A2 prompt, keywords and audio effort", async () => {
+  const requests = {};
+  const fetch = async (url, init) => {
+    if (url.endsWith("/asr/transcribe")) {
+      requests.voice = JSON.parse(await init.body.get("request").text());
+      return Response.json({transcript:head.transcript, audioDurationMs:1000});
+    }
+    const body = JSON.parse(init.body), audio = Array.isArray(body.messages[0].content);
+    if (audio) delete body.messages[0].content[1].input_audio.data;
+    requests[audio ? "audio" : "extract"] = body;
+    return Response.json({choices:[{message:{content:audio ? head.transcript : JSON.stringify(head.reply)}, finish_reason:"stop"}], usage:{prompt_tokens:10, completion_tokens:10}});
+  };
+  const apiKey = "offline-test-placeholder", heard = await listenNote(makeWav(), {apiKey, fetch});
+  const result = await buildNoteCards(heard, {apiKey, fetch});
+  const expected = structuredClone(head.requests);
+  expected.voice.keywords = NOTE_KEYWORDS;
+  expected.audio.reasoning_effort = "minimal";
+  expected.extract.messages[0].content = require("../lib/extractCard").SYSTEM_PROMPT;
+  assert.deepEqual(requests, expected);
+  assert.deepEqual(result.reply, head.reply);
+});
+
+test("approved production defaults are 1.2 minimal, 1.3 low, Meta, and marker rule off", () => {
   const settings = require("../constants");
   assert.equal(settings.SPARK_AUDIO_MODEL, "muse-spark-1.2");
-  assert.equal(settings.SPARK_AUDIO_EFFORT, "low");
+  assert.equal(settings.SPARK_AUDIO_EFFORT, "minimal");
+  assert.equal(settings.EXTRACT_MODEL, "muse-spark-1.3");
+  assert.equal(settings.EXTRACT_EFFORT, "low");
   assert.equal(settings.EXTRACTION_PROVIDER, "meta");
   assert.equal(settings.UNCERTAIN_WORDS, false);
 });

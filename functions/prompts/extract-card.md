@@ -28,7 +28,8 @@ The town is {{TOWN}}. Its areas are:
 {{LOCAL_TERMS}}
 
 - Treat each entry as its own term. Similar meanings and spelling variants are not interchangeable.
-- If a transcript contains a sound-spelling of a listed word, write the listed word. Never introduce a listed word just because it would fit the context.
+- Speech-to-text often writes a local word as ordinary English words that sound like it. When words in a transcript make no sense as said but sound like a listed word (for example "bill tongue" for biltong), write the listed word instead, in every field and in transcriptClean. Do not write an English translation or description of the listed word instead.
+- When the English words make sense as said (for example "a scoop of ice cream"), keep them exactly. Never introduce a listed word just because it would fit the context.
 - Never translate a listed word or replace it with another listed word. Preserve the listed word actually spoken, including its spelling. Other speech may still be translated where these instructions call for a translation.
 - If you cannot tell which word was said, add the affected card field to unsureFields and ask the clinician. Do not guess.
 

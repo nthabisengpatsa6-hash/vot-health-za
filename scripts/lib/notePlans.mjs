@@ -6,10 +6,12 @@ import special from "../../test-fixtures/local-words.json" with {type:"json"};
 import ideal from "../../test-fixtures/ideal-transcripts.json" with {type:"json"};
 import {hashOf} from "./noteArtifacts.mjs";
 const require = createRequire(import.meta.url);
-const {SYSTEM_PROMPT, userMessage} = require("../../functions/lib/extractCard.js");
+const {buildSystemPrompt, userMessage} = require("../../functions/lib/extractCard.js");
 const {REPLY_SCHEMA} = require("../../functions/lib/cardSchema.js");
 const {NOTE_KEYWORDS} = require("../../functions/lib/notePipeline.js");
 const {extractionHash} = require("../../functions/lib/extractionHash.js");
+// Historical scoring A stays fixed after production adopts A2.
+const SCORING_A_PROMPT = buildSystemPrompt(readFileSync(new URL("../prompts/extract-card-a.md", import.meta.url), "utf8"));
 export {baseline, special, ideal};
 export const BASETEN_MODEL = "meta-models/muse-spark-open-1026";
 export const PRICE_SOURCES = {
@@ -19,9 +21,9 @@ export const PRICE_SOURCES = {
 export function configurations({minimal12 = true, minimal13 = true} = {}) {
   const configs = [
     {name:"Baseline", prompt:baseline.prompt, keywords:baseline.keywords, audioModel:baseline.audioModel, audioEffort:"low", extractionHash:baseline.legacyHash},
-    {name:"A", prompt:SYSTEM_PROMPT, keywords:NOTE_KEYWORDS, audioModel:"muse-spark-1.2", audioEffort:"low"},
-    ...(minimal12 ? [{name:"A-min", prompt:SYSTEM_PROMPT, keywords:NOTE_KEYWORDS, audioModel:"muse-spark-1.2", audioEffort:"minimal"}] : []),
-    {name:"B", prompt:SYSTEM_PROMPT, keywords:NOTE_KEYWORDS, audioModel:"muse-spark-1.3", audioEffort:minimal13 ? "minimal" : "low"},
+    {name:"A", prompt:SCORING_A_PROMPT, keywords:NOTE_KEYWORDS, audioModel:"muse-spark-1.2", audioEffort:"low"},
+    ...(minimal12 ? [{name:"A-min", prompt:SCORING_A_PROMPT, keywords:NOTE_KEYWORDS, audioModel:"muse-spark-1.2", audioEffort:"minimal"}] : []),
+    {name:"B", prompt:SCORING_A_PROMPT, keywords:NOTE_KEYWORDS, audioModel:"muse-spark-1.3", audioEffort:minimal13 ? "minimal" : "low"},
   ];
   return configs.map((config) => ({...config,
     extractionHash:config.extractionHash || extractionHash(config), configurationHash:extractionHash(config)}));

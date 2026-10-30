@@ -34,6 +34,7 @@ test("pasteable run summary prints counts and settings without saved content", (
 
 test("four configurations isolate prompts, efforts and models", () => {
   const configs = configurations();
+  assert.deepEqual(configs.map((config) => config.configurationHash), ["a5e766b19a8be293", "0504c523c212791e", "3d699146f8542e8f", "d56a3579d44ab5c0"]);
   assert.deepEqual(configs.map((c) => c.name), ["Baseline", "A", "A-min", "B"]);
   assert.notEqual(configs[0].prompt, configs[1].prompt);
   assert.equal(configs[1].prompt, configs[2].prompt);

@@ -14,9 +14,8 @@ const PROMPT = readFileSync(
     "utf8",
 ).trim();
 
-// Reasoning can't be switched off for Muse Spark ("none" returns 400), and
-// "low" is Meta's advice for direct tasks. Reasoning tokens count toward the
-// limit, so 4000 leaves room for a full transcript.
+// STOP 3 selected minimal after the scored 1.2 audio comparison. Reasoning
+// tokens count toward the limit, so 4000 leaves room for a full transcript.
 const REASONING_EFFORT = SPARK_AUDIO_EFFORT;
 const MAX_COMPLETION_TOKENS = 4000;
 

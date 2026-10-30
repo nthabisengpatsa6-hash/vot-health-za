@@ -12,15 +12,15 @@ test("scoring Baseline preserves the live extraction inputs", () => {
   assert.deepEqual(REPLY_SCHEMA, baseline.schema);
 });
 
-test("Task 16 combined extraction change is pinned before paid scoring", () => {
-  assert.equal(extractionHash(), "0504c523c212791e",
+test("Task 16 STOP 3 approved A2 settings match the scored extraction hash", () => {
+  assert.equal(extractionHash(), "d6bf8dd00961399c",
       "Extraction settings changed: record a tuning decision and update the pin.");
 });
 
 test("fingerprint covers the audio prompt, ordered keywords and settings", () => {
   const hash = extractionHash();
   for (const change of [{audioPrompt:"synthetic replacement"}, {keywords:["synthetic"]},
-    {audioModel:"muse-spark-1.3"}, {audioEffort:"minimal"}, {uncertainWords:true}]) {
+    {audioModel:"muse-spark-1.3"}, {audioEffort:"low"}, {uncertainWords:true}]) {
     assert.notEqual(extractionHash(change), hash);
   }
 });
