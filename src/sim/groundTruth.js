@@ -2,8 +2,8 @@
 // replay and signal code must never see them: test/unit/sim-imports.test.js
 // fails if anything but the scorecard (src/sim/scorecard.js) or a test
 // imports this file. Read from the scenario settings, not copied.
-import { SCENARIOS } from "./scenarios.js";
-import { AREA_NAMES } from "./town.js";
+import { SCENARIOS } from "../../functions/shared/sim/scenarios.mjs";
+import { AREA_NAMES } from "../../functions/shared/sim/town.mjs";
 
 export function groundTruth(scenario) {
   const config = SCENARIOS[scenario];

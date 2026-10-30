@@ -7,13 +7,31 @@
 //
 // Usage: node scripts/scorecard.mjs
 
+import {existsSync, mkdirSync, readdirSync, writeFileSync} from "node:fs";
+import {fileURLToPath} from "node:url";
+import {join} from "node:path";
+import {readRecords} from "./lib/rankArtifacts.mjs";
+import {createRequire} from "node:module";
 import { performance } from "node:perf_hooks";
 import places from "../functions/data/places.json" with { type: "json" };
 import { dayEnd, dayOfDate } from "../functions/shared/sastDay.mjs";
 import { computeSignals } from "../functions/shared/signals.mjs";
-import { createRun } from "../src/sim/engine.js";
-import { scoreRun, TUNING_SEEDS } from "../src/sim/scorecard.js";
+import { createRun } from "../functions/shared/sim/engine.mjs";
+import { scoreRun, rankingScorecard, TUNING_SEEDS } from "../src/sim/scorecard.js";
 
+if (process.argv.includes("--rankings")) {
+  const root = fileURLToPath(new URL("../", import.meta.url));
+  const base = join(root, "docs/provenance/rankings");
+  const files = [base, join(base, "experiments")].flatMap((dir) => existsSync(dir) ? readdirSync(dir).filter((name) => /^seed-\d{2}\.json$/.test(name)).map((name) => join(dir, name)) : []);
+  const records = files.flatMap(readRecords);
+  const effort = process.argv.includes("--effort") ? process.argv[process.argv.indexOf("--effort") + 1] : "low";
+  if (!["low", "medium"].includes(effort)) throw new Error("Effort must be low or medium.");
+  const {PROMPT_HASH} = createRequire(import.meta.url)("../functions/lib/callRanker.js");
+  const markdown = rankingScorecard(records, {effort, promptHash: PROMPT_HASH});
+  mkdirSync(base, {recursive: true});
+  writeFileSync(join(base, "scorecard-tuning-seeds-1-10.md"), markdown);
+  console.log(markdown);
+} else {
 const short = (areas) => areas.map((name) => name.split(" ")[0]).join("+");
 const pad = (value, width) => String(value).padEnd(width);
 const reached = (entry) => (entry ? `${entry.day} (+${entry.daysAfterStart})` : "never");
@@ -93,3 +111,5 @@ for (let call = 0; call < 55; call += 1) {
 times.sort((a, b) => a - b);
 console.log("");
 console.log(`computeSignals at day 28 (seed 1, "water", ${cards.length} cards): median ${times[25].toFixed(2)} ms, slowest ${times.at(-1).toFixed(2)} ms over 50 calls after 5 warm-up calls.`);
+
+}

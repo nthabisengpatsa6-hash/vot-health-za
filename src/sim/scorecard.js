@@ -9,8 +9,9 @@
 import places from "../../functions/data/places.json" with { type: "json" };
 import { computeSignals, LEVELS } from "../../functions/shared/signals.mjs";
 import { dayEnd, dayOfDate } from "../../functions/shared/sastDay.mjs";
-import { createRun } from "./engine.js";
+import { createRun } from "../../functions/shared/sim/engine.mjs";
 import { groundTruth } from "./groundTruth.js";
+import { clueCounts } from "../../functions/shared/rank/clues.mjs";
 
 export const TUNING_SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 export const HELD_OUT_SEEDS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
@@ -69,4 +70,66 @@ function markCluster(cluster, signal, day, worksLayer) {
     if (cluster.first[level] !== null || !atLeast(signal.level, level)) continue;
     cluster.first[level] = { day, daysAfterStart: day - cluster.startDay, areas: signal.areas, observed: signal.observed, expected: signal.expected, worksCandidate: works.candidate, worksOrder: works.order, candidates: candidateNames(signal) };
   }
+}
+
+// Evaluation alone knows the hidden answer. The runner never imports this file.
+export function rankingScorecard(records, {effort = "low", promptHash} = {}) {
+  const truth = groundTruth("water");
+  const works = `water:${truth.cause.works}`;
+  const school = `school:${truth.redHerring.school}`;
+  const shop = `shop:${places.shops[0].name}`;
+  const chosen = records.filter((record) => !promptHash || record.promptHash === promptHash);
+  const complete = (record) => Array.isArray(record?.cleanedRanking?.sources);
+  const last = (entries) => entries.filter(complete).at(-1) || entries.at(-1);
+  const rank = (record, source) => !record ? "missing" : !complete(record) ? "unavailable" : record.cleanedRanking.sources.find((entry) => entry.sourceId === source)?.rank ?? "not ranked";
+  const mainFor = (seed, selectedEffort = effort) => chosen.filter((record) => record.seed === seed && record.runSet === "main" && record.effort === selectedEffort);
+  const rows = [];
+  const firstDays = new Map();
+  for (const seed of TUNING_SEEDS) {
+    const score = scoreRun({seed, scenario: "water"});
+    const day = score.cluster.first.alert?.day;
+    firstDays.set(seed, day);
+    const run = createRun({seed, scenario: "water"});
+    const cards = run.cardsUpTo(day);
+    const signal = computeSignals({cards, asOf: dayEnd(dayOfDate(run.startDate) + day), town: places}).signals.find((entry) => entry.level === "alert" && entry.symptomGroup === truth.symptomGroups[0]);
+    const clues = clueCounts(cards.filter(({id}) => signal.cardIds.includes(id)), places);
+    const own = mainFor(seed);
+    const first = last(own.filter((record) => record.day === day));
+    const firstRanked = own.filter((record) => rank(record, works) === 1).map((record) => record.day).sort((a, b) => a - b)[0] ?? "not ranked in saved calls";
+    const drops = {};
+    for (const record of own) for (const [name, value] of Object.entries(record.dropCounts)) drops[name] = (drops[name] || 0) + value;
+    const dropText = Object.entries(drops).filter(([, value]) => value).map(([name, value]) => `${name}: ${value}`).join(", ") || (own.length ? "0" : "missing");
+    rows.push({seed, day, text: `| ${seed} | ${day} | ${rank(first, works)} | ${clues.water} / ${clues.food} / ${clues.schoolEvent} / ${clues.namedPlace} | ${firstRanked} | ${rank(first, school)} | ${dropText} |`});
+  }
+  const lines = ["# Tuning seeds 1 to 10", "", "Simulation: made-up data. These are tuning results, not held-out results.", "",
+    `Main effort: ${effort}. Prompt hash: ${promptHash || "all saved versions"}. Missing and unavailable results are shown explicitly.`, "",
+    "First ranked day means first saved ranking day; unchanged days have no new model call.", "",
+    "| Seed | First Alert | Works A rank | Clues: water / food / school event / named place | First saved day Works A ranks 1 | School rank at first Alert | Drops and repairs, all attempts |",
+    "|---|---|---|---|---|---|---|", ...rows.map((row) => row.text), "",
+    "## Shop leads statistically at first Alert", "", "Seeds 2, 4, 5, 8 and 9:", "",
+    "| Seed | First Alert | Works A rank | Clues: water / food / school event / named place | First saved day Works A ranks 1 | School rank at first Alert | Drops and repairs, all attempts |",
+    "|---|---|---|---|---|---|---|", ...rows.filter((row) => [2, 4, 5, 8, 9].includes(row.seed)).map((row) => row.text), "",
+    "## Quiet runs", "", "| Seed | Planned ranking calls |", "|---|---|"];
+  for (const seed of TUNING_SEEDS) {
+    const quiet = scoreRun({seed, scenario: "none"});
+    lines.push(`| ${seed} | ${quiet.falseAlarms.filter((entry) => entry.level !== "watch").length} |`);
+  }
+  lines.push("", "## Repeats", "", "| Call | Top source |", "|---|---|");
+  const top = (record) => !record ? "missing" : !complete(record) ? "unavailable" : record.cleanedRanking.sources[0]?.sourceId || "none ranked";
+  lines.push(`| Main | ${top(last(mainFor(1).filter((record) => record.day === firstDays.get(1))))} |`);
+  for (let repeat = 1; repeat <= 2; repeat++) lines.push(`| Extra ${repeat} | ${top(last(chosen.filter((record) => record.runSet === "repeat" && record.repeat === repeat && record.effort === effort)))} |`);
+  lines.push("", "## Low versus medium", "", "| Seed | Low: top source / Works A rank | Medium: top source / Works A rank |", "|---|---|---|");
+  for (const seed of [2, 4, 5, 8, 9]) {
+    const low = last(mainFor(seed, "low").filter((record) => record.day === firstDays.get(seed)));
+    const medium = last(chosen.filter((record) => record.seed === seed && record.runSet === "effort" && record.effort === "medium"));
+    lines.push(`| ${seed} | ${top(low)} / ${rank(low, works)} | ${top(medium)} / ${rank(medium, works)} |`);
+  }
+  lines.push("", "## Swapped clues", "", "Clue-derived summaries change with the swapped cards; levels and numerical comparisons stay identical.", "",
+    "| Seed | Works A before | Works A after | Leeba View shop before | Leeba View shop after |", "|---|---|---|---|---|");
+  for (const seed of [1, 3, 5, 7, 10]) {
+    const before = last(mainFor(seed).filter((record) => record.day === firstDays.get(seed)));
+    const after = last(chosen.filter((record) => record.seed === seed && record.runSet === "swap" && record.effort === effort));
+    lines.push(`| ${seed} | ${rank(before, works)} | ${rank(after, works)} | ${rank(before, shop)} | ${rank(after, shop)} |`);
+  }
+  return lines.join("\n") + "\n";
 }

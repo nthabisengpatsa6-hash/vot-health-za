@@ -9,7 +9,7 @@
 
 import { parseArgs } from "node:util";
 import places from "../functions/data/places.json" with { type: "json" };
-import { createRun, SCENARIO_NAMES } from "../src/sim/engine.js";
+import { createRun, SCENARIO_NAMES } from "../functions/shared/sim/engine.mjs";
 
 const { values } = parseArgs({
   options: {

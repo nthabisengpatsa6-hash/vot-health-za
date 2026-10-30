@@ -19,7 +19,7 @@ import { MAP_AREAS, TOWN_FILE } from "../lib/townMap";
 // (test/unit/sim-imports.test.js).
 let replayReady = null;
 function loadReplay() {
-  replayReady ??= Promise.all([import("../sim/engine.js"), import("../../functions/shared/signals.mjs"), import("../../functions/shared/sastDay.mjs")])
+  replayReady ??= Promise.all([import("../../functions/shared/sim/engine.mjs"), import("../../functions/shared/signals.mjs"), import("../../functions/shared/sastDay.mjs")])
     .then(([engine, signals, sastDay]) => createReplay({ createRun: engine.createRun, computeSignals: signals.computeSignals, dayEnd: sastDay.dayEnd, dayOfDate: sastDay.dayOfDate, town: TOWN_FILE }));
   return replayReady;
 }

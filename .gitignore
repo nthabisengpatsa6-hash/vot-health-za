@@ -47,3 +47,6 @@ application_default_credentials.json
 
 # Test voice notes (never commit)
 test-audio/
+
+# Local commit messages and task scratch work
+.scratch/

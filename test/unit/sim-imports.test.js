@@ -17,7 +17,9 @@ import { fileURLToPath } from "node:url";
 // file, so neither it nor the /demo route may reach Firebase: a signed-out
 // visitor to the replay never loads it.
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const SIM = join(ROOT, "src", "sim");
+const LEGACY_SIM = join(ROOT, "src", "sim");
+const SIM = join(ROOT, "functions", "shared", "sim");
+const RANK = join(ROOT, "functions", "shared", "rank");
 const SHARED = join(ROOT, "functions", "shared");
 const DATA = join(ROOT, "functions", "data");
 const rel = (path) => relative(ROOT, path).split(sep).join("/");
@@ -25,8 +27,8 @@ const rel = (path) => relative(ROOT, path).split(sep).join("/");
 // The app files the simulation may use: the card lists, the profile lists,
 // the card builder and the town file, plus the statistics (for the
 // scorecard). All are free of Firebase.
-const SIM_MAY_USE = ["src/config/cardOptions.js", "src/config/profileOptions.js", "src/lib/cardDraft.js", "functions/data/places.json"];
-const MAY_READ_SETTINGS = ["src/sim/background.js", "src/sim/draws.js", "src/sim/seededCluster.js", "src/sim/engine.js", "src/sim/groundTruth.js"];
+const SIM_MAY_USE = ["functions/shared/cardDoc.mjs", "functions/shared/cardFields.mjs", "functions/data/places.json"];
+const MAY_READ_SETTINGS = ["functions/shared/sim/background.mjs", "functions/shared/sim/draws.mjs", "functions/shared/sim/engine.mjs", "src/sim/groundTruth.js", "src/sim/scenarios.js"];
 // The scorecard, the only sim file that also runs the statistics.
 const MAY_READ_GROUND_TRUTH = ["src/sim/scorecard.js"];
 const MAY_USE_STATISTICS = ["src/sim/scorecard.js"];
@@ -40,9 +42,10 @@ function sourceFiles(dir) {
   });
 }
 // Everything except the tests, which may import any module they check.
-const APP_FILES = ["src", "scripts", "functions"].flatMap((dir) => sourceFiles(join(ROOT, dir)));
+const APP_FILES = ["src", "scripts", "functions"].flatMap((dir) => sourceFiles(join(ROOT, dir))).filter((file) => !rel(file).startsWith("functions/test/"));
+const SHIMS = sourceFiles(LEGACY_SIM).filter((file) => !["groundTruth.js", "scorecard.js"].includes(file.split(sep).at(-1)));
 const SIM_FILES = sourceFiles(SIM);
-const SHARED_FILES = sourceFiles(SHARED);
+const SHARED_FILES = sourceFiles(SHARED).filter((file) => dirname(file) === SHARED && !["cardDoc.mjs", "cardFields.mjs"].includes(file.split(sep).at(-1)));
 
 // Code without its comments, so a comment can't hide or fake an import. A
 // "//" after a colon (as in https://) isn't a comment.
@@ -89,13 +92,14 @@ function reachedFrom(files, { staticOnly = false } = {}) {
   return reached;
 }
 const reachedFromSim = () => reachedFrom(SIM_FILES);
-const isStatistics = (file) => file.startsWith(SHARED + sep);
+const isStatistics = (file) => SHARED_FILES.includes(file);
 
 // Code that must run the same in Node and in any browser, with no sign-in,
 // no network and no clock.
 const FORBIDDEN = [
   [/\bfetch\s*\(/, "fetch"], [/XMLHttpRequest|WebSocket|EventSource|sendBeacon/, "a network call"], [/firebase/i, "Firebase"],
   [/\b(?:window|document|navigator|localStorage|sessionStorage|indexedDB)\b/, "the browser"],
+  [/import\.meta\.env/, "environment settings"],
   [/Math\.random/, "Math.random"], [/Date\.now|performance\.now|new Date\(\s*\)/, "the clock"],
   [/\.get(?:FullYear|Month|Date|Day|Hours|Minutes|Seconds|Milliseconds|TimezoneOffset)\(|toLocale|\bIntl\b/, "the computer's time zone"],
   [/Math\.(?!floor\b|ceil\b|round\b|min\b|max\b|abs\b|imul\b|trunc\b)\w+|\*\*/, "maths that browsers may round differently"],
@@ -111,7 +115,7 @@ function assertPure(files) {
 test("the import scanner sees static imports, import() and require, and tells import() apart", () => {
   assert.deepEqual(specifiers('import a from "./a.js";\nimport {\n  b,\n} from "./b.js";\nexport { c } from "./c.js";\nconst d = await import("./d.js");\nconst e = require("./e");\n// import f from "./f.js";'), ["./a.js", "./b.js", "./c.js", "./d.js", "./e"]);
   assert.deepEqual(importList('import a from "./a.js";\nconst [b] = await Promise.all([import("./b.js")]);').map(({ dynamic }) => dynamic), [false, true]);
-  assert.ok(importersOf("src/sim/scenarios.js").includes("src/sim/engine.js"));
+  assert.ok(importersOf("functions/shared/sim/scenarios.mjs").includes("functions/shared/sim/engine.mjs"));
 });
 
 test("the simulation reaches only its own files, the app's lists, the card builder, the town file and the statistics: no Firebase, no packages", () => {
@@ -138,13 +142,14 @@ test("no file the statistics reach uses the network, storage, the clock, the tim
   assertPure(reachedFrom(SHARED_FILES).keys());
 });
 
-test("outside src/sim, only engine.js may be imported (and the scorecard, by scripts only)", () => {
-  for (const file of APP_FILES.filter((path) => !path.startsWith(SIM + sep))) {
-    for (const { path } of importsOf(file)) {
-      if (!path || !path.startsWith(SIM + sep)) continue;
-      assert.ok(["src/sim/engine.js", "src/sim/scorecard.js"].includes(rel(path)), `${rel(file)} imports ${rel(path)}`);
-      if (rel(path) === "src/sim/scorecard.js") assert.ok(rel(file).startsWith("scripts/"), `${rel(file)} imports the scorecard`);
+test("production files never import compatibility shims; generator access is through its engine", () => {
+  for (const file of APP_FILES) for (const {path} of importsOf(file)) {
+    if (!path) continue;
+    assert.ok(!SHIMS.includes(path), rel(file) + " imports a compatibility shim");
+    if (path.startsWith(SIM + sep) && !file.startsWith(SIM + sep) && !SHIMS.includes(file) && rel(file) !== "src/sim/groundTruth.js") {
+      assert.equal(rel(path), "functions/shared/sim/engine.mjs", rel(file) + " bypasses the generator engine");
     }
+    if (rel(path) === "src/sim/scorecard.js") assert.ok(rel(file).startsWith("scripts/"), rel(file) + " imports the scorecard");
   }
 });
 
@@ -152,10 +157,10 @@ test("outside src/sim, only engine.js may be imported (and the scorecard, by scr
 // statistics (decision T1), and only with import(), so neither reaches the
 // main file.
 const DEMO_ROUTE = "src/screens/DemoScreen.jsx";
-const DEMO_LOADS = ["functions/shared/sastDay.mjs", "functions/shared/signals.mjs", "src/sim/engine.js"];
+const DEMO_LOADS = ["functions/shared/sastDay.mjs", "functions/shared/signals.mjs", "functions/shared/sim/engine.mjs"];
 
 test("in the app, only the /demo route loads the engine and the statistics, and only with import()", () => {
-  for (const file of APP_FILES.filter((path) => rel(path).startsWith("src/") && !path.startsWith(SIM + sep))) {
+  for (const file of APP_FILES.filter((path) => rel(path).startsWith("src/") && !path.startsWith(LEGACY_SIM + sep))) {
     for (const { path, dynamic } of importsOf(file)) {
       if (!path || !(path.startsWith(SIM + sep) || isStatistics(path))) continue;
       assert.equal(rel(file), DEMO_ROUTE, `${rel(file)} loads ${rel(path)}: only the /demo route may`);
@@ -169,7 +174,7 @@ test("in the app, only the /demo route loads the engine and the statistics, and 
 
 test("following every import from the app, the ground truth and the scorecard are never reached", () => {
   const reached = [...reachedFrom([join(ROOT, "src", "main.jsx")]).keys()].map(rel);
-  assert.ok(reached.includes("src/sim/engine.js"), "the scan follows import() into the replay");
+  assert.ok(reached.includes("functions/shared/sim/engine.mjs"), "the scan follows import() into the replay");
   for (const file of ["src/sim/groundTruth.js", "src/sim/scorecard.js"]) assert.ok(!reached.includes(file), `the app reaches ${file}`);
 });
 
@@ -186,9 +191,30 @@ test("the main file and the /demo route reach no Firebase: the signed-in app loa
 });
 
 test("only the generator reads the scenario settings, and only the scorecard reads the ground truth and runs the statistics", () => {
-  for (const file of importersOf("src/sim/scenarios.js")) assert.ok(MAY_READ_SETTINGS.includes(file), `${file} reads the scenario settings`);
+  for (const file of importersOf("functions/shared/sim/scenarios.mjs")) assert.ok(MAY_READ_SETTINGS.includes(file), `${file} reads the scenario settings`);
   for (const file of importersOf("src/sim/groundTruth.js")) assert.ok(MAY_READ_GROUND_TRUTH.includes(file), `${file} reads the ground truth`);
   for (const file of SIM_FILES) {
     if (importsOf(file).some(({ path }) => path && isStatistics(path))) assert.ok(MAY_USE_STATISTICS.includes(rel(file)), `${rel(file)} runs the statistics`);
   }
+});
+
+
+test("nothing in functions reaches the ground truth or the scorecard", () => {
+  for (const file of reachedFrom(APP_FILES.filter((path) => rel(path).startsWith("functions/"))).keys()) {
+    assert.ok(!["src/sim/groundTruth.js", "src/sim/scorecard.js"].includes(rel(file)), "functions reaches " + rel(file));
+  }
+});
+
+test("ranking code and the runner never reach ground truth or the scorecard", () => {
+  const starts = [...sourceFiles(RANK), join(ROOT, "functions/lib/callRanker.js"), join(ROOT, "scripts/rank-saved.mjs")];
+  for (const file of reachedFrom(starts).keys()) assert.ok(!["src/sim/groundTruth.js", "src/sim/scorecard.js"].includes(rel(file)), "ranking reaches " + rel(file));
+});
+
+test("pure ranking modules reach only ranking and statistics, never the generator or Node", () => {
+  const reached = reachedFrom(sourceFiles(RANK));
+  for (const [file, imports] of reached) {
+    assert.ok(file.startsWith(RANK + sep) || isStatistics(file), "pure ranking reaches " + rel(file));
+    for (const {path} of imports) assert.ok(path, "pure ranking imports a package or Node module");
+  }
+  assertPure(reached.keys());
 });

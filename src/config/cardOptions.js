@@ -1,3 +1,6 @@
+import { EXPOSURE_TYPES, OBSERVATIONS } from "../../functions/shared/cardFields.mjs";
+export { EXPOSURE_TYPES, OBSERVATIONS };
+
 // The choices on a case card: stored value and on-screen label. The stored
 // values mirror functions/lib/cardSchema.js, and firestore.rules keeps its
 // own copy (rules can't import files); test/unit and test/rules check that
@@ -34,25 +37,14 @@ export const ONSETS = [
   { value: "longer", label: "Longer" },
 ];
 
-export const EXPOSURE_TYPES = [
-  { value: "water", label: "Water" },
-  { value: "food", label: "Food" },
-  { value: "school", label: "School" },
-  { value: "event", label: "Event" },
-  { value: "other", label: "Other" },
-];
+
 
 // Every stored observation flag, in cardSchema.js's order (firestore.rules
 // and the tests sweep this list). All are optional. The card shows the two
 // patient flags, then the supplies flag on its own line. unusualSymptoms is
 // never shown and always saved as false: the "Something unusual" symptom
 // group covers it.
-export const OBSERVATIONS = [
-  { value: "moreSevere", label: "Sicker than usual" },
-  { value: "notResponding", label: "Not getting better with usual treatment" },
-  { value: "unusualSymptoms", label: "Unusual symptoms" },
-  { value: "shortOfSupplies", label: "Running short of anything?" },
-];
+
 export const PATIENT_FLAGS = OBSERVATIONS.filter((option) => ["moreSevere", "notResponding"].includes(option.value));
 export const SUPPLIES_FLAG = OBSERVATIONS.find((option) => option.value === "shortOfSupplies");
 
