@@ -1,6 +1,8 @@
 const {readFileSync} = require("node:fs");
 const {join} = require("node:path");
 const {EXTRACT_EFFORT, EXTRACT_MODEL} = require("../constants");
+const {PRODUCT_NAME} = require("../shared/product.mjs");
+const {terms: LOCAL_TERMS} = require("../data/local-terms.json");
 const {
   assertStandardModel,
   failure,
@@ -33,6 +35,8 @@ function buildSystemPrompt() {
       "utf8",
   );
   const values = {
+    PRODUCT_NAME,
+    LOCAL_TERMS: JSON.stringify(LOCAL_TERMS),
     TOWN,
     AREAS: AREA_NAMES.map((name) => `- ${name}`).join("\n"),
     SYMPTOM_GROUPS: listLines(Object.entries(SYMPTOM_GROUPS)),
@@ -74,6 +78,11 @@ async function extractCard({transcriptA = null, transcriptB = null}, {
   fetch,
   attemptTimeoutMs,
   retryDelayMs,
+  prompt = SYSTEM_PROMPT,
+  schema = REPLY_SCHEMA,
+  request = requestWithRetry,
+  validateRaw,
+  includeRaw = false,
 } = {}) {
   if (!apiKey) {
     throw new Error("No Meta API key was provided.");
@@ -109,14 +118,14 @@ async function extractCard({transcriptA = null, transcriptB = null}, {
     max_completion_tokens: MAX_COMPLETION_TOKENS,
     response_format: {
       type: "json_schema",
-      json_schema: {name: "case_cards", strict: true, schema: REPLY_SCHEMA},
+      json_schema: {name: "case_cards", strict: true, schema},
     },
     messages: [
-      {role: "system", content: SYSTEM_PROMPT},
+      {role: "system", content: prompt},
       {role: "user", content: userMessage(a, b)},
     ],
   });
-  const {value, ...timing} = await requestWithRetry({
+  const {value, ...timing} = await request({
     label: "Card extraction",
     path: "/chat/completions",
     buildInit: () => ({
@@ -140,13 +149,17 @@ async function extractCard({transcriptA = null, transcriptB = null}, {
     } catch {
       throw failure("bad-reply", "the card reply isn't valid JSON");
     }
+    if (validateRaw) validateRaw(raw, schema);
     const reply = cleanReply(raw, {transcripts: [a, b].filter(Boolean)});
-    return {reply, usage: value.usage, ...timing};
+    return {reply, ...(includeRaw ? {raw} : {}), usage: value.usage, ...timing};
   } catch (err) {
     Object.assign(err, timing);
+    err.usage = value.usage;
+    if (includeRaw) err.rawOutput = value.text;
     throw err;
   }
 }
 
 exports.SYSTEM_PROMPT = SYSTEM_PROMPT;
+exports.userMessage = userMessage;
 exports.extractCard = extractCard;

@@ -1,12 +1,14 @@
 # HANDOVER
 
-**Last updated:** 2026-10-30 10:41 SAST
+**Last updated:** 2026-10-30 12:32 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. Organisers confirmed the repo may stay private until submission but must be public before submitting. The plan remains to make it public on Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
+
+Task 16 Part C is built for the user-run scoring step, not deployed. Production source defaults retain audio ear muse-spark-1.2 at low and the code uncertainty rule off. The approved name/local-word changes have combined extraction hash 0504c523c212791e; live processNote still has legacy hash cddb48328a27f866. No paid Task 16 calls have run. STOP 2 waits for “Run done” and the user's content-free terminal summary. The strict transcript scan currently fails on pre-existing overlaps outside its fixed historical allowance; pushing remains blocked. See the Task 16 section below.
 
 Fri 30 Oct. Task 15b is complete and live from 242503c. Public /demo shows saved seed-one rankings with their evidence; signed-in /app/replay also ranks live through rankSources. Both deploys had separate approvals, asked no CLI questions and passed live verification. All five phone checks passed around 10:15 SAST: private-tab saved ranking, signed-in live ranking and Show saved ranking, content-free timing logs, Report record/check/save, and email sign-in. The live ranking took 9,841 ms at low effort, one attempt. processNote was not redeployed: its code hash is still 851f9cbd… and Nthabi confirmed revision processnote-00004-lag at 100% traffic with the same deployment age before and after F1.
 
@@ -27,6 +29,46 @@ The frozen engine and extraction inputs are unchanged. Today, Signal detail, not
   - allUsers as Cloud Run Invoker plus a project-level org-policy exception, needed so callable functions can be reached at all. The sign-in check inside each function is the real gate.
 - Test accounts 1 and 2 (made-up @example.com addresses, used on 28 Oct) are deleted, in Firestore and sign-in. Nthabiseng's phone account holds the only live test data (In progress).
 - Latest scoring, score-007 (29 Oct, after Task 11's observations guard; Stage 1 text, `--repeat 3 --effort low`): 342 of 342 checks (100%), 0 confident wrong, 1.60 questions per card (expected 1.60), 0 extra questions; the same as score-006 (27 Oct). Earlier runs are in docs/HISTORY.md.
+
+## Task 16: scorer ready, paid run pending
+
+- Shared production pipeline: functions/lib/notePipeline.js delegates the existing two-ear listener and extraction module, with settings injected for scoring. A mocked pre-refactor HEAD capture proves Baseline request bodies match exactly, excluding audio bytes and authorization. Existing processNote tests are unchanged: daily cap before paid calls, retry/status rules, timeouts, 30-second second-ear allowance, client error codes and note_timing keys remain covered. Error text is sanitized. firebase.json, functions/package.json, reply schema, statistics, ranking prompt and ranking settings are untouched.
+- One product-name literal now lives in functions/shared/product.mjs; src/config/product.js re-exports it. AGENTS.md and CLAUDE.md rule 8 change identically. No build hook or screen change. Prompt changes are only the approved name placeholder, Local words section and transcriptClean note. Voice keywords are the existing eight place names followed by 45 prioritized local words. Audio prompt is unchanged.
+- Configurations: Baseline (frozen prompt/keywords, 1.2 low), A (new prompt/keywords, 1.2 low), A-min (A with 1.2 minimal), B (A with 1.3 minimal). Baseline and A share the audio ear; candidates share new-keyword Voice calls. Identical calls share results within a repeat only. A rejected 1.2 minimal preflight removes A-min; rejected 1.3 minimal verifies low for B. Text fixtures run per card prompt. Schema is unchanged for every configuration.
+- Run in VS Code's PowerShell terminal at the repository root: first `npm.cmd run score:notes -- --dry-run`, then the user alone runs `npm.cmd run score:notes` with hidden temporary-key prompts. Baseten Enter skips it. Before any paid call, listen to all ten recordings, resolve the authored expected-field differences locally, and set listenedAt in ignored test-audio/expected-corrections.json. Both tracked expectation fixtures stay unchanged. No agent uses a real key. The listening gate is still locked.
+- Current dry plan: three repeats, 320 logical calls, plus at most one conditional Spark 1.3 low check. Meta: 60 recording Voice, 90 audio, 120 card, 32 authored text and three preflights (305 total). Baseten: probe one, authored cards eight, simulated rankings six (15 total). Forecast USD 7.87 with full output caps; USD 15.74 if every call retries; conditional check USD 0.0172. Time 25–45 minutes. Actual returned token counts and billed seconds feed an ignored content-free ledger; new requests pause above USD 12. Explicit reviewed continuation grants another USD 12 beyond recorded spending. Missing successful-response usage pauses without automatic continuation. Completed successes and failures are never repeated. In-flight calls finish before exit.
+- Preflights use generated audio only: test all 53 Voice keywords once, then minimal audio efforts. A keyword rejection stops without trimming the list. Baseten's exact meta-models/muse-spark-open-1026 slug is probed with authored text; 404 skips every Baseten part without substitution. Baseten receives only authored text or simulated ranking input. It uses production ranking request construction and validateRanking unchanged; deployed callRanker's non-Meta refusal stays intact. Pricing/limits/schema caveats and checked official links are in docs/provenance/scoring/README.md and open-weights/README.md.
+- Private output: test-audio/results/notes-calls.jsonl and notes-ledger.jsonl. Public output: authored fixture JSONL under docs/provenance/scoring/; authored/simulated comparison records and content-free run log under docs/provenance/open-weights/. These paid outputs and the aggregate scorecard are created only by actual runs/reporting, not fabricated now. `npm.cmd run score:report` uses no network, keeps all recording values/excerpts in the terminal and writes aggregate outcome labels/counts/timings/models/efforts/hashes only. Sample size is 10 recordings and 10 expected cards.
+- Decision rules: differences need consistency in at least two of three runs. New prompt/keywords need D4-1 and D4-2 passing every run, no existing-fixture insertion failures and A confidently-wrong counts no higher than Baseline. Minimal needs no confidently-wrong increase and faster both-ears median. Audio 1.3 needs better quality (fewer confidently wrong, or equal with fewer total asks) and total median at most two seconds slower; an exact quality tie goes to the consistently faster ear. If low wins but B only has minimal data, report the gap and retain 1.2 low; extra calls need a separate proposal. Meta documents incomplete Spark 1.3 audio support. The code rule needs a confidently-wrong field caught consistently and at most one unnecessary ask per three cards. Bare markers require a unique two-word anchor on each side; unmapped markers are counted. STOP 3 must approve prompt/keywords, model/effort and rule explicitly.
+- Checks: web 196, Functions 112, local demo-fola rules 94; lint/build and provenance scan pass. Import/determinism checks and frozen signal/ranking pins abc36af17d67a689 / 01622c7f95af2326 pass. Dry run makes zero network calls or writes. The transcript scan intentionally reports the unresolved strict-policy failure below. No deploy, push, delete or paid inference was performed.
+- Later: after scoring approval, apply only the approved settings and run all checks. STOP 4 separately approves only processNote deployment. Before/after, verify all three live service revisions and that only processNote changes. Phone verification then covers two made-up notes: mixed-language local food plus a Kganya place, and plain English with no food words. Both saved cards join the separately approved-delete list; exact paths must be found. STOP 5 is the phone-check result; wrap-up/history and pre-push checks precede STOP 6.
+
+### Fixed privacy allowance and current blocker
+
+The only allowed transcript overlap comes from test-fixtures/ideal-transcripts.json read with git show at commit 0e77db35cb4207929e1e2d39212bb54fa8ff24e4 (27 Oct 2026 13:36:47 SAST, before recordings arrived 30 Oct 08:38), blob SHA-256 f69c798e30997df8b13eabd249f35a0d3e4d265367bb4bf95a3c3c9b5d6b11a2. It never derives from current files or grows automatically. Only the user's planning-chat decision can expand it. A six-word overlap fails unless that exact normalized run occurs in those historical authored texts. The report names files and counts only, never words. The initial scan allowed 333 overlaps from that historical fixture and failed 71 overlaps across these 14 existing files; none was changed to hide the failure:
+
+| File | Unallowed overlaps |
+| --- | --- |
+| docs/provenance/rankings/experiments/seed-02.json | 1 |
+| docs/provenance/rankings/experiments/seed-05.json | 1 |
+| docs/provenance/rankings/seed-01.json | 5 |
+| docs/provenance/rankings/seed-02.json | 8 |
+| docs/provenance/rankings/seed-03.json | 8 |
+| docs/provenance/rankings/seed-04.json | 8 |
+| docs/provenance/rankings/seed-05.json | 8 |
+| docs/provenance/rankings/seed-06.json | 6 |
+| docs/provenance/rankings/seed-07.json | 5 |
+| docs/provenance/rankings/seed-08.json | 7 |
+| docs/provenance/rankings/seed-09.json | 6 |
+| docs/provenance/rankings/seed-10.json | 6 |
+| functions/shared/sim/phrases.mjs | 1 |
+| scripts/lib/rankPlans.mjs | 1 |
+
+The older local results were made by the previous transcription/extraction tools, not from the newly arrived numbered recordings. SAST creation times: run-001 to run-004 on 27 Oct at 10:20:06, 10:28:24, 11:33:40 and 11:34:13; score-001 to score-006 on 27 Oct at 12:26:02, 12:27:09, 12:29:27, 13:34:17, 13:35:05 and 13:49:02; score-007 on 29 Oct at 08:53:12. Paired Markdown files have matching creation times. Runs were older transcription comparisons; scores were authored-text extraction comparisons except score-003, which used older audio for two fixtures. Metadata establishes that provenance; timestamps alone do not verify an API call. Detailed method and historical allowance are in the scoring README.
+
+### Parked prompt ideas
+
+After the hackathon: South African spelling instruction; rule 5 rewording beyond the product-name substitution; observations prompt clarification and removing observations from the reply schema's unsureFields options; Voice Transcribe languageBias (not sent today). None is included in Task 16's candidate prompt/schema.
 
 ## Task 15a: saved results and 30 Oct freeze
 
@@ -134,6 +176,7 @@ In plain words: for each symptom group and area, count the cases in the last 3 a
 
 ### Tuning log
 Every threshold changed after seeing scorecard numbers: what changed, from what to what, and why.
+- 30 Oct (Task 16 Part C, approved before paid scoring): one combined extraction change from legacy cddb48328a27f866 to version-two hash 0504c523c212791e. Adds canonical name rendering, approved local-word prompt/clean-transcript note and ordered Voice keywords; extends hash coverage to audio prompt/keywords/models/efforts/caps/provider/marker rule. Audio ear stays muse-spark-1.2 low; code rule off; card muse-spark-1.3 low, schema and audio prompt unchanged. Baseline reproduces the old hash and exact HEAD requests. This is prepared source only, not a deployed or results-selected setting. Frozen statistics/ranking hashes stay unchanged.
 - 30 Oct (Task 15a, approved freeze) ? Thresholds unchanged: all SIGNAL_SETTINGS values remain at the Task 13 baseline. No prompt, ranking settings or schema change was made after viewing these results. Effort low is frozen: medium gave identical source ranks on the five matched first-Alert inputs, at about 2x time (105.93 s against 53.66 s) and 2.5x output (20,687 against 8,397 tokens). All 79 calls completed without retries, unavailable responses or guard drops/repairs. Actual run cost about $1.13 at the documented Standard rates (426,920 input and 141,399 output tokens); about 9.7 s per call at low across 74 calls, and 21 s at medium across 5 calls.
 - 30 Oct (Task 15a, red herring) ? At the first Alert in seeds 2, 8 and 9, the school event (the red herring) ranked above works A, while school-event mentions outnumbered water mentions on those cards; works A ranked first by day 18 or 19. Works A ranked first at the first Alert in 7 of 10 seeds and in every seed by day 19. The statistics led with the Leeba View spaza shop at the first Alert in seeds 2, 4, 5, 8 and 9. Seed one's three first-Alert calls all ranked works A first. All ten quiet runs planned zero calls.
 - 30 Oct (Task 15a, swap) ? With identical statistics, the clinicians' words decided the top source when the statistics were close (seed 5). They moved the shop up but did not overturn a clear statistical lead (seeds 1, 3, 7 and 10). Clue-derived summaries changed consistently with the swapped card words; levels and numerical comparisons were identical.
@@ -160,15 +203,7 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
 
 ## Next steps (in order)
 0. Task 15b is deployed and all five phone checks passed. Next: Saturday's scoring/signal work, with test-card cleanup before real cards are read; Signal detail, notification drafting and Today on Day 6. The Baseten notification decision is pinned for Sun 1 Nov below.
-1. Score the 10 test recordings when they arrive: convert them, add an expected card for each to test-fixtures/expected-cards.json (made up, as now), run `--stage audio --audio-model both --effort low --repeat 2`, and confirm the audio-ear model. Prompt changes go in the same run, because each changes what the model does:
-   - keep South African spelling ("diarrhoea") in symptomsInWords
-   - "Fola" → "Lemoha" in the extraction prompt (Open decisions)
-   - remove "observations" from the fields the model may mark unsure (the unsureFields list in the reply schema, functions/lib/cardSchema.js, and any prompt wording), so the model's instructions match the code guard, which drops it from Task 11 on
-   - local words (decision D4, 29 Oct). In a live test with a made-up script, "vetkoek" came back as "fat cook" in both "What we heard" and the card; an earlier note the same morning got it right. Both come from the card step: "What we heard" shows its cleaned transcript, transcriptClean (src/components/NoteNotices.jsx:11 and :23; asked for in functions/prompts/extract-card.md under "## transcriptClean"; returned at functions/index.js:274), and neither ear's own transcript reaches the browser. The prompt already warns that Transcript A turns some words into similar-sounding English (extract-card.md:7), so Voice Transcribe is the likely source, but only the run below can show it. The changes:
-     - a rule in the card step's prompt: keep local food, shop and place words exactly as said, never translated (vetkoek, kota, magwinya and similar). Treat the word list below like the place list: a sound-spelling of a listed word becomes that word ("fat cook" becomes vetkoek). Unsure means ask. Never translate.
-     - a text fixture with such words in test-fixtures/ (the spaza shop note already says vetkoek; add kota, magwinya and others)
-     - a short list of common South African food and everyday words, which Nthabiseng supplies, used in both places: Voice Transcribe's keywords (PLACE_KEYWORDS in functions/lib/cardSchema.js, sent at functions/index.js:212) and a word list in the card step's prompt (a placeholder next to {{AREAS}}, filled in functions/lib/extractCard.js). Also consider the audio ear's prompt (functions/prompts/spark-audio.md), which only mentions Sesotho.
-     - in the scoring run, report each ear's raw transcript for the vetkoek fixture (in the chat and the gitignored results only, never in the repo), so we know which ear misheard
+1. Task 16 Part C is ready. The user listens, reviews expected-field differences, sets the ignored listening gate, then runs the paid scorer with temporary keys. Follow the Task 16 section and its STOPs; older extraction-run commands and prompt proposals are superseded. Signal detail and the signal job remain next after scoring/test-card cleanup.
 2. Task 10 Part D, the rest of the phone test, against the live project with real Meta calls. Nthabiseng works through it and reports back. Done so far (28 Oct): two notes from her phone on mobile data at ?timing=1 (results in docs/HISTORY.md, Task 10 Part C).
    1. Use made-up scripts only (the 10 test scripts, or: "Three children under five with watery diarrhoea from Leeba View today. Bomme ba re ba nwa metsi a pompo."). Never real patient details.
    2. Android, Chrome, on mobile data, at https://lemoha.co.za/?timing=1
@@ -408,7 +443,7 @@ Source: dev.meta.ai/docs/structured-output.
 - src/index.css — the app's stylesheet: layout, forms, navigation, level badges, motion. It uses only the tokens; no colour is written in it.
 - src/styles/tokens.css — the design tokens from docs/DESIGN.md; the only file with colour values.
 - src/styles/fonts.css — the self-hosted fonts (Hanken Grotesk and Source Serif 4, latin and latin-ext).
-- src/config/product.js — PRODUCT_NAME, the only place the product name is set.
+- functions/shared/product.mjs — PRODUCT_NAME, the single canonical product-name literal; src/config/product.js re-exports it for the web app.
 - src/config/profileOptions.js — the role and facility-type lists (stored value and label).
 - src/config/cardOptions.js — the case card lists (stored value and label) and the text limits; mirrors functions/lib/cardSchema.js. PATIENT_FLAGS and SUPPLIES_FLAG are the observation boxes the card shows.
 - src/config/hotlines.js — the fixed advice text and the NICD and Poisons Information Centre numbers, with their sources.
@@ -600,10 +635,10 @@ Other local commands:
 - b. `git diff --stat origin/main..HEAD`, naming any file over 500 kB.
 - c. None of these in the push: .env or .env.*, .secret.local, test-audio/, audio files, credential JSON, logs, emulator exports, dist/, scripts or screenshots from outside the repo.
 - d. No keys, tokens or passwords in added lines (the public Firebase web apiKey in src/lib/firebase.js is the only exception).
-- e. No personal data: no real emails, phone numbers other than the two hotlines, real names other than Nthabiseng's, personal folder paths or transcript text.
+- e. No personal data: no real emails, phone numbers other than the two hotlines, real names other than Nthabiseng's, personal folder paths or transcript text. Run `npm.cmd run scan:transcripts`; only the fixed historical Task 16 allowance above applies, and any unallowed six-word overlap blocks pushing.
 - f. No "-contributor" model IDs.
-- g. The product name only where the brand rules allow it (src/config/product.js, index.html's title, public/manifest.webmanifest; "Fola" only where HANDOVER records it).
-- h. No key-like strings, reporter fields or seeds 11 to 20 in docs/provenance/ or the seed-one output file.
+- g. The product name only where the brand rules allow it (functions/shared/product.mjs, re-exported by src/config/product.js; index.html's title; public/manifest.webmanifest; "Fola" only where HANDOVER records it).
+- h. No key-like strings, authorization headers, reporter fields or seeds 11 to 20 in docs/provenance/ or the seed-one output file, including docs/provenance/scoring/ and docs/provenance/open-weights/. Run `npm.cmd run scan:provenance`.
 - i. .scratch/ is gitignored and has no tracked files.
 
 ## Known issues

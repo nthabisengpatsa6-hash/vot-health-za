@@ -38,16 +38,23 @@ function assertStandardModel(model) {
 }
 
 // Meta's errors carry a short client-safe message; keep only that.
-async function readErrorMessage(response) {
+function redact(text, key = "") {
+  let safe = String(text);
+  if (key) safe = safe.split(key).join("[redacted]");
+  return safe.replace(/(?:Authorization["']?\s*[:=]\s*["']?|Bearer\s+)\S+/gi, "[redacted]")
+      .replace(/\b(?:sk-[a-z0-9_-]{16,}|AIza[a-z0-9_-]{20,})\b/gi, "[redacted]");
+}
+async function readErrorMessage(response, key) {
   const text = await response.text();
   try {
     const body = JSON.parse(text);
     const message = (body.error && body.error.message) || body.message;
-    if (message) return String(message).slice(0, 200);
+    if (message) return {message:redact(message, key).slice(0, 200),
+      parameter:["reasoning_effort", "keywords", "model"].includes(body.error?.param) ? body.error.param : null};
   } catch {
     // Not JSON, so fall back to the raw text.
   }
-  return text.slice(0, 200) || "no details";
+  return {message:redact(text, key).slice(0, 200) || "no details", parameter:null};
 }
 
 // Reads a Chat Completions reply. A reply cut off at the token limit is
@@ -95,12 +102,16 @@ async function attemptOnce(fetchImpl, path, init, readReply, timeoutMs,
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw failure(
+      const key = String(init.headers?.Authorization || "").replace(/^Bearer /, "");
+      const details = await readErrorMessage(response, key);
+      const error = failure(
           "http",
           `Meta API returned status ${response.status}: ` +
-          await readErrorMessage(response),
+          details.message,
           response.status,
       );
+      error.parameter = details.parameter;
+      throw error;
     }
     return await readReply(response);
   } catch (err) {
@@ -118,8 +129,7 @@ async function attemptOnce(fetchImpl, path, init, readReply, timeoutMs,
       throw failure("bad-reply", "Meta API sent a reply that isn't JSON");
     }
     // fetch's own message is just "fetch failed"; the cause says why.
-    const cause = err.cause ? `: ${err.cause.code || err.cause.message}` : "";
-    throw failure("network", `the connection failed (${err.message}${cause})`);
+    throw failure("network", "the connection failed");
   } finally {
     clearTimeout(timer);
     if (outerSignal) outerSignal.removeEventListener("abort", onCancel);
@@ -185,3 +195,4 @@ exports.assertStandardModel = assertStandardModel;
 exports.failure = failure;
 exports.readChatReply = readChatReply;
 exports.requestWithRetry = requestWithRetry;
+exports.redact = redact;

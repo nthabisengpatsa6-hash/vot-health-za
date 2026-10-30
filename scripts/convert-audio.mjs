@@ -5,7 +5,7 @@
 //
 // Usage: node scripts/convert-audio.mjs
 
-import { spawnSync } from "node:child_process";
+import { convertAudio } from "./lib/audioConversion.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,21 +18,7 @@ const INPUT_TYPES = new Set([".m4a", ".opus", ".ogg", ".mp3", ".wav"]);
 const RATES = [16000, 24000];
 
 function convert(input, output, rate) {
-  const result = spawnSync("ffmpeg", [
-    "-hide_banner", "-loglevel", "error", "-y",
-    "-i", input,
-    // -vn drops any cover image; the rest is mono, the rate, 16-bit PCM.
-    "-vn", "-ac", "1", "-ar", String(rate), "-sample_fmt", "s16",
-    // Strips phone metadata (device, location) so only the audio is kept.
-    "-map_metadata", "-1",
-    output,
-  ], { encoding: "utf8" });
-  if (result.error) {
-    throw new Error("ffmpeg isn't installed or isn't on PATH. Install it with: winget install Gyan.FFmpeg");
-  }
-  if (result.status !== 0) {
-    throw new Error(`ffmpeg failed: ${result.stderr.trim()}`);
-  }
+  return convertAudio(input, output, rate);
 }
 
 let files;

@@ -10,6 +10,10 @@
     "preview": "vite preview",
     "test": "node --test test/unit/*.test.js",
     "rank:saved": "node scripts/rank-saved.mjs",
+    "score:notes": "node scripts/score-notes.mjs",
+    "score:report": "node scripts/score-report.mjs",
+    "scan:transcripts": "node scripts/scan-transcripts.mjs",
+    "scan:provenance": "node scripts/scan-provenance.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-fola \"node --test --test-concurrency=1 test/rules/*.test.js\"",
     "emulators": "firebase emulators:start --only auth,firestore,functions --project demo-fola"
   },

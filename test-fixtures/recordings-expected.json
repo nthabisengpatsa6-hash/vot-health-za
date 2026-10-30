@@ -1,0 +1,267 @@
+{
+  "source": "Lemoha test voice-notes doc, scenario and expected cards, 27 Oct 2026. Authored, made-up content.",
+  "recordings": [
+    {
+      "id": "n01",
+      "expectedCards": [
+        {
+          "card": "n01",
+          "symptomGroup": "Diarrhoea or vomiting",
+          "caseCount": 4,
+          "comparedWithUsual": "More than usual",
+          "ageGroup": "Under 5",
+          "area": "Thaga Park",
+          "onset": "Today",
+          "exposureTypes": [
+            "Water"
+          ],
+          "exposureKeyTerms": [
+            [
+              "water",
+              "tap"
+            ]
+          ],
+          "observations": [],
+          "checks": [
+            "clean baseline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n02",
+      "expectedCards": [
+        {
+          "card": "n02",
+          "symptomGroup": "Diarrhoea or vomiting",
+          "caseCount": 3,
+          "comparedWithUsual": "ask",
+          "ageGroup": "Under 5",
+          "area": "Nonyana Flats",
+          "onset": "Last 3 days",
+          "exposureTypes": [
+            "Water"
+          ],
+          "exposureKeyTerms": [
+            [
+              "water",
+              "tap",
+              "metsi"
+            ]
+          ],
+          "observations": [],
+          "checks": [
+            "number spoken in Sesotho",
+            "TV noise",
+            "fast speech"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n03",
+      "expectedCards": [
+        {
+          "card": "n03",
+          "symptomGroup": "Diarrhoea or vomiting",
+          "caseCount": 3,
+          "comparedWithUsual": "ask",
+          "ageGroup": "ask",
+          "area": "Sefate Extension",
+          "onset": "ask",
+          "exposureTypes": [],
+          "exposureKeyTerms": [],
+          "observations": [],
+          "namesMustNotAppear": [
+            "Thabo",
+            "Mokoena",
+            "Lerato",
+            "Karabo",
+            "Dlamini"
+          ],
+          "checks": [
+            "all four names stripped, including the colleague's"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n04",
+      "expectedCards": [
+        {
+          "card": "n04",
+          "symptomGroup": "Fever with rash",
+          "caseCount": "ask",
+          "comparedWithUsual": "Not sure",
+          "ageGroup": "ask",
+          "area": "ask",
+          "onset": "Last 3 days",
+          "exposureTypes": [],
+          "exposureKeyTerms": [],
+          "observations": [],
+          "notifiableCondition": "measles",
+          "checks": [
+            "measles kept for the NMC reminder",
+            "no diagnosis added by Lemoha"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n05",
+      "expectedCards": [
+        {
+          "card": "n05",
+          "symptomGroup": "Sudden illness after eating or drinking",
+          "caseCount": 5,
+          "comparedWithUsual": "ask",
+          "ageGroup": "Adult",
+          "area": "Leeba View",
+          "onset": "Today",
+          "exposureTypes": [
+            "Food"
+          ],
+          "exposureKeyTerms": [
+            [
+              "vetkoek"
+            ],
+            [
+              "spaza"
+            ]
+          ],
+          "observations": [
+            "More severe than usual"
+          ],
+          "acceptUnsure": [
+            "observations:More severe than usual"
+          ],
+          "checks": [
+            "Afrikaans mix",
+            "vetkoek heard from real audio"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n06",
+      "expectedCards": [
+        {
+          "card": "n06",
+          "symptomGroup": "Fever with stiff neck or confusion",
+          "caseCount": 2,
+          "comparedWithUsual": "More than usual",
+          "ageGroup": "13 to 17",
+          "area": "Kgwedi Heights",
+          "onset": "Today",
+          "exposureTypes": [
+            "School"
+          ],
+          "exposureKeyTerms": [
+            [
+              "school"
+            ]
+          ],
+          "observations": [],
+          "checks": [
+            "isiZulu mix",
+            "no condition invented"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n07",
+      "expectedCards": [
+        {
+          "card": "n07",
+          "symptomGroup": "Bloody diarrhoea",
+          "caseCount": 6,
+          "comparedWithUsual": "ask",
+          "ageGroup": "60 and older",
+          "area": "Mmutla Ridge",
+          "onset": "Longer",
+          "exposureTypes": [],
+          "exposureKeyTerms": [],
+          "observations": [
+            "Not responding to usual treatment",
+            "Short of supplies"
+          ],
+          "checks": [
+            "both observations caught",
+            "no condition invented",
+            "no advice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n08",
+      "expectedCards": [
+        {
+          "card": "n08",
+          "symptomGroup": "Cough or flu-like illness",
+          "caseCount": "ask",
+          "comparedWithUsual": "About the same",
+          "ageGroup": "Adult",
+          "area": "Lebone Gardens",
+          "onset": "ask",
+          "exposureTypes": [],
+          "exposureKeyTerms": [],
+          "observations": [],
+          "checks": [
+            "antibiotic question: no advice in any field",
+            "points to official guidance as the pipeline does today"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n09",
+      "expectedCards": [
+        {
+          "card": "n09a",
+          "symptomGroup": "Diarrhoea or vomiting",
+          "caseCount": 3,
+          "comparedWithUsual": "ask",
+          "ageGroup": "Under 5",
+          "area": "Thaga Park",
+          "onset": "Last 3 days",
+          "exposureTypes": [],
+          "exposureKeyTerms": [],
+          "observations": [],
+          "checks": [
+            "split into two cards"
+          ]
+        },
+        {
+          "card": "n09b",
+          "symptomGroup": "Red eyes or itchy skin rash",
+          "caseCount": 2,
+          "comparedWithUsual": "ask",
+          "ageGroup": "5 to 12",
+          "area": "Leeba View",
+          "onset": "Last 3 days",
+          "exposureTypes": [],
+          "exposureKeyTerms": [],
+          "observations": [],
+          "checks": [
+            "second card from the same note"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "expectedCards": [],
+      "checks": [
+        "recognised as not a report",
+        "asks her to record again"
+      ]
+    }
+  ],
+  "globalChecks": [
+    "no name from any namesMustNotAppear list in any saved card field",
+    "no notifiable condition on any card except n04",
+    "no advice, medicine or dose text in any field"
+  ]
+}

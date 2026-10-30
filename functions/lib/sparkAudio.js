@@ -1,6 +1,6 @@
 const {readFileSync} = require("node:fs");
 const {join} = require("node:path");
-const {SPARK_AUDIO_MODEL} = require("../constants");
+const {SPARK_AUDIO_MODEL, SPARK_AUDIO_EFFORT} = require("../constants");
 const {
   assertStandardModel,
   readChatReply,
@@ -17,7 +17,7 @@ const PROMPT = readFileSync(
 // Reasoning can't be switched off for Muse Spark ("none" returns 400), and
 // "low" is Meta's advice for direct tasks. Reasoning tokens count toward the
 // limit, so 4000 leaves room for a full transcript.
-const REASONING_EFFORT = "low";
+const REASONING_EFFORT = SPARK_AUDIO_EFFORT;
 const MAX_COMPLETION_TOKENS = 4000;
 
 // The second "ear": Muse Spark hears the audio directly. It understands mixed
@@ -30,6 +30,8 @@ async function transcribeWithSpark(wavBuffer, {
   attemptTimeoutMs,
   retryDelayMs,
   signal,
+  effort = REASONING_EFFORT,
+  prompt = PROMPT,
 } = {}) {
   if (!apiKey) {
     throw new Error("No Meta API key was provided.");
@@ -39,12 +41,12 @@ async function transcribeWithSpark(wavBuffer, {
 
   const body = JSON.stringify({
     model,
-    reasoning_effort: REASONING_EFFORT,
+    reasoning_effort: effort,
     max_completion_tokens: MAX_COMPLETION_TOKENS,
     messages: [{
       role: "user",
       content: [
-        {type: "text", text: PROMPT},
+        {type: "text", text: prompt},
         {
           type: "input_audio",
           input_audio: {data: wavBuffer.toString("base64"), format: "wav"},
@@ -79,3 +81,4 @@ async function transcribeWithSpark(wavBuffer, {
 }
 
 exports.transcribeWithSpark = transcribeWithSpark;
+exports.PROMPT = PROMPT;

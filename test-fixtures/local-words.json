@@ -1,0 +1,5 @@
+[
+  {"id":"D4-1","text":"Three adults from Leeba View, vomiting since this afternoon. They all ate fat cook and mala from the same vendor at the taxi rank.","required":["vetkoek","mala"],"forbidden":["fat cook"],"area":"Leeba View","type":"food"},
+  {"id":"D4-2","text":"Four children in Nonyana Flats with diarrhoea since yesterday. They ate magwinya and mogodu at a stokvel on Sunday.","required":["magwinya","mogodu","stokvel"],"forbidden":["vetkoek","amagwinya"],"area":"Nonyana Flats"},
+  {"id":"NEAR-MISS","text":"Two adults from Thaga Park with vomiting and malaise since last night. They had lamb chops at a friend's house, the same thing as the day before.","required":["chops"],"noListedTerms":true}
+]

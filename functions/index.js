@@ -13,12 +13,8 @@ const {
 const {
   AudioFormatError,
   checkWav,
-  transcribeWav,
 } = require("./lib/transcribe");
-const {transcribeWithSpark} = require("./lib/sparkAudio");
-const {extractCard} = require("./lib/extractCard");
-const {listenWithTwoEars} = require("./lib/twoEars");
-const {PLACE_KEYWORDS} = require("./lib/cardSchema");
+const {listenNote, buildNoteCards} = require("./lib/notePipeline");
 const {nextPracticeResult, practiceModeOn} = require("./lib/practice");
 const {errorDetails} = require("./lib/errorLog");
 // Used as module objects so the tests can stand in for Firestore and the log.
@@ -210,16 +206,7 @@ async function handleNote(request, response, timing) {
   timing.audioEarModel = SPARK_AUDIO_MODEL;
   let heard;
   try {
-    heard = await listenWithTwoEars({
-      // Place names are what Voice Transcribe would otherwise mishear
-      // (decision, 27 Oct). No language hint.
-      voice: (signal) => transcribeWav(wav, {
-        apiKey,
-        keywords: PLACE_KEYWORDS,
-        signal,
-      }),
-      spark: (signal) => transcribeWithSpark(wav, {apiKey, signal}),
-    });
+    heard = await listenNote(wav, {apiKey});
   } catch (err) {
     const ears = err.ears || {};
     noteTiming.recordEars(timing, ears);
@@ -249,10 +236,7 @@ async function handleNote(request, response, timing) {
   const extractStarted = performance.now();
   let extraction;
   try {
-    extraction = await extractCard({
-      transcriptA: voice.ok ? voice.value.transcript : null,
-      transcriptB: spark.ok ? spark.value.transcript : null,
-    }, {apiKey});
+    extraction = await buildNoteCards(heard, {apiKey});
   } catch (err) {
     timing.extractMs = noteTiming.msSince(extractStarted);
     timing.extractRetries = noteTiming.retriesFrom(err.attempts);

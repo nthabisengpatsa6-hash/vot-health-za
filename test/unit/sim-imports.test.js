@@ -162,6 +162,12 @@ const DEMO_LOADS = ["functions/shared/sastDay.mjs", "functions/shared/signals.mj
 test("in the app, only the /demo route loads the engine and the statistics, and only with import()", () => {
   for (const file of APP_FILES.filter((path) => rel(path).startsWith("src/") && !path.startsWith(LEGACY_SIM + sep))) {
     for (const { path, dynamic } of importsOf(file)) {
+      if (path && rel(path) === "functions/shared/product.mjs") {
+        assert.equal(rel(file), "src/config/product.js");
+        assert.equal(dynamic, false);
+        assert.equal(importsOf(path).length, 0, "the shared product setting stays data-only");
+        continue;
+      }
       if (!path || !(path.startsWith(SIM + sep) || isStatistics(path))) continue;
       assert.equal(rel(file), DEMO_ROUTE, `${rel(file)} loads ${rel(path)}: only the /demo route may`);
       assert.ok(dynamic, `${DEMO_ROUTE} imports ${rel(path)} without import(), which puts it in the main file`);

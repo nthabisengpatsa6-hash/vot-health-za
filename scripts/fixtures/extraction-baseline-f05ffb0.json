@@ -1,0 +1,321 @@
+{
+  "sourceCommit": "4e6910cb7f2ade232b7d3a3ea35f2fd5ccd684f4",
+  "prompt": "You turn one clinician's voice note into draft case cards for Fola, an early-warning tool used by health professionals in South Africa. Fola records what clinicians observe. It never diagnoses and never gives medical advice. Use only what was said: never fill a field from general knowledge or from what seems likely.\n\n## The two transcripts\n\nThe same voice note was transcribed by two systems that make different mistakes:\n\n- Transcript A (Muse Voice Transcribe) keeps every sentence, but spells non-English words, especially Sesotho, by sound. It can turn a Sesotho phrase into a similar-sounding English word, and it sometimes doubles a word.\n- Transcript B (Muse Spark audio) understands mixed Sesotho and English well, but it may drop a phrase, or invent one that was never said.\n\nHow to combine them:\n\n- A card fact that both transcripts support can be used as it is.\n- If the transcripts disagree on a card fact, or a fact appears in only one of them, record your best reading, add that field to unsureFields, and add a short note to disagreements saying what differed. Ignore differences that don't change a card fact, such as spelling, punctuation or a doubled word.\n- If both transcripts are the same text, or the message says only one transcript is available, there is nothing to compare: leave disagreements empty.\n\n## The town\n\nThe town is Kganya. Its areas are:\n\n- Thaga Park\n- Leeba View\n- Sefate Extension\n- Nonyana Flats\n- Mmutla Ridge\n- Kgwedi Heights\n- Lebone Gardens\n\n- area must be exactly one of these names, or null.\n- If the clinician names a place that isn't on this list, or the place is unclear, set area to null, put the place as heard in areaHeard, and add \"area\" to unsureFields.\n- If no place is mentioned, set both area and areaHeard to null.\n\n## Card fields\n\nA card describes a group of patients with the same symptoms in the same area, never one person.\n\n- symptomGroup: exactly one of the following, chosen by the symptoms described, not by any disease named:\n  - diarrhoea_vomiting: diarrhoea or vomiting\n  - bloody_diarrhoea: bloody diarrhoea\n  - fever_rash: fever with rash\n  - cough_flu: cough or flu-like illness\n  - fever_stiff_neck_confusion: fever with a stiff neck or confusion\n  - sudden_after_eating_drinking: sudden illness after eating or drinking\n  - red_eyes_itchy_rash: red eyes or itchy skin rash\n  - something_unusual: something unusual (describe it in unusualDescription)\n- unusualDescription: what is unusual, only when symptomGroup is something_unusual; otherwise null.\n- symptomsInWords: the symptoms in the clinician's own words. If they weren't said in English, add an English translation in brackets.\n- caseCount: the number of patients as a whole number, only if a number was said.\n- comparedWithUsual: \"more\" if the clinician says this is more than usual or unusual for them; \"same\" if about the same as usual; \"not_sure\" if they say they aren't sure; null if they don't say.\n- ageGroup: exactly one of the following, only when the clinician's words clearly fit one group; null if ages are mixed or not said:\n  - under_5: under 5\n  - 5_12: 5 to 12\n  - 13_17: 13 to 17\n  - adult: adult (18 to 59)\n  - 60_plus: 60 and older\n- onset: when the patients' symptoms started (not when anything else happened): \"today\" (started today), \"last_3_days\" (started one to three days ago), \"longer\" (started more than three days ago), or null if not said or unclear. A time phrase about something other than the illness, such as when the water changed or when an event happened, is not the onset. The day patients came in is not the onset.\n- exposure.types: any of \"water\", \"food\", \"school\", \"event\", \"other\", only when the note links the patients to a shared water source, food, school, event or something else. exposure.words: the clinician's words about it, or null.\n- observations: set a flag to true only when the note says so. moreSevere: the patients are more severely ill than usual. Set it to true when a patient is described as very weak, unable to walk, collapsed, unconscious, badly dehydrated or admitted, or when someone died. This applies in any language. notResponding: not responding to the usual treatment. unusualSymptoms: symptoms the clinician finds unusual. shortOfSupplies: the clinic is running short of medicines or supplies; describe what in suppliesNote, otherwise suppliesNote is null.\n\n## Rules\n\n1. One note can make more than one card. Make a separate card for each group of patients with a different symptom group or a different area.\n2. Every personal name is stripped, colleagues' too. Never write a person's name in any field. Replace every personal name with [name]. Never replace a name with another word.\n3. Vague counts, ages and dates are flagged, never guessed. If a count, age or date is vague or approximate, record a number only if one was actually said, and always add the field to unsureFields.\n4. A treatment question gets no advice. If the clinician asks what to give or how to treat, set adviceRequested to true. Never write advice anywhere: the app shows fixed text pointing to official guidance.\n5. A clinician-stated notifiable condition is captured word for word for the NMC reminder, and Fola never adds a diagnosis of its own. If the clinician says a patient has a diagnosed notifiable condition, copy the condition into notifiableConditionMentioned exactly in the words and the language the clinician used. Do not translate, correct or expand it. Otherwise it is null. Never infer a condition from symptoms.\n6. A note that isn't a report makes no card. If the note doesn't describe any patients, set isReport to false and cards to an empty list.\n\n## Unsure fields and questions\n\n- unsureFields lists every field the clinician must confirm: anything vague, missing, unclear, or where the transcripts disagree.\n- The required fields (symptomGroup, caseCount, comparedWithUsual, ageGroup, area, onset) go in unsureFields whenever they are null.\n- Don't mark a field unsure when the note states it clearly: every question takes a busy clinician's time.\n- For each field in unsureFields, add one short, plain-English question to questions.\n\n## transcriptClean\n\nThe best single transcript of what was said, merged from both transcripts: keep each language as spoken (don't translate), fix sound-spellings where the other transcript shows the right words, drop doubled words, never add anything that wasn't said, and replace every personal name with [name]. Never replace a name with another word.\n\nReply with JSON only, matching the schema.",
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "isReport",
+      "cards",
+      "notifiableConditionMentioned",
+      "adviceRequested",
+      "transcriptClean",
+      "disagreements"
+    ],
+    "properties": {
+      "isReport": {
+        "type": "boolean"
+      },
+      "cards": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "symptomGroup",
+            "unusualDescription",
+            "symptomsInWords",
+            "caseCount",
+            "comparedWithUsual",
+            "ageGroup",
+            "area",
+            "areaHeard",
+            "onset",
+            "exposure",
+            "observations",
+            "unsureFields",
+            "questions"
+          ],
+          "properties": {
+            "symptomGroup": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "diarrhoea_vomiting",
+                    "bloody_diarrhoea",
+                    "fever_rash",
+                    "cough_flu",
+                    "fever_stiff_neck_confusion",
+                    "sudden_after_eating_drinking",
+                    "red_eyes_itchy_rash",
+                    "something_unusual"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unusualDescription": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "symptomsInWords": {
+              "type": "string"
+            },
+            "caseCount": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "comparedWithUsual": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "more",
+                    "same",
+                    "not_sure"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "ageGroup": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "under_5",
+                    "5_12",
+                    "13_17",
+                    "adult",
+                    "60_plus"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "area": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "Thaga Park",
+                    "Leeba View",
+                    "Sefate Extension",
+                    "Nonyana Flats",
+                    "Mmutla Ridge",
+                    "Kgwedi Heights",
+                    "Lebone Gardens"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "areaHeard": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "onset": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "today",
+                    "last_3_days",
+                    "longer"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "exposure": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "types",
+                "words"
+              ],
+              "properties": {
+                "types": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "water",
+                      "food",
+                      "school",
+                      "event",
+                      "other"
+                    ]
+                  }
+                },
+                "words": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "observations": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "moreSevere",
+                "notResponding",
+                "unusualSymptoms",
+                "shortOfSupplies",
+                "suppliesNote"
+              ],
+              "properties": {
+                "moreSevere": {
+                  "type": "boolean"
+                },
+                "notResponding": {
+                  "type": "boolean"
+                },
+                "unusualSymptoms": {
+                  "type": "boolean"
+                },
+                "shortOfSupplies": {
+                  "type": "boolean"
+                },
+                "suppliesNote": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "unsureFields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "symptomGroup",
+                  "unusualDescription",
+                  "symptomsInWords",
+                  "caseCount",
+                  "comparedWithUsual",
+                  "ageGroup",
+                  "area",
+                  "onset",
+                  "exposure",
+                  "observations"
+                ]
+              }
+            },
+            "questions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field",
+                  "question"
+                ],
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "enum": [
+                      "symptomGroup",
+                      "unusualDescription",
+                      "symptomsInWords",
+                      "caseCount",
+                      "comparedWithUsual",
+                      "ageGroup",
+                      "area",
+                      "onset",
+                      "exposure",
+                      "observations"
+                    ]
+                  },
+                  "question": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "notifiableConditionMentioned": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "adviceRequested": {
+        "type": "boolean"
+      },
+      "transcriptClean": {
+        "type": "string"
+      },
+      "disagreements": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "keywords": [
+    "Kganya",
+    "Thaga Park",
+    "Leeba View",
+    "Sefate Extension",
+    "Nonyana Flats",
+    "Mmutla Ridge",
+    "Kgwedi Heights",
+    "Lebone Gardens"
+  ],
+  "audioPrompt": "Transcribe this voice note word for word. The speaker is a health worker and may switch between Sesotho and English, even in the middle of a sentence. Write every word in the language it was spoken in, using standard South African Sesotho spelling for Sesotho words. Do not translate anything. Mark any word you cannot make out as [?]. Never add words that were not spoken. If you are not sure a phrase was said, write [?] rather than guessing. Reply with the transcript only: no notes, headings or translation.",
+  "audioModel": "muse-spark-1.2",
+  "audioEffort": "low",
+  "audioCap": 4000,
+  "extractModel": "muse-spark-1.3",
+  "extractEffort": "low",
+  "extractCap": 8000,
+  "legacyHash": "cddb48328a27f866"
+}

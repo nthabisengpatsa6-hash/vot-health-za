@@ -1,0 +1,53 @@
+# Task 16 scoring
+
+Part C prepares the scorer; no paid Task 16 call has run yet. The supplied authored fixture contains 10 recordings and 10 expected cards: n09 has two, n10 has none. The production audio ear stays muse-spark-1.2 at low and the code uncertainty rule stays off until the separate scoring decision. Nothing has been deployed.
+
+## Configurations and proof
+
+| Configuration | Card prompt and Voice keywords | Audio model | Audio effort |
+| --- | --- | --- | --- |
+| Baseline | Frozen live inputs | muse-spark-1.2 | low |
+| A | Approved name and local-word changes | muse-spark-1.2 | low |
+| A-min | Same as A | muse-spark-1.2 | minimal |
+| B | Same as A | muse-spark-1.3 | minimal, or low if minimal is rejected |
+
+Baseline's legacy extraction hash is cddb48328a27f866. Before refactoring, a mocked HEAD processNote call captured its exact request bodies, excluding authorization and audio bytes, in functions/test/fixtures/process-note-head.json. The refactored Baseline must produce identical bodies. The scorer-only frozen inputs in scripts/fixtures/extraction-baseline-f05ffb0.json also reproduce that legacy hash; production never imports them. The new combined extraction hash is 0504c523c212791e. Its version-two fingerprint includes the rendered prompt, unchanged reply schema, ordered keywords, audio prompt, all three model IDs, efforts, output caps, provider, uncertainty switch and marker mapping version.
+
+The approved prompt changes are only the product-name placeholder, Local words section and transcriptClean note. The literal lives in functions/shared/product.mjs, re-exported by src/config/product.js. No build hook is needed. Audio prompt and reply schema stay unchanged. Statistics and ranking remain frozen at abc36af17d67a689 and 01622c7f95af2326.
+
+## Run in PowerShell
+
+1. Listen to all ten numbered recordings in test-audio/raw. Review the differences between the two authored expectation fixtures reported in Part C. Keep both tracked fixtures unchanged. Record any listening-based expected-field changes only in the ignored test-audio/expected-corrections.json, keyed by card ID, and set listenedAt to the actual listening date/time. Do not put transcripts or reader names in that file.
+2. In VS Code, open Terminal > New Terminal, choose PowerShell, and use the repository root. `npm.cmd run score:notes -- --dry-run` prints the plan without calls or writes.
+3. Run `npm.cmd run score:notes`. Type a temporary Meta key at the hidden prompt, then a temporary Baseten key at its hidden prompt; Enter skips Baseten. Never paste keys in chat. Read the plan and answer the call-count confirmation. Its upper bound includes the one conditional low-effort check.
+4. The synthetic keyword preflight runs before any recording; rejection stops the run without trimming the 53 keywords. The same generated one-second WAV checks minimal effort. Rejected 1.2 minimal removes A-min; rejected 1.3 minimal triggers a low check. A Baseten 404 skips all Baseten comparisons without substituting a slug.
+5. A rerun resumes saved calls, including failures, without repeating them. Spending above USD 12 pauses new requests; requests already in flight finish and are accounted for. After review, a confirmation allows another USD 12 beyond the recorded total. A successful response without usable billing data pauses and cannot automatically continue. Check provider billing separately for failed requests whose usage was not returned. A partial or malformed JSONL record requires review and is never silently discarded.
+6. At the end, delete both temporary keys in their dashboards and clear clipboard history with Win+V. Send “Run done” and the content-free terminal summary for STOP 2. The agent then runs `npm.cmd run score:report`, which uses local records without network calls.
+
+The runner uses the production two-ear and card modules with injected settings. Identical ears and card requests are shared within each repeat; independent repeats never share paid results. Recordings are processed one at a time and text fixtures at most two at a time. The shared conversion helper strips metadata and creates mono, 16-bit PCM WAV at 24 kHz for numbered recordings, with source-hash sidecars to reject stale conversions. No existing audio is overwritten. Existing converted files without sidecars require review rather than replacement.
+
+## Estimate and prices
+
+For three recording repeats, the upper bound is 320 logical calls: 60 Voice recording calls, 90 audio-ear calls, 120 recording card calls, 32 authored Meta card calls, three Meta preflights, one Baseten preflight, eight Baseten authored cards and six Baseten rankings. A rejected 1.3 minimal effort adds at most one low preflight. Shared identical transcripts can reduce card calls.
+
+The current dry run estimates USD 7.87, about USD 15.74 if every call retries, plus at most USD 0.0172 for the conditional preflight. Forecast runtime is 25–45 minutes. Prices checked 30 Oct 2026: [Meta pricing](https://dev.meta.ai/docs/pricing-rate-limits), [Baseten pricing](https://www.baseten.co/pricing/). Both Spark forecasts use USD 1.25 per million input and USD 4.25 per million output tokens. Voice uses USD 0.18 per hour, floored seconds per file. Text input estimates use UTF-8 bytes/4 plus framing and authored proxies for recording transcripts. Audio estimates use earlier measured tokens (12.5 tokens/second plus framing), not a documented tokenization guarantee. Output forecasts assume the complete caps: audio 4,000; cards and rankings 8,000; small probe 32. The dated Baseten slug uses the published family rate as an estimate.
+
+Voice keyword count, length limits and ordering are not stated in the checked [endpoint reference](https://dev.meta.ai/docs/api-reference/voice/transcribe) or [speech feature page](https://dev.meta.ai/docs/speech-to-text). The [reasoning page](https://dev.meta.ai/docs/reasoning) documents minimal generally, but audio-specific restrictions are not stated; preflights verify acceptance. Meta's [models page](https://dev.meta.ai/docs/models) says Spark 1.3 audio support is incomplete. These are documentation findings, not paid acceptance results.
+
+## Artifacts and privacy
+
+Recording calls, raw replies, ears and pipeline records stay in ignored test-audio/results/notes-calls.jsonl. The content-free actual-cost ledger is notes-ledger.jsonl there. Authored Meta fixture outputs go to fixture-results.jsonl in this directory. The offline report writes scorecard-recordings.md with counts, outcome labels, timings, models, efforts and hashes only. Raw values, excerpts, names and capitalised-word suspects are terminal-only. No paid output files or scorecard are fabricated in Part C.
+
+`npm.cmd run scan:transcripts` compares normalized six-word windows against local transcripts. Its only allowance is test-fixtures/ideal-transcripts.json read with git show at commit 0e77db35cb4207929e1e2d39212bb54fa8ff24e4 (27 Oct 2026 13:36:47 SAST, before recording arrival), blob SHA-256 f69c798e30997df8b13eabd249f35a0d3e4d265367bb4bf95a3c3c9b5d6b11a2. Current fixtures cannot expand it. Reports show allowed source filename/count and failed filenames/counts only. Any expansion requires the user's planning-chat decision. The initial scan is blocked by 71 unallowed overlaps in 14 existing files; none of those frozen inputs or outputs was edited to hide the failure. HANDOVER records the filenames and counts. `npm.cmd run scan:provenance` also checks these directories and existing ranking provenance for credentials, authorization headers, private fields and held-out seeds.
+
+Older local results are unrelated to this run. File creation times in SAST: run-001 27 Oct 10:20:06; run-002 10:28:24; run-003 11:33:40; run-004 11:34:13, all from the older transcription tool. score-001 27 Oct 12:26:02 (low text); score-002 12:27:09 (medium text); score-003 12:29:27 (older audio, two fixtures); score-004 13:34:17 (text rescore); score-005 13:35:05 and score-006 13:49:02 (low text); score-007 29 Oct 08:53:12 (low text). Paired Markdown files have matching creation times. Their metadata and older scripts establish their origin; filesystem times alone are not proof of an API call. All predate the numbered recordings' arrival at 30 Oct 08:38. Existing WAVs belong to the older audio, not these numbered recordings.
+
+## Scoring limits and decision rules
+
+Cards pair by symptom group, then area. The report distinguishes correct, confidently wrong, caught by ask and unnecessary ask, with missing/extra set members and cards counted separately. An unflagged empty required field is a missing-ask diagnostic. Name checks use the authored deny-list. Advice detection is a lexical screening check, not proof of clinical safety. Recording local-word insertions and capitalised words are listening suspects, not automatic failures. Historical authored ideal transcripts supply the script comparison; raw speech still needs human review.
+
+The code uncertainty rule is rescored on the same paid outputs, with no calls. Bare markers require a unique pair of two normalized words before and after in the other transcript; other markers remain unmapped. Literal fields, exposure words and small English number words can map; observations are never turned into required questions. Found, mapped and unmapped counts are reported.
+
+Recommend the new prompt/keywords only with D4-1 and D4-2 passing every run, no listed-word insertion failures across existing authored fixtures, and A's confidently-wrong count no higher than Baseline, consistently in at least two runs. Minimal requires no confidently-wrong increase and faster median both-ears time, consistently in two runs. Compare audio ears at the chosen effort: fewer confidently-wrong fields, or equal counts with fewer total asks, consistently in two runs, and median total time at most two seconds slower. An exact quality tie goes to the consistently faster ear. If effort low is chosen but B has only minimal results, report the gap and retain 1.2 low; propose extra calls separately. Keep the uncertainty rule on only when it catches at least one confidently-wrong field consistently in two runs and adds no more than one unnecessary ask per three cards on average. Missing results never justify adoption.
+
+STOP 3 needs explicit approval of prompt/keywords, audio model/effort and rule setting. Applying settings, deploying processNote, phone checks and pushing are later, separate approvals.
