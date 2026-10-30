@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {ALLOWANCE, OWN_AUDIO_INPUTS, compareText, collectTranscripts, collectPrivateTexts, historicalAllowance, sixWords, inputKind, scanTranscripts} from "../../scripts/scan-transcripts.mjs";
+import {ALLOWANCE, OWN_AUDIO_INPUTS, PRE_RUN_COMMIT, preRunAllowance, provenanceChunks, compareText, collectTranscripts, collectPrivateTexts, historicalAllowance, sixWords, inputKind, scanTranscripts} from "../../scripts/scan-transcripts.mjs";
+import {authoredInputCatalog, verifiedAuthoredRecord} from "../../scripts/lib/authoredInputs.mjs";
+import {hashOf} from "../../scripts/lib/noteArtifacts.mjs";
+import {ideal} from "../../scripts/lib/notePlans.mjs";
+import {planRankings} from "../../scripts/lib/rankPlans.mjs";
 import {fileURLToPath} from "node:url";
 import {execFileSync} from "node:child_process";
 import {mkdirSync, mkdtempSync, writeFileSync} from "node:fs";
@@ -78,4 +82,61 @@ test("scan excludes authored text and own audio but catches reader card-only ove
   assert.deepEqual(scanTranscripts(root, {git}).failures, []);
   writeFileSync(path, JSON.stringify({payload:{reply:{cards:[{symptomsInWords:sentence}]}}}));
   assert.equal(scanTranscripts(root, {git}).failures[0].count, 1);
+});
+
+test("additional historical allowance reads only the exact approved commit", () => {
+  const calls = [], sentence = "ibis copper amber lilac granite willow";
+  const result = preRunAllowance("unused", (args) => {calls.push(args); return args[0] === "ls-tree" ? "historical.md\n" : sentence;});
+  assert.equal(PRE_RUN_COMMIT, "44a37d3e315c42721ca92b734ddbbb24c34c618c");
+  assert.deepEqual(calls, [["ls-tree", "-r", "--name-only", PRE_RUN_COMMIT], ["show", `${PRE_RUN_COMMIT}:historical.md`]]);
+  assert.equal(result.get(sentence), "historical.md");
+  assert.ok(!result.has("current file content never expands this allowance"));
+});
+test("authored catalog verifies fixture identities and rebuilt tuning simulation hashes", () => {
+  const catalog = authoredInputCatalog();
+  for (const text of Object.values(ideal)) assert.ok(catalog.hashes.has(hashOf(text)));
+  const plans = planRankings({sets:["all"]}); assert.equal(plans.length, 79);
+  for (const plan of plans) assert.ok(catalog.hashes.has(hashOf(plan.input)));
+  for (const [callId, identity] of catalog.legacy) {
+    const {inputHash:omitted, ...metadata} = identity;
+    assert.ok(omitted);
+    assert.ok(verifiedAuthoredRecord({callId, kind:"fixture", ...metadata}, catalog));
+    assert.ok(!verifiedAuthoredRecord({callId, kind:"fixture", ...metadata, run:99}, catalog));
+  }
+  assert.equal(catalog.legacy.size, 40);
+});
+test("provenance exemption is per verified authored record, not a whole file", () => {
+  const sentence = "ibis copper amber lilac granite willow", input = "authored synthetic input", inputHash = hashOf(input);
+  const catalog = {hashes:new Set([inputHash]), legacy:new Map()}, row = {kind:"fixture", inputHash, payload:{reply:{transcriptClean:sentence}}};
+  const known = provenanceChunks(JSON.stringify(row), "docs/provenance/synthetic.jsonl", catalog);
+  assert.equal(known.records, 1); assert.deepEqual(known.texts, []);
+  const unverified = {...row, inputHash:hashOf("unapproved input")};
+  const mixed = provenanceChunks([row, unverified].map(JSON.stringify).join("\n"), "docs/provenance/synthetic.jsonl", catalog);
+  assert.equal(mixed.records, 1); assert.equal(mixed.texts.length, 1); assert.ok(mixed.texts[0].includes(sentence));
+  assert.equal(provenanceChunks(JSON.stringify(row), "test-fixtures/synthetic.json", catalog).records, 0);
+  for (const audio of [{kind:"recording"}, {stage:"voice"}, {stage:"audio"}, {stage:"pipeline"}, {inputType:"audio"}]) assert.equal(verifiedAuthoredRecord({...row, ...audio}, catalog), false);
+  assert.equal(verifiedAuthoredRecord({...row, input:"wrong text"}, catalog), false);
+  const envelope = provenanceChunks(JSON.stringify({records:[row, unverified], metadata:sentence}), "docs/provenance/synthetic.json", catalog);
+  assert.equal(envelope.records, 1); assert.equal(envelope.texts.length, 2);
+});
+
+test("scan combines the two approved additions while retaining per-file failures", () => {
+  const repo = fileURLToPath(new URL("../../", import.meta.url)), parent = join(repo, ".scratch"); mkdirSync(parent, {recursive:true});
+  const root = mkdtempSync(join(parent, "a2-scan-")), dir = join(root, "test-audio", "results"); mkdirSync(dir, {recursive:true});
+  mkdirSync(join(root, "docs", "provenance"), {recursive:true});
+  const past = "ibis copper amber lilac granite willow", novel = "heron silver azure fern quartz birch", authored = "made up source input", inputHash = hashOf(authored);
+  writeFileSync(join(dir, "synthetic.jsonl"), JSON.stringify({kind:"recording", id:"n01", transcript:`${past}. ${novel}`}));
+  writeFileSync(join(root, "tracked.txt"), `${past}\n${novel}`);
+  writeFileSync(join(root, "docs", "provenance", "synthetic.jsonl"), JSON.stringify({kind:"fixture", inputHash, payload:{reply:{transcriptClean:novel}}}));
+  const git = (args) => {
+    if (args[0] === "show") return args[1].startsWith(PRE_RUN_COMMIT) ? past : execFileSync("git", args, {cwd:repo, encoding:"utf8"});
+    if (args[0] === "ls-tree") return "historical.md\n";
+    if (args[0] === "check-ignore") return args.at(-1);
+    return args.includes("-z") ? "tracked.txt\0docs/provenance/synthetic.jsonl\0" : "";
+  };
+  const result = scanTranscripts(root, {git, catalog:{hashes:new Set([inputHash]), legacy:new Map()}});
+  assert.deepEqual(result.failures, [{file:"tracked.txt", count:6}]);
+  assert.ok(result.allowed.some((row) => row.file === `${PRE_RUN_COMMIT}:historical.md` && row.count === 1));
+  assert.deepEqual(result.verifiedProvenance, [{file:"docs/provenance/synthetic.jsonl", records:1}]);
+  assert.ok(!JSON.stringify(result).includes(past)); assert.ok(!JSON.stringify(result).includes(novel));
 });

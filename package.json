@@ -12,6 +12,8 @@
     "rank:saved": "node scripts/rank-saved.mjs",
     "score:notes": "node scripts/score-notes.mjs",
     "score:report": "node scripts/score-report.mjs",
+    "score:a2": "node scripts/score-revision.mjs",
+    "score:a2:report": "node scripts/score-revision-report.mjs",
     "scan:transcripts": "node scripts/scan-transcripts.mjs",
     "scan:provenance": "node scripts/scan-provenance.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-fola \"node --test --test-concurrency=1 test/rules/*.test.js\"",

@@ -18,7 +18,7 @@ export class NoteBudget {
   }
   meter(body, {provider, model, callId, audio = false, durationSeconds = null, status = 200}) {
     let usd = 0, unknownCost = false;
-    let inputTokens = null, outputTokens = null, billedSeconds = null;
+    let inputTokens = null, outputTokens = null, reasoningTokens = null, billedSeconds = null;
     if (audio) {
       if (status >= 200 && status < 300) {
         const seconds = Number.isFinite(body?.audioDurationMs) ? body.audioDurationMs / 1000 : durationSeconds;
@@ -28,9 +28,13 @@ export class NoteBudget {
     } else if (Number.isSafeInteger(body?.usage?.prompt_tokens) && body.usage.prompt_tokens >= 0 &&
       Number.isSafeInteger(body?.usage?.completion_tokens) && body.usage.completion_tokens >= 0) {
       inputTokens = body.usage.prompt_tokens; outputTokens = body.usage.completion_tokens;
+      const reasoning = body.usage.completion_tokens_details?.reasoning_tokens;
+      if (Number.isSafeInteger(reasoning) && reasoning >= 0) reasoningTokens = reasoning;
+      // completion_tokens already includes reasoning; never add it twice.
+      if (reasoningTokens !== null && reasoningTokens > outputTokens) unknownCost = true;
       usd = (inputTokens * 1.25 + outputTokens * 4.25) / 1e6;
     } else if (status >= 200 && status < 300) unknownCost = true;
-    const row = {date:new Date().toISOString(), callId, provider, model, status, inputTokens, outputTokens, billedSeconds, usd, unknownCost};
+    const row = {date:new Date().toISOString(), callId, provider, model, status, inputTokens, outputTokens, reasoningTokens, billedSeconds, usd, unknownCost};
     this.append(this.path, row, {privateRecord:true});
     this.rows.push(row); this.total += usd; this.unknown ||= unknownCost;
   }

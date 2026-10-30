@@ -6,6 +6,20 @@ const require = createRequire(import.meta.url);
 const {callRanker} = require("../../functions/lib/callRanker.js");
 export const BASE_URL = "https://inference.baseten.co/v1";
 
+export function finalAnswer(message) {
+  let text = Array.isArray(message?.content) ? message.content.filter((part) => part.type === "text").map((part) => part.text || "").join("") : message?.content;
+  if (typeof text !== "string") return null;
+  text = text.replace(/<(?:think|analysis)>[\s\S]*?<\/(?:think|analysis)>/gi, "");
+  if (/<(?:think|analysis)>/i.test(text)) return null;
+  const final = text.match(/<final>([\s\S]*?)<\/final>/i);
+  return (final ? final[1] : text).trim();
+}
+export function usageOnly(usage) {
+  if (!usage) return null;
+  return {prompt_tokens:usage.prompt_tokens, completion_tokens:usage.completion_tokens,
+    ...(usage.completion_tokens_details?.reasoning_tokens !== undefined ? {completion_tokens_details:{reasoning_tokens:usage.completion_tokens_details.reasoning_tokens}} : {})};
+}
+
 export function assertBasetenInput(body, source, seed) {
   if (!["fixture", "ranking", "probe"].includes(source)) throw new Error("Only authored text or simulation may reach Baseten.");
   if (source === "ranking" || seed !== undefined) assertTuningSeeds([seed]);
@@ -39,11 +53,11 @@ export async function callBaseten(body, {apiKey, source, seed, fetch:fetchImpl =
         headers:{Authorization:`Bearer ${apiKey}`, "Content-Type":"application/json"}, body:JSON.stringify(payload)});
       if (!response.ok) throw Object.assign(new Error("Provider HTTP failure."), {kind:"http", status:response.status});
       const envelope = await response.json();
-      const text = envelope.choices?.[0]?.message?.content;
+      const text = finalAnswer(envelope.choices?.[0]?.message);
       assertNoSecrets(text, [apiKey]);
       attemptMs.push(Math.round(performance.now() - at));
       if (envelope.choices?.[0]?.finish_reason !== "stop" || typeof text !== "string") throw Object.assign(new Error("Incomplete reply."), {kind:"bad-reply"});
-      return {text, usage:envelope.usage || null, attempts:attempt, attemptMs, latencyMs:Math.round(performance.now() - started), failures:[]};
+      return {text, usage:usageOnly(envelope.usage), attempts:attempt, attemptMs, latencyMs:Math.round(performance.now() - started), failures:[]};
     } catch (error) {
       if (attemptMs.length < attempt) attemptMs.push(Math.round(performance.now() - at));
       const kind = error.kind || (controller.signal.aborted ? "timeout" : "network");

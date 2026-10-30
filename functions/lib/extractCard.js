@@ -29,11 +29,10 @@ const listLines = (entries) =>
 // The prompt lives in its own file so it can be tuned without touching code.
 // The lists are filled in from cardSchema so each exists in one place; a
 // placeholder left unfilled means the template and the code disagree.
-function buildSystemPrompt() {
-  const template = readFileSync(
+function buildSystemPrompt(template = readFileSync(
       join(__dirname, "..", "prompts", "extract-card.md"),
       "utf8",
-  );
+  )) {
   const values = {
     PRODUCT_NAME,
     LOCAL_TERMS: JSON.stringify(LOCAL_TERMS),
@@ -161,5 +160,6 @@ async function extractCard({transcriptA = null, transcriptB = null}, {
 }
 
 exports.SYSTEM_PROMPT = SYSTEM_PROMPT;
+exports.buildSystemPrompt = buildSystemPrompt;
 exports.userMessage = userMessage;
 exports.extractCard = extractCard;

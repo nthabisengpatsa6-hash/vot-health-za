@@ -61,9 +61,9 @@ export function printPlan(plan, print = console.log) {
 }
 
 export class NoteRunner {
-  constructor({root = ROOT, metaKey, basetenKey = "", fetch = globalThis.fetch, budget, state, print = console.log} = {}) {
+  constructor({root = ROOT, metaKey, basetenKey = "", fetch = globalThis.fetch, budget, state, recordPaths, print = console.log} = {}) {
     this.root = root; this.metaKey = metaKey; this.basetenKey = basetenKey; this.fetch = fetch; this.print = print;
-    this.paths = paths(root); this.state = state || gitState(root); this.budget = budget || new NoteBudget(this.paths.ledger);
+    this.paths = recordPaths || paths(root); this.state = state || gitState(root); this.budget = budget || new NoteBudget(this.paths.ledger);
     this.saved = new Map(); this.inflight = new Map();
     for (const path of [this.paths.private, this.paths.fixtures, this.paths.baseten, this.paths.rankings]) {
       for (const row of readLines(path)) if (row.callId) this.saved.set(row.callId, row);
@@ -107,19 +107,24 @@ export class NoteRunner {
               payload = raw;
             } catch { /* Keep safe failure metadata; never persist rejected content. */ }
           }
+          if (error.diagnostics && spec.provider === "baseten" && spec.stage === "slug-check") {
+            try {assertPublic(error.diagnostics, [this.metaKey, this.basetenKey]); payload = {diagnostics:error.diagnostics};} catch {}
+          }
         }
         const actual = this.budget.rows.slice(at).filter((row) => row.callId === callId);
         const record = {callId, ...this.state, kind:spec.kind, stage:spec.stage, id:spec.id, run:spec.run || 0,
           configuration:spec.configuration || "shared", extractionHash:spec.extractionHash || configurations()[1].extractionHash,
           configurationHash:spec.identity.configurationHash || hashOf(spec.identity),
           model:spec.model, effort:spec.effort || null, provider:spec.provider,
+          ...((spec.inputHash || spec.identity.inputHash || spec.identity.text) ? {inputHash:spec.inputHash || spec.identity.inputHash || spec.identity.text} : {}),
           baseUrl:spec.provider === "baseten" ? BASE_URL : "https://api.meta.ai/v1",
           date:new Date().toISOString(), timings:{callMs:Math.round(performance.now() - started), conversionMs:null,
             voiceMs:["voice", "keyword-check"].includes(spec.stage) ? Math.round(performance.now() - started) : null,
             audioMs:["audio", "effort-check"].includes(spec.stage) ? Math.round(performance.now() - started) : null,
             bothEarsMs:null, cardMs:spec.stage === "card" ? Math.round(performance.now() - started) : null,
             totalMs:Math.round(performance.now() - started)},
-          tokens:{input:actual.reduce((n, row) => n + (row.inputTokens || 0), 0), output:actual.reduce((n, row) => n + (row.outputTokens || 0), 0)},
+          tokens:{input:actual.reduce((n, row) => n + (row.inputTokens || 0), 0), output:actual.reduce((n, row) => n + (row.outputTokens || 0), 0),
+            reasoning:actual.reduce((n, row) => n + (row.reasoningTokens || 0), 0)},
           billedSeconds:actual.reduce((n, row) => n + (row.billedSeconds || 0), 0),
           attempts:payload?.attempts || failure?.attempts || 1, outcome:failure ? failure.kind : "ok",
           ...(failure ? {failure, ...(payload ? {payload} : {})} : {payload})};
@@ -127,7 +132,7 @@ export class NoteRunner {
         this.save(spec.path || (privateRecord ? this.paths.private : this.paths.fixtures), record, privateRecord);
         if (spec.provider === "baseten") {
           const {payload:_payload, failure:_failure, ...log} = record;
-          appendRecord(this.paths.log, log, {keys:[this.metaKey, this.basetenKey]});
+          appendRecord(this.paths.log, {...log, status:record.failure?.status ?? null}, {keys:[this.metaKey, this.basetenKey]});
         }
         return record;
       }).finally(() => {entry.done = true;});
