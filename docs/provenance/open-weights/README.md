@@ -1,6 +1,8 @@
 # Script-only Muse Spark Open comparison
 
-Part C has made no Baseten inference calls. The scorer requests exactly meta-models/muse-spark-open-1026 at https://inference.baseten.co/v1, effort low. A small authored-text probe comes first; HTTP 404 skips every Baseten comparison without another slug. The checked official pages name the model family but did not verify this exact dated slug.
+The user's 30 Oct run made one authored-text probe for exactly meta-models/muse-spark-open-1026 at https://inference.baseten.co/v1, effort low. It returned HTTP 404 after one attempt. All eight authored-card and six simulated-ranking comparisons were skipped; this was not a missing-key skip. The saved metadata does not distinguish an absent model from access-related 404 handling. run-log.jsonl contains only the probe's safe metadata. The checked official pages name the model family but did not verify this exact dated slug.
+
+The failed probe is cached: rerunning score:notes does not retry it. The current CLI has no Baseten-only mode. Before a later run, separately approve a follow-up that preserves this failure, creates a new explicit probe attempt, prompts only for a temporary Baseten key, forbids Meta requests and recording inputs, and runs at most one probe plus eight authored cards and six rankings if successful. No Meta call needs repeating. Do not delete cached results, silently change probe identity or substitute a model. No such follow-up has been run or authorized by the Part D results.
 
 Only authored text fixtures and simulated ranking inputs for tuning seeds 1, 2, 4, 5, 8 and 9 are allowed. Audio and recording-derived transcripts never go to Baseten. Seeds outside the tuning set are refused before a request. No deployed function imports the comparison client, and production callRanker still refuses non-Meta providers.
 

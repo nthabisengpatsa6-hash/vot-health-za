@@ -58,9 +58,13 @@ test("default report keeps synthetic private values out; only local mode prints 
       cards:[{symptomGroup:"diarrhoea_vomiting", caseCount:4, comparedWithUsual:"more", ageGroup:"under_5", area:"Thaga Park", onset:null,
         exposure:{types:["water"], words:"SyntheticExposureCanary water"}, observations:{}, unsureFields:["onset"],
         symptomsInWords:"look SyntheticCapitalCanary", questions:[]}]}}};
-  writeFileSync(join(dir, "notes-calls.jsonl"), JSON.stringify(row) + "\n");
+  const probe = {callId:"synthetic-probe", kind:"preflight", stage:"slug-check", provider:"baseten", id:"authored-probe", run:0,
+    configuration:"shared", model:"meta-models/muse-spark-open-1026", effort:"low", attempts:1, outcome:"http",
+    failure:{kind:"http", status:404}, payload:{rawOutput:"SyntheticFailureCanary"}};
+  writeFileSync(join(dir, "notes-calls.jsonl"), [row, probe].map((item) => JSON.stringify(item)).join("\n") + "\n");
   const lines = [], safe = generateReport({root, write:false, print:(line) => lines.push(line)});
   assert.ok(!lines.join("\n").includes("Canary")); assert.ok(!safe.markdown.includes("Canary"));
+  assert.ok(safe.markdown.includes("Saved records: 2")); assert.ok(safe.markdown.includes("skipped after probe outcome http, HTTP 404, attempts 1"));
   assert.equal(safe.evaluated[0].score.fields.find((field) => field.field === "comparedWithUsual").outcome, "correct");
   const details = []; generateReport({root, write:false, showLocal:true, print:(line) => details.push(line)});
   for (const text of ["SyntheticTranscriptCanary", "SyntheticEarCanary", "SyntheticExposureCanary", "SyntheticCapitalCanary"]) {

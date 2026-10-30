@@ -122,6 +122,14 @@ export function generateReport({root = ROOT, local, showLocal = false, print = c
   }
   for (const plan of textPlans()) if (!fixtureRows.some((row) => row.id === plan.id && row.configuration === plan.config.name && row.run === plan.run)) missing.push(`fixture/${plan.id}/${plan.config.name}/${plan.run}`);
   const baseRows = readLines(files.baseten), rankRows = readLines(files.rankings);
+  const allRows = [...new Map([...privateRows, ...fixtureRows, ...baseRows, ...rankRows].map((row) => [row.callId, row])).values()];
+  const recordTypes = new Map();
+  for (const row of allRows) {
+    const key = `${row.provider || "none"}|${row.kind || "unknown"}|${row.stage}`;
+    recordTypes.set(key, (recordTypes.get(key) || 0) + 1);
+  }
+  const failedCalls = allRows.filter((row) => row.failure || row.outcome && row.outcome !== "ok");
+  const baseProbe = allRows.filter((row) => row.provider === "baseten" && row.stage === "slug-check").at(-1);
   if (manifest?.baseten) {
     for (const plan of basetenPlans()) if (!baseRows.some((row) => row.id === plan.id)) missing.push(`baseten/${plan.id}`);
     for (const seed of [1, 2, 4, 5, 8, 9]) if (!rankRows.some((row) => row.id === `seed-${seed}`)) missing.push(`baseten/ranking/${seed}`);
@@ -135,6 +143,12 @@ export function generateReport({root = ROOT, local, showLocal = false, print = c
       [...new Map(unique.map((row) => [JSON.stringify([row.configuration, row.configurationHash, row.gitCommit, row.dirty]), row])).values()].map((row) => [
         row.configuration, row.models.voice, row.models.audio, row.effort, row.models.card, row.extractEffort,
         row.extractionHash, row.configurationHash, row.gitCommit, row.dirty])), "",
+    "## Call records and unavailable components", "",
+    `Saved records: ${allRows.length}. Pipeline summaries are not additional API calls. Identical card requests may serve multiple configurations.`, "",
+    table(["Provider", "Kind", "Stage", "Records"], [...recordTypes].map(([key, count]) => [...key.split("|"), count])), "",
+    table(["Provider", "ID", "Run", "Configuration", "Stage", "Outcome", "HTTP status", "Attempts"], failedCalls.map((row) => [
+      row.provider, row.id, row.run, row.configuration, row.stage, row.outcome, row.failure?.status, row.attempts])), "",
+    "A completed pipeline can use one ear when the other is unavailable; the component failures above remain recorded.", "",
     "## Per-recording field outcomes", "",
     table(["Recording", "Configuration", "Run", "Card", "Field", "Outcome"], evaluated.flatMap((item) => item.score ?
       item.score.fields.map((field) => [item.row.id, item.row.configuration, item.row.run, field.card, field.field, field.outcome]) :
@@ -177,7 +191,8 @@ export function generateReport({root = ROOT, local, showLocal = false, print = c
         falseInsertions(row.payload.reply, ideal[row.id]).extra.length)).length,
       sum(evaluated.filter((item) => item.row.configuration === name), (item) => item.suspects.length)])), "",
   ];
-  sections.push("## Baseten authored comparison", "", `Baseten: ${manifest?.baseten ? "included" : "skipped or not run"}. Requested model meta-models/muse-spark-open-1026, effort low, at https://inference.baseten.co/v1.`, "",
+  const baseStatus = manifest?.baseten ? "included" : baseProbe ? `skipped after probe outcome ${baseProbe.outcome}, HTTP ${baseProbe.failure?.status ?? "unavailable"}, attempts ${baseProbe.attempts}` : "skipped before any probe or not run";
+  sections.push("## Baseten authored comparison", "", `Baseten: ${baseStatus}. Requested model meta-models/muse-spark-open-1026, effort low, at https://inference.baseten.co/v1.`, "",
     table(["Fixture", "Provider", "Outcome", "CW", "Caught", "Unnecessary", "JSON failure", "Milliseconds", "Input tokens", "Output tokens"],
     basetenPlans().flatMap((plan) => [["meta", fixtureRows.find((row) => row.id === plan.id && row.configuration === "A" && row.run === 1)],
       ["baseten", baseRows.find((row) => row.id === plan.id)]].map(([provider, row]) => {
@@ -200,7 +215,7 @@ export function generateReport({root = ROOT, local, showLocal = false, print = c
     decision.comparison, "Meta documents incomplete Spark 1.3 audio support.",
     `Rule: ${decision.turned} confidently wrong fields caught; ${decision.asksAdded} unnecessary asks added across ${decision.cards} cards.`,
     "```json", JSON.stringify({prompt:decision.promptChecks, effort:decision.effortChecks, audio:decision.audioChecks}, null, 2), "```", "",
-    "## Completion", "", missing.length ? missing.map((item) => `- ${item}`).join("\n") : "Every expected logical result is present.", "");
+    "## Completion", "", missing.length ? missing.map((item) => `- ${item}`).join("\n") : "Every expected logical pipeline/fixture result is present. Individual unavailable components are listed above.", "");
   const markdown = sections.join("\n");
   assertPublic({markdown});
   if (write) {
