@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {fileURLToPath} from "node:url";
 import {createRequire} from "node:module";
-import {NoteRunner} from "../../scripts/score-notes.mjs";
+import {NoteRunner, printRunSummary} from "../../scripts/score-notes.mjs";
 import {configurations, estimate, requireListened, textPlans} from "../../scripts/lib/notePlans.mjs";
 import {NoteBudget, SpendingPause} from "../../scripts/lib/noteBudget.mjs";
 import {assertNoSecrets} from "../../scripts/lib/noteArtifacts.mjs";
@@ -22,6 +22,15 @@ const runner = () => {
   return value;
 };
 const spec = {kind:"fixture", stage:"card", id:"synthetic", provider:"meta", model:"muse-spark-1.3", identity:{test:"resume"}};
+
+test("pasteable run summary prints counts and settings without saved content", () => {
+  const lines = [];
+  printRunSummary({saved:new Map([["one", {transcript:"SyntheticSummaryCanary", cards:[{words:"SyntheticSummaryCanary"}]}]]),
+    budget:{total:0.25}, basetenAvailable:false}, configurations(), 3, (line) => lines.push(line));
+  assert.ok(lines.join("\n").includes("Run done"));
+  assert.ok(lines.join("\n").includes("Saved records 1"));
+  assert.ok(!lines.join("\n").includes("SyntheticSummaryCanary"));
+});
 
 test("four configurations isolate prompts, efforts and models", () => {
   const configs = configurations();

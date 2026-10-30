@@ -1,6 +1,6 @@
 # HANDOVER
 
-**Last updated:** 2026-10-30 12:32 SAST
+**Last updated:** 2026-10-30 13:46 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
@@ -8,7 +8,7 @@ The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 O
 
 ## Where we are
 
-Task 16 Part C is built for the user-run scoring step, not deployed. Production source defaults retain audio ear muse-spark-1.2 at low and the code uncertainty rule off. The approved name/local-word changes have combined extraction hash 0504c523c212791e; live processNote still has legacy hash cddb48328a27f866. No paid Task 16 calls have run. STOP 2 waits for “Run done” and the user's content-free terminal summary. The strict transcript scan currently fails on pre-existing overlaps outside its fixed historical allowance; pushing remains blocked. See the Task 16 section below.
+Task 16 Part C is built for the user-run scoring step, not deployed. Production source defaults retain audio ear muse-spark-1.2 at low and the code uncertainty rule off. The approved name/local-word changes have combined extraction hash 0504c523c212791e; live processNote still has legacy hash cddb48328a27f866. No paid Task 16 calls have run. STOP 2 waits for “Run done” and the user's content-free terminal summary. The updated private-audio scan passes under the user's fixed own-recording exceptions; the historical text allowance is unchanged. Default reporting and Part D's reply are content-free; private details are for the user's --local terminal only. See the Task 16 section below.
 
 Fri 30 Oct. Task 15b is complete and live from 242503c. Public /demo shows saved seed-one rankings with their evidence; signed-in /app/replay also ranks live through rankSources. Both deploys had separate approvals, asked no CLI questions and passed live verification. All five phone checks passed around 10:15 SAST: private-tab saved ranking, signed-in live ranking and Show saved ranking, content-free timing logs, Report record/check/save, and email sign-in. The live ranking took 9,841 ms at low effort, one attempt. processNote was not redeployed: its code hash is still 851f9cbd… and Nthabi confirmed revision processnote-00004-lag at 100% traffic with the same deployment age before and after F1.
 
@@ -35,34 +35,40 @@ The frozen engine and extraction inputs are unchanged. Today, Signal detail, not
 - Shared production pipeline: functions/lib/notePipeline.js delegates the existing two-ear listener and extraction module, with settings injected for scoring. A mocked pre-refactor HEAD capture proves Baseline request bodies match exactly, excluding audio bytes and authorization. Existing processNote tests are unchanged: daily cap before paid calls, retry/status rules, timeouts, 30-second second-ear allowance, client error codes and note_timing keys remain covered. Error text is sanitized. firebase.json, functions/package.json, reply schema, statistics, ranking prompt and ranking settings are untouched.
 - One product-name literal now lives in functions/shared/product.mjs; src/config/product.js re-exports it. AGENTS.md and CLAUDE.md rule 8 change identically. No build hook or screen change. Prompt changes are only the approved name placeholder, Local words section and transcriptClean note. Voice keywords are the existing eight place names followed by 45 prioritized local words. Audio prompt is unchanged.
 - Configurations: Baseline (frozen prompt/keywords, 1.2 low), A (new prompt/keywords, 1.2 low), A-min (A with 1.2 minimal), B (A with 1.3 minimal). Baseline and A share the audio ear; candidates share new-keyword Voice calls. Identical calls share results within a repeat only. A rejected 1.2 minimal preflight removes A-min; rejected 1.3 minimal verifies low for B. Text fixtures run per card prompt. Schema is unchanged for every configuration.
-- Run in VS Code's PowerShell terminal at the repository root: first `npm.cmd run score:notes -- --dry-run`, then the user alone runs `npm.cmd run score:notes` with hidden temporary-key prompts. Baseten Enter skips it. Before any paid call, listen to all ten recordings, resolve the authored expected-field differences locally, and set listenedAt in ignored test-audio/expected-corrections.json. Both tracked expectation fixtures stay unchanged. No agent uses a real key. The listening gate is still locked.
+- Run in VS Code's PowerShell terminal at the repository root: first `npm.cmd run score:notes -- --dry-run`, then the user alone runs `npm.cmd run score:notes` with hidden temporary-key prompts. Baseten Enter skips it. The user-approved follow-up fixes n01/n06 onset and n09b ageGroup to ask in recordings-expected.json, retaining exposureKeyTerms and acceptUnsure; expected-cards.json stays unchanged. The ignored corrections file has listenedAt 2026-10-30 and one expected-field correction. Later corrections are re-read at report time and need no model calls. No agent uses a real key. The listening gate is ready.
 - Current dry plan: three repeats, 320 logical calls, plus at most one conditional Spark 1.3 low check. Meta: 60 recording Voice, 90 audio, 120 card, 32 authored text and three preflights (305 total). Baseten: probe one, authored cards eight, simulated rankings six (15 total). Forecast USD 7.87 with full output caps; USD 15.74 if every call retries; conditional check USD 0.0172. Time 25–45 minutes. Actual returned token counts and billed seconds feed an ignored content-free ledger; new requests pause above USD 12. Explicit reviewed continuation grants another USD 12 beyond recorded spending. Missing successful-response usage pauses without automatic continuation. Completed successes and failures are never repeated. In-flight calls finish before exit.
 - Preflights use generated audio only: test all 53 Voice keywords once, then minimal audio efforts. A keyword rejection stops without trimming the list. Baseten's exact meta-models/muse-spark-open-1026 slug is probed with authored text; 404 skips every Baseten part without substitution. Baseten receives only authored text or simulated ranking input. It uses production ranking request construction and validateRanking unchanged; deployed callRanker's non-Meta refusal stays intact. Pricing/limits/schema caveats and checked official links are in docs/provenance/scoring/README.md and open-weights/README.md.
-- Private output: test-audio/results/notes-calls.jsonl and notes-ledger.jsonl. Public output: authored fixture JSONL under docs/provenance/scoring/; authored/simulated comparison records and content-free run log under docs/provenance/open-weights/. These paid outputs and the aggregate scorecard are created only by actual runs/reporting, not fabricated now. `npm.cmd run score:report` uses no network, keeps all recording values/excerpts in the terminal and writes aggregate outcome labels/counts/timings/models/efforts/hashes only. Sample size is 10 recordings and 10 expected cards.
+- Private output: test-audio/results/notes-calls.jsonl and notes-ledger.jsonl. Public output: authored fixture JSONL under docs/provenance/scoring/; authored/simulated comparison records and content-free run log under docs/provenance/open-weights/. These paid outputs and the aggregate scorecard are created only by actual runs/reporting, not fabricated now. `npm.cmd run score:report` uses no network and prints/writes aggregate outcome labels/counts/timings/models/efforts/hashes only by default. The user alone may run `npm.cmd run score:report -- --local` in their own terminal for values, clean transcripts, raw ear phrases, suspects and capitalised words. The agent must never open, read or print n01–n10 recording-derived transcripts, cards or excerpts, and none may enter chat. Part D's reply is content-free. The score:notes end-of-run summary contains only settings, counts, cost and Baseten status, followed by cleanup instructions; it is safe to paste. Sample size is 10 recordings and 10 expected cards.
 - Decision rules: differences need consistency in at least two of three runs. New prompt/keywords need D4-1 and D4-2 passing every run, no existing-fixture insertion failures and A confidently-wrong counts no higher than Baseline. Minimal needs no confidently-wrong increase and faster both-ears median. Audio 1.3 needs better quality (fewer confidently wrong, or equal with fewer total asks) and total median at most two seconds slower; an exact quality tie goes to the consistently faster ear. If low wins but B only has minimal data, report the gap and retain 1.2 low; extra calls need a separate proposal. Meta documents incomplete Spark 1.3 audio support. The code rule needs a confidently-wrong field caught consistently and at most one unnecessary ask per three cards. Bare markers require a unique two-word anchor on each side; unmapped markers are counted. STOP 3 must approve prompt/keywords, model/effort and rule explicitly.
-- Checks: web 196, Functions 112, local demo-fola rules 94; lint/build and provenance scan pass. Import/determinism checks and frozen signal/ranking pins abc36af17d67a689 / 01622c7f95af2326 pass. Dry run makes zero network calls or writes. The transcript scan intentionally reports the unresolved strict-policy failure below. No deploy, push, delete or paid inference was performed.
+- Checks: web 196, Functions 112, local demo-fola rules 94; lint/build and provenance scan pass. Import/determinism checks and frozen signal/ranking pins abc36af17d67a689 / 01622c7f95af2326 pass. Dry run makes zero network calls or writes. The initial transcript-scan rejection is resolved by the user's private-input classification below; the fixed historical allowance stays unchanged. No deploy, push, delete or paid inference was performed.
 - Later: after scoring approval, apply only the approved settings and run all checks. STOP 4 separately approves only processNote deployment. Before/after, verify all three live service revisions and that only processNote changes. Phone verification then covers two made-up notes: mixed-language local food plus a Kganya place, and plain English with no food words. Both saved cards join the separately approved-delete list; exact paths must be found. STOP 5 is the phone-check result; wrap-up/history and pre-push checks precede STOP 6.
 
-### Fixed privacy allowance and current blocker
+### Fixed privacy classification, allowance and overlap audit
 
-The only allowed transcript overlap comes from test-fixtures/ideal-transcripts.json read with git show at commit 0e77db35cb4207929e1e2d39212bb54fa8ff24e4 (27 Oct 2026 13:36:47 SAST, before recordings arrived 30 Oct 08:38), blob SHA-256 f69c798e30997df8b13eabd249f35a0d3e4d265367bb4bf95a3c3c9b5d6b11a2. It never derives from current files or grows automatically. Only the user's planning-chat decision can expand it. A six-word overlap fails unless that exact normalized run occurs in those historical authored texts. The report names files and counts only, never words. The initial scan allowed 333 overlaps from that historical fixture and failed 71 overlaps across these 14 existing files; none was changed to hide the failure:
+Private means transcripts and cards produced from audio inputs, except the user's own recordings in this exact fixed list: clear-english-16k.wav, clear-english-24k.wav, mixed-sesotho-16k.wav, mixed-sesotho-24k.wav, all-sesotho-24k.wav and mixed-amanzimtoti-24k.wav. They are the input filenames named in metadata for run-001 to run-004 and score-003. Authored-text outputs are never private. Additions to this list are the user's decision in the planning chat; it never grows automatically. Audio derived from the readers' n01–n10 inputs, including split cards, is always private and can never be exempted. Unknown provenance is treated as private. Paired legacy summaries inherit their JSON input classification; unclassified text remains private.
 
-| File | Unallowed overlaps |
-| --- | --- |
-| docs/provenance/rankings/experiments/seed-02.json | 1 |
-| docs/provenance/rankings/experiments/seed-05.json | 1 |
-| docs/provenance/rankings/seed-01.json | 5 |
-| docs/provenance/rankings/seed-02.json | 8 |
-| docs/provenance/rankings/seed-03.json | 8 |
-| docs/provenance/rankings/seed-04.json | 8 |
-| docs/provenance/rankings/seed-05.json | 8 |
-| docs/provenance/rankings/seed-06.json | 6 |
-| docs/provenance/rankings/seed-07.json | 5 |
-| docs/provenance/rankings/seed-08.json | 7 |
-| docs/provenance/rankings/seed-09.json | 6 |
-| docs/provenance/rankings/seed-10.json | 6 |
-| functions/shared/sim/phrases.mjs | 1 |
-| scripts/lib/rankPlans.mjs | 1 |
+The historical six-word allowance is exactly unchanged: test-fixtures/ideal-transcripts.json read with git show at commit 0e77db35cb4207929e1e2d39212bb54fa8ff24e4 (27 Oct 2026 13:36:47 SAST, before recordings arrived 30 Oct 08:38), blob SHA-256 f69c798e30997df8b13eabd249f35a0d3e4d265367bb4bf95a3c3c9b5d6b11a2. It never derives from current files or grows automatically. Only the user's planning-chat decision can expand it. Exact normalized six-word matches are allowed only when present in those historical authored texts. Reports name files and counts only, never words.
+
+The original 71 rejected overlaps had this input-type breakdown. Every audio overlap matched both run-003 and score-003; per-source counts duplicate the same overlap, so they are not added together. No rejection matched authored-text outputs or run-001, run-002, run-004, score-001, score-002, score-004, score-005, score-006 or score-007.
+
+| File | Authored-text overlaps | Audio overlaps |
+| --- | --- | --- |
+| docs/provenance/rankings/experiments/seed-02.json | 0 | 1 |
+| docs/provenance/rankings/experiments/seed-05.json | 0 | 1 |
+| docs/provenance/rankings/seed-01.json | 0 | 5 |
+| docs/provenance/rankings/seed-02.json | 0 | 8 |
+| docs/provenance/rankings/seed-03.json | 0 | 8 |
+| docs/provenance/rankings/seed-04.json | 0 | 8 |
+| docs/provenance/rankings/seed-05.json | 0 | 8 |
+| docs/provenance/rankings/seed-06.json | 0 | 6 |
+| docs/provenance/rankings/seed-07.json | 0 | 5 |
+| docs/provenance/rankings/seed-08.json | 0 | 7 |
+| docs/provenance/rankings/seed-09.json | 0 | 6 |
+| docs/provenance/rankings/seed-10.json | 0 | 6 |
+| functions/shared/sim/phrases.mjs | 0 | 1 |
+| scripts/lib/rankPlans.mjs | 0 | 1 |
+
+Updated scan result: passes, 39 own-audio records and 180 authored-text records excluded; zero private content records currently available; zero allowed or rejected overlaps. This does not claim future paid reader outputs have been checked. The list and the historical allowance have separate tests, including an integration check that catches private card-only overlaps while excluding authored text and own audio. Full web suite: 203 tests; affected scoring/report/runner/privacy tests: 39. Lint, provenance scan and dry run pass. Extraction hash remains 0504c523c212791e; no model/prompt/settings or frozen statistics/ranking change.
 
 The older local results were made by the previous transcription/extraction tools, not from the newly arrived numbered recordings. SAST creation times: run-001 to run-004 on 27 Oct at 10:20:06, 10:28:24, 11:33:40 and 11:34:13; score-001 to score-006 on 27 Oct at 12:26:02, 12:27:09, 12:29:27, 13:34:17, 13:35:05 and 13:49:02; score-007 on 29 Oct at 08:53:12. Paired Markdown files have matching creation times. Runs were older transcription comparisons; scores were authored-text extraction comparisons except score-003, which used older audio for two fixtures. Metadata establishes that provenance; timestamps alone do not verify an API call. Detailed method and historical allowance are in the scoring README.
 
@@ -635,7 +641,7 @@ Other local commands:
 - b. `git diff --stat origin/main..HEAD`, naming any file over 500 kB.
 - c. None of these in the push: .env or .env.*, .secret.local, test-audio/, audio files, credential JSON, logs, emulator exports, dist/, scripts or screenshots from outside the repo.
 - d. No keys, tokens or passwords in added lines (the public Firebase web apiKey in src/lib/firebase.js is the only exception).
-- e. No personal data: no real emails, phone numbers other than the two hotlines, real names other than Nthabiseng's, personal folder paths or transcript text. Run `npm.cmd run scan:transcripts`; only the fixed historical Task 16 allowance above applies, and any unallowed six-word overlap blocks pushing.
+- e. No personal data: no real emails, phone numbers other than the two hotlines, real names other than Nthabiseng's, personal folder paths or transcript text. Run `npm.cmd run scan:transcripts`; use the Task 16 private-audio classification and fixed own-recording list above; the fixed historical text allowance is unchanged, and any unallowed six-word overlap with private content blocks pushing.
 - f. No "-contributor" model IDs.
 - g. The product name only where the brand rules allow it (functions/shared/product.mjs, re-exported by src/config/product.js; index.html's title; public/manifest.webmanifest; "Fola" only where HANDOVER records it).
 - h. No key-like strings, authorization headers, reporter fields or seeds 11 to 20 in docs/provenance/ or the seed-one output file, including docs/provenance/scoring/ and docs/provenance/open-weights/. Run `npm.cmd run scan:provenance`.

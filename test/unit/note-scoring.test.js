@@ -51,8 +51,12 @@ test("expected fixture mapping preserves labels and reports differences without 
   assert.equal(recordings.recordings.flatMap((r) => r.expectedCards).length, 10);
   assert.equal(normalizeCard(recordings.recordings[4].expectedCards[0]).symptomGroup, "sudden_after_eating_drinking");
   const differences = expectedDifferences(old, recordings);
-  assert.ok(differences.some((r) => r.card === "n01" && r.field === "onset" && r.old === "ask" && r.recording === "today"));
-  assert.ok(differences.some((r) => r.card === "n09b" && r.field === "ageGroup"));
+  for (const [card, field] of [["n01", "onset"], ["n06", "onset"], ["n09b", "ageGroup"]]) {
+    assert.equal(recordings.recordings.flatMap((r) => r.expectedCards).find((r) => r.card === card)[field], "ask");
+    assert.ok(!differences.some((r) => r.card === card && r.field === field));
+  }
+  assert.equal(differences.filter((r) => r.field === "exposureKeyTerms").length, 4);
+  assert.ok(differences.some((r) => r.card === "n05" && r.field === "acceptUnsure"));
 });
 test("listed-word additions and swaps are detected term by term", () => {
   const result = falseInsertions({cards:[{words:"vetkoek"}]}, "magwinya");

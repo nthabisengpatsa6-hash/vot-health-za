@@ -106,7 +106,7 @@ export function recommendations(evaluated, fixtureRows, repeats) {
       candidateAsks:b.totals.unnecessaryAsk + b.totals.caughtByAsk, consistentRuns:betterRuns, referenceTotalMs:reference.totalMs, candidateTotalMs:b.totalMs}};
 }
 
-export function generateReport({root = ROOT, local, print = console.log, write = true} = {}) {
+export function generateReport({root = ROOT, local, showLocal = false, print = console.log, write = true} = {}) {
   local ||= readCorrections(root);
   const files = paths(root), privateRows = readLines(files.private), fixtureRows = readLines(files.fixtures);
   const manifest = privateRows.filter((row) => row.kind === "manifest").at(-1);
@@ -207,11 +207,11 @@ export function generateReport({root = ROOT, local, print = console.log, write =
     const path = join(root, "docs", "provenance", "scoring", "scorecard-recordings.md");
     mkdirSync(dirname(path), {recursive:true}); writeFileSync(path, markdown);
   }
-  for (const item of evaluated) {
+  if (showLocal) for (const item of evaluated) {
     print(`${item.row.id} ${item.row.configuration} run ${item.row.run}: ${item.row.outcome}`);
     if (!item.score) continue;
     const expected = correctionsFor(recordings.recordings.find((r) => r.id === item.row.id), local);
-    print(JSON.stringify({expected:expected.expectedCards, produced:item.row.payload.reply.cards, outcomes:item.score,
+    print(JSON.stringify({expected:expected.expectedCards, produced:item.row.payload.reply.cards, transcriptClean:item.row.payload.reply.transcriptClean, outcomes:item.score,
       suspects:item.suspects, capitalisedWords:item.capitals, markers:item.markers}));
     const oldVoice = evaluated.find((other) => other.row.id === item.row.id && other.row.run === item.row.run && other.row.configuration === "Baseline")?.row.ears.voice?.transcript || "";
     const newVoice = item.row.ears.voice?.transcript || "";
@@ -225,7 +225,11 @@ export function generateReport({root = ROOT, local, print = console.log, write =
   return {markdown, missing, decision, evaluated};
 }
 
+export function main(args = process.argv.slice(2)) {
+  if (args.some((arg) => arg !== "--local")) throw new Error("Use --local for details in your own terminal only.");
+  const local = readCorrections(ROOT); requireListened(local); generateReport({local, showLocal:args.includes("--local")});
+}
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  try {const local = readCorrections(ROOT); requireListened(local); generateReport({local});}
+  try {main();}
   catch {console.error("Offline report could not finish; check the listening gate and local saved-record format. No network calls were made."); process.exitCode = 1;}
 }

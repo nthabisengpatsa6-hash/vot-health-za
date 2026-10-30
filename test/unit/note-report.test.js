@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {median, recommendations, generateReport} from "../../scripts/score-report.mjs";
+import {median, recommendations, generateReport, main} from "../../scripts/score-report.mjs";
 import {fileURLToPath} from "node:url";
+import {mkdirSync, mkdtempSync, writeFileSync} from "node:fs";
+import {join} from "node:path";
 import {validateSchema} from "../../scripts/lib/schemaValidation.mjs";
 
 const evaluated = (name, {cw = 0, asks = 0, ears = 1000, total = 2000, effort = "low"} = {}) => Array.from({length:30}, (_, i) => ({
@@ -39,6 +41,39 @@ test("empty report lists missing results and never claims adoption", () => {
     local:{listenedAt:"2026-10-30", corrections:{}}, write:false, print:()=>{}});
   assert.equal(result.missing.length, 152); assert.match(result.decision.prompt, /revise/);
   assert.ok(result.markdown.includes("10 recordings; 10 expected cards"));
+});
+
+test("default report keeps synthetic private values out; only local mode prints them", () => {
+  const parent = fileURLToPath(new URL("../../.scratch/", import.meta.url));
+  mkdirSync(parent, {recursive:true});
+  const root = mkdtempSync(join(parent, "report-privacy-"));
+  const dir = join(root, "test-audio", "results"); mkdirSync(dir, {recursive:true});
+  const corrections = join(root, "test-audio", "expected-corrections.json");
+  writeFileSync(corrections, JSON.stringify({listenedAt:"2026-10-30", corrections:{}}));
+  const row = {id:"n01", stage:"pipeline", configuration:"A", run:1, configurationHash:"synthetic", gitCommit:"synthetic", dirty:false,
+    models:{voice:"muse-voice-transcribe-1.0", audio:"muse-spark-1.2", card:"muse-spark-1.3"}, effort:"low", extractEffort:"low",
+    extractionHash:"synthetic", comparable:true, outcome:"ok", timings:{bothEarsMs:100, totalMs:200},
+    ears:{voice:{transcript:"SyntheticEarCanary vetkoek"}, spark:{transcript:"SyntheticEarCanary vetkoek"}},
+    payload:{reply:{isReport:true, adviceRequested:false, notifiableConditionMentioned:null, disagreements:[], transcriptClean:"SyntheticTranscriptCanary",
+      cards:[{symptomGroup:"diarrhoea_vomiting", caseCount:4, comparedWithUsual:"more", ageGroup:"under_5", area:"Thaga Park", onset:null,
+        exposure:{types:["water"], words:"SyntheticExposureCanary water"}, observations:{}, unsureFields:["onset"],
+        symptomsInWords:"look SyntheticCapitalCanary", questions:[]}]}}};
+  writeFileSync(join(dir, "notes-calls.jsonl"), JSON.stringify(row) + "\n");
+  const lines = [], safe = generateReport({root, write:false, print:(line) => lines.push(line)});
+  assert.ok(!lines.join("\n").includes("Canary")); assert.ok(!safe.markdown.includes("Canary"));
+  assert.equal(safe.evaluated[0].score.fields.find((field) => field.field === "comparedWithUsual").outcome, "correct");
+  const details = []; generateReport({root, write:false, showLocal:true, print:(line) => details.push(line)});
+  for (const text of ["SyntheticTranscriptCanary", "SyntheticEarCanary", "SyntheticExposureCanary", "SyntheticCapitalCanary"]) {
+    assert.ok(details.join("\n").includes(text));
+  }
+  writeFileSync(corrections, JSON.stringify({listenedAt:"2026-10-30", corrections:{n01:{comparedWithUsual:"ask"}}}));
+  const updated = generateReport({root, write:false, print:()=>{}});
+  assert.equal(updated.evaluated[0].score.fields.find((field) => field.field === "comparedWithUsual").outcome, "confidently wrong");
+  assert.ok(updated.markdown.includes("Corrected expected fields: 1"));
+});
+
+test("unknown report flags fail before reading any recording records", () => {
+  assert.throws(() => main(["--details"]), /Use --local/);
 });
 test("local schema validator enforces required fields, enums, nullable values and extra keys", () => {
   const schema = {type:"object", additionalProperties:false, required:["x"], properties:{x:{anyOf:[{type:"string", enum:["a"]}, {type:"null"}]}}};

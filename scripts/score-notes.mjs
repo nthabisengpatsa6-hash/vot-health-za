@@ -260,6 +260,12 @@ export class NoteRunner {
   }
 }
 
+export function printRunSummary(runner, configs, repeat, print = console.log) {
+  print(`Run done. Configurations ${configs.map((config) => `${config.name}:${config.audioModel}/${config.audioEffort}`).join(", ")}.`);
+  print(`Recording repeats ${repeat}. Saved records ${runner.saved.size}. Actual recorded cost USD ${runner.budget.total.toFixed(4)}. Baseten ${runner.basetenAvailable ? "included" : "skipped"}.`);
+  print("Run npm.cmd run score:report for the offline results and completion audit.");
+}
+
 export async function main(args = process.argv.slice(2)) {
   if (args.some((arg) => !["--dry-run", "--skip-baseten"].includes(arg))) throw new Error("Use --dry-run or --skip-baseten.");
   let plan = buildPlan(ROOT, {baseten:!args.includes("--skip-baseten")});
@@ -314,9 +320,7 @@ export async function main(args = process.argv.slice(2)) {
     }
     await Promise.allSettled([...runner.inflight.values()].map((entry) => entry.promise));
     runner.budget.check();
-    console.log(`Run done. Configurations ${configs.map((config) => `${config.name}:${config.audioModel}/${config.audioEffort}`).join(", ")}.`);
-    console.log(`Recording repeats ${plan.repeat}. Saved records ${runner.saved.size}. Actual recorded cost USD ${runner.budget.total.toFixed(4)}. Baseten ${runner.basetenAvailable ? "included" : "skipped"}.`);
-    console.log("Run npm.cmd run score:report for the offline results and completion audit.");
+    printRunSummary(runner, configs, plan.repeat);
   } catch (error) {
     if (error.kind === "spending-pause") console.log(`PAUSED: recorded cost USD ${runner?.budget.total.toFixed(4) ?? "unknown"}; allowance USD ${runner?.budget.limit.toFixed(2) ?? "12"}. Spending passed the allowance or usage is missing. Completed records remain saved. Review and rerun to continue.`);
     else {const safe = safeFailure(error); console.error(`Scoring stopped safely: ${safe.kind}, HTTP ${safe.status ?? "none"}, parameter ${safe.parameter ?? "none"}. No provider message was printed.`); process.exitCode = 1;}

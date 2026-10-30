@@ -1,7 +1,7 @@
 import {execFileSync} from "node:child_process";
 import {createHash} from "node:crypto";
 import {existsSync, lstatSync, readFileSync, readdirSync} from "node:fs";
-import {join} from "node:path";
+import {basename, join} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 import {tokens} from "./lib/noteScoring.mjs";
 
@@ -10,6 +10,27 @@ export const ALLOWANCE = Object.freeze({
   file:"test-fixtures/ideal-transcripts.json",
   sha256:"f69c798e30997df8b13eabd249f35a0d3e4d265367bb4bf95a3c3c9b5d6b11a2",
 });
+// User-approved own-voice inputs only. Additions require a planning-chat
+// decision. Numbered reader inputs can never be exempted, even by metadata.
+export const OWN_AUDIO_INPUTS = Object.freeze([
+  "clear-english-16k.wav", "clear-english-24k.wav",
+  "mixed-sesotho-16k.wav", "mixed-sesotho-24k.wav",
+  "all-sesotho-24k.wav", "mixed-amanzimtoti-24k.wav",
+]);
+const fileName = (value) => typeof value === "string" ? basename(value.replace(/\\/g, "/")).toLowerCase() : "";
+const readerInput = (value) => /^n(?:0[1-9]|10)(?:[ab])?(?:[._-]|$)/i.test(fileName(value));
+export function inputKind(row, {stage, transcription = false} = {}) {
+  const inputs = [row.inputFile, row.audioFile, row.file, row.sourceFile, row.note, row.id].filter((value) => typeof value === "string");
+  const audio = transcription || stage === "audio" || row.inputType === "audio" || row.kind === "recording" ||
+    ["voice", "audio", "pipeline"].includes(row.stage) || inputs.some((value) => /\.(?:wav|opus|ogg|m4a|mp3)$/i.test(value));
+  if (audio) {
+    if (inputs.some(readerInput)) return "privateAudio";
+    const input = fileName(row.inputFile || row.audioFile || row.file || row.sourceFile || (stage === "audio" && row.note ? `${row.note}-24k.wav` : ""));
+    return OWN_AUDIO_INPUTS.includes(input) ? "ownAudio" : "privateAudio";
+  }
+  if (stage === "text" || row.inputType === "text" || row.kind === "fixture" || row.kind === "ranking") return "authoredText";
+  return "unknownPrivate";
+}
 export function sixWords(text) {
   const list = tokens(text), grams = [];
   for (let i = 0; i + 6 <= list.length; i++) grams.push(list.slice(i, i + 6).join(" "));
@@ -29,6 +50,27 @@ export function collectTranscripts(value, out = []) {
   }
   return out;
 }
+const strings = (value) => typeof value === "string" ? [value] :
+  value && typeof value === "object" ? Object.values(value).flatMap(strings) : [];
+export function collectPrivateTexts(value, out = []) {
+  if (!value || typeof value !== "object") return out;
+  for (const [key, item] of Object.entries(value)) {
+    if (["transcript", "transcriptClean", "transcriptA", "transcriptB", "excerpt"].includes(key) && typeof item === "string") out.push(item);
+    else if (["cards", "card", "transcripts"].includes(key) && item && typeof item === "object") out.push(...strings(item));
+    else if (["raw", "rawOutput"].includes(key)) {
+      if (typeof item === "string") {
+        let decoded; try {decoded = JSON.parse(item);} catch {}
+        out.push(...strings(decoded ?? item));
+      } else out.push(...strings(item));
+    } else collectPrivateTexts(item, out);
+  }
+  return out;
+}
+export function resultRows(value) {
+  if (Array.isArray(value.rows)) return value.rows.map((row) => ({row, context:{stage:value.settings?.stage}}));
+  if (Array.isArray(value.results)) return value.results.map((row) => ({row, context:{transcription:true}}));
+  return [{row:value, context:{}}];
+}
 export function compareText(text, corpus, allowed) {
   let allowedCount = 0, failedCount = 0;
   for (const gram of sixWords(text)) if (corpus.has(gram)) {
@@ -42,8 +84,8 @@ const walk = (dir) => !existsSync(dir) ? [] : readdirSync(dir, {withFileTypes:tr
   return entry.isDirectory() ? walk(path) : [path];
 });
 
-export function scanTranscripts(root, {includeUntracked = false} = {}) {
-  const git = (args) => execFileSync("git", args, {cwd:root, encoding:"utf8"});
+export function scanTranscripts(root, {includeUntracked = false,
+  git = (args) => execFileSync("git", args, {cwd:root, encoding:"utf8"})} = {}) {
   if (git(["ls-files", "--", "test-audio", ".scratch"]).trim()) throw new Error("Private or scratch files are tracked.");
   const ignored = ["test-audio/raw/new.opus", "test-audio/results/new.jsonl", "test-audio/expected-corrections.json", ".scratch/new.txt"];
   for (const path of ignored) {
@@ -53,19 +95,34 @@ export function scanTranscripts(root, {includeUntracked = false} = {}) {
   for (const path of localFiles) {
     if (!git(["check-ignore", "--no-index", path]).trim()) throw new Error("A local audio file is not ignored.");
   }
-  const corpus = new Set();
+  const corpus = new Set(), inputs = {privateAudio:0, ownAudio:0, authoredText:0, unknownPrivate:0};
   for (const path of walk(join(root, "test-audio", "results"))) {
     let texts = [];
     if (/\.jsonl?$/i.test(path)) {
       const content = readFileSync(path, "utf8");
       const values = path.endsWith(".jsonl") ? content.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line)) : [JSON.parse(content)];
-      texts = values.flatMap((value) => collectTranscripts(value));
+      for (const {row, context} of values.flatMap(resultRows)) {
+        const kind = inputKind(row, context);
+        // Classify from provenance before selecting any content for matching.
+        if (["ownAudio", "authoredText"].includes(kind)) {inputs[kind]++; continue;}
+        const selected = collectPrivateTexts(row);
+        if (selected.length) inputs[kind]++;
+        texts.push(...selected);
+      }
     } else if (/\.(?:txt|md)$/i.test(path)) {
-      texts = readFileSync(path, "utf8").split(/\r?\n/).filter((line) => /^(?:Transcript [AB]:|Clean transcript:)/.test(line));
+      const companion = path.replace(/-summary\.md$/i, /^run-/.test(basename(path)) ? "-transcripts.json" : "-results.json");
+      if (companion !== path && existsSync(companion)) {
+        const rows = resultRows(JSON.parse(readFileSync(companion, "utf8")));
+        if (rows.every(({row, context}) => ["ownAudio", "authoredText"].includes(inputKind(row, context)))) continue;
+      }
+      // Unclassified text and private-audio summaries fail closed. Include
+      // cards and excerpts too; do not rely on transcript heading conventions.
+      inputs.unknownPrivate++;
+      texts = [readFileSync(path, "utf8")];
     }
     for (const text of texts) for (const gram of sixWords(text)) corpus.add(gram);
   }
-  const allowed = historicalAllowance(root);
+  const allowed = historicalAllowance(root, git);
   const args = ["ls-files", "-z", "--cached", ...(includeUntracked ? ["--others", "--exclude-standard"] : [])];
   const files = [...new Set(git(args).split("\0").filter(Boolean))];
   const failures = []; let allowedCount = 0;
@@ -77,7 +134,7 @@ export function scanTranscripts(root, {includeUntracked = false} = {}) {
     allowedCount += result.allowedCount;
     if (result.failedCount) failures.push({file, count:result.failedCount});
   }
-  return {files:files.length, allowed:[{file:ALLOWANCE.file, count:allowedCount}], failures};
+  return {files:files.length, inputs, allowed:[{file:ALLOWANCE.file, count:allowedCount}], failures};
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

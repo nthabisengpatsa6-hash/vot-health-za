@@ -11,7 +11,7 @@
           "comparedWithUsual": "More than usual",
           "ageGroup": "Under 5",
           "area": "Thaga Park",
-          "onset": "Today",
+          "onset": "ask",
           "exposureTypes": [
             "Water"
           ],
@@ -152,7 +152,7 @@
           "comparedWithUsual": "More than usual",
           "ageGroup": "13 to 17",
           "area": "Kgwedi Heights",
-          "onset": "Today",
+          "onset": "ask",
           "exposureTypes": [
             "School"
           ],
@@ -238,7 +238,7 @@
           "symptomGroup": "Red eyes or itchy skin rash",
           "caseCount": 2,
           "comparedWithUsual": "ask",
-          "ageGroup": "5 to 12",
+          "ageGroup": "ask",
           "area": "Leeba View",
           "onset": "Last 3 days",
           "exposureTypes": [],
