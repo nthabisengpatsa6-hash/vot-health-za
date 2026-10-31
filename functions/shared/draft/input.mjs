@@ -29,7 +29,8 @@ export function buildDraftInput(signal, {town, ranking} = {}) {
   });
   return {level:signal.level, symptomGroup:SYMPTOM_LABELS[signal.symptomGroup].toLowerCase(), areas:[...signal.areas], window:`in the last ${signal.timeWindow.days} days`,
     cases:signal.observed.cases, usualCases:usualCasesText(signal.expected.cases), cards:signal.observed.cards,
-    placesOfCare:signal.independentReporters, observations:Object.fromEntries(["moreSevere","notResponding"].filter((flag) => signal.flags[flag] > 0).map((flag) => [flag,signal.flags[flag]])), sources};
+    placesOfCare:signal.independentReporters, observations:Object.fromEntries(["moreSevere","notResponding"].filter((flag) => signal.flags[flag] > 0).map((flag) => [flag,signal.flags[flag]])),
+    ...(signal.flags.moreSevere > 0 ? {severitySentence:`${signal.flags.moreSevere} case ${signal.flags.moreSevere === 1 ? "card describes" : "cards describe"} more severe illness than usual.`} : {}), sources};
 }
 
 // Historical rankings keep their evidence day; only current eligible names

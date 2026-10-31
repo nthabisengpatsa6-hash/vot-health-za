@@ -5,12 +5,13 @@ import {readFileSync} from "node:fs";
 import {authoredInputCatalog,verifiedAuthoredRecord} from "../../scripts/lib/authoredInputs.mjs";
 import {DRAFT_PROMPT_HASH} from "../../functions/lib/draftRequest.mjs";
 const plans=planDraftTrial();
+const model={subject:"Signal to review",summary:"Reports show more cases.",source:"Review the linked evidence.",checks:"Check treatment records."};
 test("seed-1 trial selects the first Alert and day 19, with the absent Signal-only case explicit",()=>{
   assert.deepEqual(plans.map(({role,day,level})=>({role,day,level})),[{role:"first-alert",day:17,level:"alert"},{role:"day-19",day:19,level:"alert"}]);
 });
 test("trial persists attempts before calls and never repeats a recorded attempt",async()=>{
   const saved=[],output=[];let calls=0;
-  const call=async()=>{calls++;assert.equal(saved.at(-1).outcome,"pending");assert.equal(saved.at(-1).finishReason,null);return {text:JSON.stringify({subject:"Signal to review",body:"Review the linked evidence."}),finishReason:"stop",ms:4,inputTokens:10,outputTokens:20,reasoningTokens:12};};
+  const call=async()=>{calls++;assert.equal(saved.at(-1).outcome,"pending");assert.equal(saved.at(-1).finishReason,null);return {text:JSON.stringify(model),finishReason:"stop",ms:4,inputTokens:10,outputTokens:20,reasoningTokens:12};};
   const results=await runDraftTrial({plans,call,append:(row)=>saved.push(row),print:(line)=>output.push(line)});
   assert.equal(calls,2);assert.equal(results.length,2);assert.equal(saved.length,4);
   assert.equal(results[0].usd,(10*1.25+20*4.25)/1e6);
@@ -19,6 +20,8 @@ test("trial persists attempts before calls and never repeats a recorded attempt"
   assert.match(DRAFT_PROMPT_HASH,/^[a-f0-9]{64}$/);
   assert.ok(saved.every((row)=>row.promptHash===DRAFT_PROMPT_HASH));
   assert.ok(results.every((row)=>row.finishReason==="stop"));
+  assert.deepEqual(results[0].modelDraft,model);
+  assert.equal(results[0].draft.body,[model.summary,model.source,model.checks].join("\n\n"));
   await runDraftTrial({plans,existing:saved,call,append:()=>assert.fail("no writes on resume"),print:()=>{}});
   assert.equal(calls,2);
   const catalog=authoredInputCatalog();
@@ -49,15 +52,15 @@ test("trial stops after unknown billing, and rejects more than three or forged i
   let calls=0;
   await runDraftTrial({plans,call:async()=>{calls++;return {reason:"timeout",ms:20};},append:()=>{},print:()=>{}});
   assert.equal(calls,1);assert.equal(draftCost({inputTokens:1}),null);
-  const rejected=await runDraftTrial({plans:[plans[0]],call:async()=>({text:JSON.stringify({subject:"Outbreak",body:"rejected text"}),ms:1,inputTokens:10,outputTokens:20}),append:()=>{},print:()=>{}});
+  const rejected=await runDraftTrial({plans:[plans[0]],call:async()=>({text:JSON.stringify({...model,subject:"Outbreak"}),ms:1,inputTokens:10,outputTokens:20}),append:()=>{},print:()=>{}});
   assert.equal(rejected[0].validationReason,"banned");
-  assert.deepEqual(rejected[0].modelDraft,{subject:"Outbreak",body:"rejected text"});
+  assert.deepEqual(rejected[0].modelDraft,{...model,subject:"Outbreak"});
   assert.ok(!rejected[0].draft.subject.includes("Outbreak"));
   await assert.rejects(runDraftTrial({plans:[...plans,...plans]}),/three/);
   await assert.rejects(runDraftTrial({plans:[{...plans[0],input:{cases:999}}]}),/fixed simulated/);
 });
 test("trial retains rejected final wording and every validation match, separately from the fallback",async()=>{
-  const modelDraft={subject:"Outbreak and treatment",body:"Review 999 cases and 888 cases."},printed=[];
+  const modelDraft={...model,subject:"Outbreak and treatment",summary:"Review 999 cases and 888 cases."},printed=[];
   const [row]=await runDraftTrial({plans:[plans[0]],call:async()=>({text:JSON.stringify(modelDraft),ms:1,inputTokens:10,outputTokens:20}),append:()=>{},print:(text)=>printed.push(text)});
   assert.deepEqual(row.modelDraft,modelDraft);
   assert.equal(row.modelFinalText,JSON.stringify(modelDraft));
@@ -65,6 +68,21 @@ test("trial retains rejected final wording and every validation match, separatel
   assert.doesNotMatch(row.draft.body,/999|888/);
   assert.ok(printed.some((text)=>text.includes(row.modelFinalText)));
   assert.ok(printed.some((text)=>text.includes(JSON.stringify(row.validationFailures))));
+});
+test("r4 inputs and shared hash remain historical, while the new unit guard catches both r4 errors",async()=>{
+  const {validateDraft}=await import("../../functions/shared/draft/validate.mjs");
+  const {standardDraft}=await import("../../functions/shared/draft/standard.mjs");
+  const {default:town}=await import("../../functions/data/places.json",{with:{type:"json"}});
+  const rows=readFileSync(new URL("../../docs/provenance/open-weights/draft-trial-2026-10-31-r4.jsonl",import.meta.url),"utf8").trim().split(/\r?\n/).map(JSON.parse);
+  const legacy=legacyDraftTrialInputs(4),catalog=authoredInputCatalog();
+  assert.deepEqual(legacy.map(draftInputHash),rows.filter((row)=>row.outcome==="pending").map((row)=>row.inputHash));
+  for (const row of rows) {
+    assert.equal(verifiedAuthoredRecord(row,catalog),true);assert.equal(Object.hasOwn(row.input,"severitySentence"),false);
+    assert.equal(row.promptHash,"e9874fbea3cedf78673386a122c18c0de2babfeb2e67cb0666b46a6e8f564530");
+    if (row.modelDraft) assert.equal(validateDraft(row.modelDraft,row.input,town).reason,"severity-unit");
+  }
+  for (let i=0;i<legacy.length;i++) assert.deepEqual(standardDraft(plans[i].input),standardDraft(legacy[i]));
+  await assert.rejects(runDraftTrial({plans:[{...plans[0],input:legacy[0],inputHash:draftInputHash(legacy[0])}]}),/fixed simulated/);
 });
 test("provider refusal retains no final text or diagnostic content",async()=>{
   const [row]=await runDraftTrial({plans:[plans[0]],call:async()=>({reason:"invalid",text:"must not be retained",ms:1,inputTokens:10,outputTokens:20}),append:()=>{},print:()=>{}});

@@ -14,7 +14,7 @@ const good={subject:"A signal to review",body:`Please review ${input.sources[0].
 test("draft input contains only structured allow-listed values and fixed wording", () => {
   const text=JSON.stringify(input);
   assert.doesNotMatch(text,/reporter|chance|probability|seed|groundTruth|cardIds|sourceId|symptomsInWords|suppliesNote|exposure.*words/);
-  assert.deepEqual(Object.keys(input),["level","symptomGroup","areas","window","cases","usualCases","cards","placesOfCare","observations","sources"]);
+  assert.deepEqual(Object.keys(input),["level","symptomGroup","areas","window","cases","usualCases","cards","placesOfCare","observations","severitySentence","sources"]);
   assert.equal(input.window,"in the last 3 days");
   assert.equal(input.symptomGroup,"diarrhoea or vomiting");
   assert.deepEqual(SYMPTOM_LABELS,Object.fromEntries(SYMPTOM_GROUPS.map(({value,label})=>[value,label])));
@@ -33,9 +33,20 @@ test("model input omits either or both zero observation flags while retaining po
   for (const [flags,expected] of [[{moreSevere:0,notResponding:0},{}],[{moreSevere:2,notResponding:0},{moreSevere:2}],[{moreSevere:0,notResponding:3},{notResponding:3}],[{moreSevere:2,notResponding:3},{moreSevere:2,notResponding:3}]]) {
     const built=buildDraftInput({...signal,flags},{day:17,town});
     assert.deepEqual(built.observations,expected);
+    if (flags.moreSevere === 0) assert.equal(Object.hasOwn(built,"severitySentence"),false);
     assert.doesNotMatch(standardDraft(built).body,/0 cards|undefined/);
   }
   assert.deepEqual(planDraftTrial().map(({input})=>input.observations),[{moreSevere:1},{moreSevere:4}]);
+});
+test("severity input supplies the exact singular or plural case-card sentence",()=>{
+  assert.deepEqual(planDraftTrial().map(({input})=>input.severitySentence),["1 case card describes more severe illness than usual.","4 case cards describe more severe illness than usual."]);
+});
+test("severity unit guard rejects cases and accepts case cards with case-insensitive word boundaries",()=>{
+  for (const body of ["1 more severe case.","More severe cases were noted.","SEVERE CASES.","Severe case cardboard.","Severe cases cardinals.","More severe\ncase."]) assert.equal(validateDraft({...good,body},input,town).reason,"severity-unit",body);
+  for (const body of ["One more severe case card.","More severe case cards were noted.","SEVERE CASE CARDS.","More severe illness than usual."]) assert.equal(validateDraft({...good,body},input,town).ok,true,body);
+  const acrossFields=validateDraft({subject:"More severe case",body:"Cards describe more severe illness."},input,town);
+  assert.deepEqual(acrossFields.failures,[{rule:"severity-unit",matches:["severe case"]}]);
+  assert.deepEqual(validateDraft({...good,body:"Severe case. SEVERE CASES."},input,town).failures,[{rule:"severity-unit",matches:["Severe case","SEVERE CASES"]}]);
 });
 test("standard draft joins the last two areas with and", () => {
   for (const [areas,expected] of [[["Thaga Park"],"Thaga Park"],[["Thaga Park","Leeba View"],"Thaga Park and Leeba View"],[["Thaga Park","Leeba View","Nonyana Flats"],"Thaga Park, Leeba View and Nonyana Flats"]]) {

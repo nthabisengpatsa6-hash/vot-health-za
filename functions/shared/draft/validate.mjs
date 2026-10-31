@@ -17,7 +17,8 @@ export function validateDraft(raw, input, town) {
     fail("schema",invalid);
   }
   fail("length",["subject","body"].filter((key) => typeof value?.[key] === "string" && value[key].length > DRAFT_SETTINGS[`${key}Max`]).map((key) => value[key]));
-  const original = malformed ? raw : [value?.subject,value?.body].filter((part) => typeof part === "string").join("\n");
+  const originalFields = malformed ? [raw] : [value?.subject,value?.body].filter((part) => typeof part === "string");
+  const original = originalFields.join("\n");
   // Keep NFKC guards, but report the exact original spelling even when a
   // compatibility character expands (for example full-width or styled text).
   let text = "";
@@ -35,6 +36,16 @@ export function validateDraft(raw, input, town) {
     return words.some((banned) => word === banned.toLowerCase()) || prefixes.some((prefix) => word.startsWith(prefix));
   });
   fail("banned",banned.map(exact));
+  const severity = [];
+  let offset = 0;
+  // Scan fields separately so a title ending "severe case" cannot borrow
+  // "cards" from the start of the body to hide the wrong unit.
+  for (const field of originalFields) {
+    const normalized = field.normalize("NFKC");
+    for (const match of normalized.matchAll(/\bsevere\s+cases?\b(?!\s+cards?\b)/gi)) {match.index += offset;severity.push(exact(match));}
+    offset += normalized.length+1;
+  }
+  fail("severity-unit",severity);
   const contacts = [/@|(?:https?:\/\/|www\.)|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}\b|\+?\d[\d ()-]{6,}\d|\b(?:sim[-_:]|[a-z]+[_:][a-z0-9_-]+)|\b[a-f0-9]{16,}\b/gi,
     /\b[a-z]+[-_]\d{2,}\b|\b[\da-f]{8}-[\da-f-]{12,}\b|\b\d+(?:\.\d+)?e[+-]?\d+\b/gi];
   fail("contact-or-id",contacts.flatMap((pattern) => [...text.matchAll(pattern)].map(exact)));

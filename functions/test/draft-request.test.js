@@ -9,7 +9,7 @@ test("different-day requests and timing logs have the same fixed prompt hash, wi
   const handler=createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>({allowed:true}),
     call:(input,{apiKey})=>callBasetenDraft(input,{apiKey,fetch:async(_url,init)=>{
       requests.push(JSON.parse(init.body));
-      return Response.json({choices:[{finish_reason:"stop",message:{content:JSON.stringify({subject:"Alert signal: review",body:"Please review the linked evidence."})}}],usage:{prompt_tokens:10,completion_tokens:20}});
+      return Response.json({choices:[{finish_reason:"stop",message:{content:JSON.stringify({subject:"Alert signal: review",summary:input.severitySentence,source:"Please review the linked evidence.",checks:"Check treatment records."})}}],usage:{prompt_tokens:10,completion_tokens:20}});
     }}),write:(entry)=>logs.push(draftTimingEntry(entry))});
   for (const day of [17,19]) assert.equal((await handler({auth:{uid:"draft-test"},data:{day,symptomGroup:"diarrhoea_vomiting",area:"Leeba View"}})).outcome,"model");
   assert.notEqual(requests[0].messages.at(-1).content,requests[1].messages.at(-1).content);
@@ -29,7 +29,7 @@ test("every instruction line and each approved fixed setting changes the prompt 
     assert.notEqual(draftPromptHash(changed),DRAFT_PROMPT_HASH,`instruction line ${index+1}`);
   }
   for (const mutate of [(r)=>{r.model="different-model";},(r)=>{r.max_tokens++;},(r)=>{r.reasoning_effort="high";},
-    (r)=>{r.response_format.json_schema.schema.properties.body.minLength++;},(r)=>{r.response_format.json_schema.strict=false;},
+    (r)=>{r.response_format.json_schema.schema.properties.summary.minLength++;},(r)=>{r.response_format.json_schema.strict=false;},
     (r)=>{r.messages.splice(1,0,{role:"developer",content:"Use plain requests."});}]) {
     const changed=structuredClone(request);mutate(changed);
     assert.notEqual(draftPromptHash(changed),DRAFT_PROMPT_HASH);
@@ -38,20 +38,21 @@ test("every instruction line and each approved fixed setting changes the prompt 
   assert.equal(draftPromptHash(changedEvidence),DRAFT_PROMPT_HASH);
 });
 
-test("r4 requests a 700-character three-paragraph body and retains the canonical product instructions",async()=>{
+test("r5 describes three bounded model fields and verbatim severity wording with canonical product instructions",async()=>{
   const {DRAFT_PROMPT}=await import("../lib/draftRequest.mjs");
   const {PRODUCT_NAME}=await import("../shared/product.mjs");
   const lines=DRAFT_PROMPT.split("\n");
   for (const line of ["Case cards are written by clinicians. Call them case cards or clinicians' reports, never anything else.",
     "Keep every number with its unit exactly as given: cases, case cards, places of care. A case card is not a case.",
     `Write it as a request to the district environmental health office: what clinicians' reports show and where ${PRODUCT_NAME} suggests looking first. Never say that anyone is already reviewing or investigating.`,
-    "Start the subject with the level, for example 'Alert signal:'.","Use exactly 3 short paragraphs separated by blank lines.",
+    "Start the subject with the level, for example 'Alert signal:'.",
     "Do not start with who it is addressed to; the screen already shows that.",
-    "Do not add end punctuation to the subject. End the body with a complete sentence ending in . ! or ?.",
-    `Paragraph 2: say where ${PRODUCT_NAME} suggests looking first, with at most two Supports reasons and one Against reason, worded as given.`,
-    "Paragraph 3: give the possible checks, worded as given."]) assert.ok(lines.includes(line),line);
-  assert.match(DRAFT_PROMPT,/body \(at most 700 characters\)/);
-  assert.doesNotMatch(DRAFT_PROMPT,/1200|windowDays|3 to 5/);
+    "Do not add end punctuation to the subject. End each of summary, source and checks with a complete sentence ending in . ! or ?.",
+    `source: say where ${PRODUCT_NAME} suggests looking first, with at most two Supports reasons and one Against reason, worded as given.`,
+    "checks: give the possible checks, worded as given.",
+    "If severitySentence is supplied, copy it exactly into summary. Do not change its number, unit or wording."]) assert.ok(lines.includes(line),line);
+  for (const field of ["subject (at most 100 characters)","summary (at most 300 characters)","source (at most 350 characters)","checks (at most 250 characters)"]) assert.ok(DRAFT_PROMPT.includes(field));
+  assert.doesNotMatch(DRAFT_PROMPT,/700|1200|windowDays|Paragraph [123]:/);
 });
 test("the schema sent to Baseten has no maxLength while local caps remain unchanged",async()=>{
   const {draftRequestBody}=await import("../lib/draftRequest.mjs");
@@ -59,8 +60,9 @@ test("the schema sent to Baseten has no maxLength while local caps remain unchan
   const request=draftRequestBody({window:"in the last 3 days"});
   assert.doesNotMatch(JSON.stringify(request.response_format),/maxLength/);
   assert.equal(request.response_format.json_schema.schema.additionalProperties,false);
-  assert.deepEqual(request.response_format.json_schema.schema.required,["subject","body"]);
+  assert.deepEqual(request.response_format.json_schema.schema.required,["subject","summary","source","checks"]);
   assert.equal(DRAFT_SETTINGS.subjectMax,100);assert.equal(DRAFT_SETTINGS.bodyMax,1200);
+  assert.equal(DRAFT_SETTINGS.summaryMax,300);assert.equal(DRAFT_SETTINGS.sourceMax,350);assert.equal(DRAFT_SETTINGS.checksMax,250);
 });
 
 test("fallback and signed-out timing records retain the configured fixed prompt hash without content",async()=>{

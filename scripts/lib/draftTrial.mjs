@@ -5,7 +5,7 @@ import {dayEnd,dayOfDate} from "../../functions/shared/sastDay.mjs";
 import {matchSignal} from "../../functions/shared/rank/match.mjs";
 import {buildDraftInput} from "../../functions/shared/draft/input.mjs";
 import {standardDraft,DRAFT_FOOTER} from "../../functions/shared/draft/standard.mjs";
-import {validateDraft} from "../../functions/shared/draft/validate.mjs";
+import {validateModelDraft} from "../../functions/shared/draft/model.mjs";
 import {DRAFT_SETTINGS,DRAFT_PRICES} from "../../functions/shared/draft/settings.mjs";
 import {DRAFT_PROMPT_HASH} from "../../functions/lib/draftRequest.mjs";
 import {CHECKS,FACTS,SYMPTOM_LABELS} from "../../functions/shared/draft/copy.mjs";
@@ -29,11 +29,10 @@ function draftTrialSignals() {
 export function planDraftTrial() {
   return draftTrialSignals().map(({role,day,signal})=>{const input=buildDraftInput(signal,{day,town});return {role,day,level:signal.level,input,inputHash:draftInputHash(input)};});
 }
-// Rebuild the full pre-r4 evidence independently of saved outputs. These
-// historical shapes retain all facts, window metadata and comparison names.
+// Rebuild each historical evidence shape independently of saved outputs.
 // These hashes verify history only; runDraftTrial accepts current plans only.
 export function legacyDraftTrialInputs(revision = 1) {
-  if (![1,2,3].includes(revision)) throw new Error("Unknown historical draft revision.");
+  if (![1,2,3,4].includes(revision)) throw new Error("Unknown historical draft revision.");
   return draftTrialSignals().map(({day,signal}) => {
     const areas = new Set(signal.areas);
     const sources = signal.sources.filter((source) => source.candidate).slice(0,4).map((source) => {
@@ -41,9 +40,12 @@ export function legacyDraftTrialInputs(revision = 1) {
         if (fact.area) areas.add(fact.area);
         return FACTS[fact.kind]?.({area:fact.area,name:source.name,count:fact.cards ?? fact.cardIds?.length ?? 0,type:fact.type || "shared exposure clues"});
       }).filter(Boolean);
-      return {name:source.name,supports:facts(source.supporting),against:facts(source.contradicting),checks:CHECKS[source.kind](source.name)};
+      return {name:source.name,supports:facts(revision === 4 ? source.supporting.slice(0,3) : source.supporting),against:facts(revision === 4 ? source.contradicting.slice(0,2) : source.contradicting),checks:CHECKS[source.kind](source.name)};
     });
     const flags = {moreSevere:signal.flags.moreSevere,notResponding:signal.flags.notResponding};
+    if (revision === 4) return {level:signal.level,symptomGroup:SYMPTOM_LABELS[signal.symptomGroup].toLowerCase(),areas:[...signal.areas],window:`in the last ${signal.timeWindow.days} days`,
+      cases:signal.observed.cases,usualCases:usualCasesText(signal.expected.cases),cards:signal.observed.cards,placesOfCare:signal.independentReporters,
+      observations:Object.fromEntries(Object.entries(flags).filter(([,count]) => count > 0)),sources};
     return {day,level:signal.level,symptomGroup:SYMPTOM_LABELS[signal.symptomGroup],areas:[...signal.areas],evidenceAreas:[...areas],windowDays:signal.timeWindow.days,windows:[3,7],
       cases:signal.observed.cases,usualCases:revision === 1 ? signal.expected.cases : usualCasesText(signal.expected.cases),cards:signal.observed.cards,placesOfCare:signal.independentReporters,
       observations:revision < 3 ? flags : Object.fromEntries(Object.entries(flags).filter(([,count]) => count > 0)),sources};
@@ -62,7 +64,7 @@ export async function runDraftTrial({plans=planDraftTrial(), existing=[], call, 
     const identity={kind:"draft",input:plan.input,inputHash:plan.inputHash,role:plan.role,day:plan.day,level:plan.level,model:DRAFT_SETTINGS.model,provider:DRAFT_SETTINGS.provider,promptHash:DRAFT_PROMPT_HASH};
     append({...identity,outcome:"pending",finishReason:null});
     let reply;try {reply=await call(plan.input);} catch {reply={reason:"unavailable",ms:0};}
-    const checked=reply.reason ? null : validateDraft(reply.text,plan.input,town);
+    const checked=reply.reason ? null : validateModelDraft(reply.text,plan.input,town);
     const reason=reply.reason || (checked?.ok ? null : "invalid");
     const draft=reason ? standardDraft(plan.input) : checked.draft;
     const tokens=Object.fromEntries(["inputTokens","outputTokens","reasoningTokens"].map((key)=>[key,reply[key] ?? null]));
@@ -71,7 +73,7 @@ export async function runDraftTrial({plans=planDraftTrial(), existing=[], call, 
     // returning final text. Provider failures have no retainable model text.
     const modelFinalText=checked ? reply.text : null;
     let modelDraft=null;
-    try {const value=JSON.parse(modelFinalText);if (typeof value?.subject === "string" && typeof value?.body === "string") modelDraft={subject:value.subject,body:value.body};} catch { /* Invalid JSON is retained as final text only. */ }
+    try {const value=JSON.parse(modelFinalText);if (["subject","summary","source","checks"].every((key) => typeof value?.[key] === "string")) modelDraft={subject:value.subject,summary:value.summary,source:value.source,checks:value.checks};} catch { /* Invalid JSON is retained as final text only. */ }
     const finishReason=reply.finishReason ?? null;
     const validationFailures=checked ? checked.failures ?? [] : reason === "incomplete" ? [{rule:"incomplete",matches:finishReason ? [finishReason] : []}] : null;
     const record={...identity,date:new Date().toISOString(),outcome:reason ? "fallback" : "model",reason,validationReason,validationFailures,modelFinalText,modelDraft,finishReason,ms:reply.ms,...tokens,usd:draftCost(tokens),draft,footer:DRAFT_FOOTER};

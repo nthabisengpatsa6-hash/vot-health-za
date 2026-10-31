@@ -2,6 +2,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const {createDraftHandler,OPTIONS}=require("../lib/draftNotification");
 const {draftTimingEntry}=require("../lib/draftTiming");
 const request={auth:{uid:"draft-test"},data:{day:17,symptomGroup:"diarrhoea_vomiting",area:"Leeba View"}};
+const model={subject:"Signal to review",summary:"Reports show more cases.",source:"Please review the linked evidence.",checks:"Check treatment records."};
 test("draft callable options use the shared region and approved resource caps",async()=>{
   const {FUNCTION_REGION}=await import("../shared/runtime.mjs");
   assert.deepEqual(OPTIONS,{region:FUNCTION_REGION,memory:"512MiB",timeoutSeconds:60,minInstances:0,maxInstances:3});
@@ -28,8 +29,9 @@ test("caps and counter failure return an honest standard draft without a provide
 test("successful drafts are validated and receive only the code-owned footer; logs contain no content",async()=>{
   const {DRAFT_FOOTER}=await import("../shared/draft/standard.mjs");
   let reserved=false,log;
-  const result=await createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>{reserved=true;return {allowed:true};},call:async(input)=>{assert.equal(reserved,true);assert.ok(input.cases);return {text:JSON.stringify({subject:"Signal to review",body:"Please review the linked evidence."}),ms:123,inputTokens:10,outputTokens:20,reasoningTokens:8};},write:(entry)=>{log=draftTimingEntry(entry);}})(request);
+  const result=await createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>{reserved=true;return {allowed:true};},call:async(input)=>{assert.equal(reserved,true);assert.ok(input.cases);assert.equal(input.severitySentence,"1 case card describes more severe illness than usual.");return {text:JSON.stringify(model),ms:123,inputTokens:10,outputTokens:20,reasoningTokens:8};},write:(entry)=>{log=draftTimingEntry(entry);}})(request);
   assert.equal(result.outcome,"model");assert.equal(result.footer,DRAFT_FOOTER);assert.equal(result.ms,123);
+  assert.deepEqual(result.draft,{subject:model.subject,body:[model.summary,model.source,model.checks].join("\n\n")});
   assert.deepEqual(Object.keys(log),["model","provider","promptHash","outcome","ms","inputTokens","outputTokens","reasoningTokens"]);
   assert.equal(log.promptHash,(await import("../lib/draftRequest.mjs")).DRAFT_PROMPT_HASH);
   assert.equal(log.model,"meta-models/muse-spark-open-1026");assert.equal(log.inputTokens,10);
@@ -69,19 +71,19 @@ test("new Baseten client never retries timeout, HTTP errors or incomplete conten
 });
 test("provider cutoff rejects the entire response even with a complete body and an unpunctuated subject",async()=>{
   const {callBasetenDraft}=await import("../lib/basetenClient.mjs");
-  const reply=await callBasetenDraft({}, {apiKey:"offline-placeholder",fetch:async()=>Response.json({choices:[{finish_reason:"length",message:{content:JSON.stringify({subject:"Alert signal: review",body:"Please review the evidence."})}}],usage:{prompt_tokens:10,completion_tokens:20}})});
+  const reply=await callBasetenDraft({}, {apiKey:"offline-placeholder",fetch:async()=>Response.json({choices:[{finish_reason:"length",message:{content:JSON.stringify(model)}}],usage:{prompt_tokens:10,completion_tokens:20}})});
   assert.equal(reply.reason,"incomplete");assert.equal(reply.finishReason,"length");assert.equal(reply.text,undefined);
   const result=await createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>({allowed:true}),call:async()=>reply,write:()=>{}})(request);
   assert.equal(result.outcome,"fallback");assert.equal(result.reason,"incomplete");
 });
 test("provider and callable preserve three paragraphs, while an unfinished body uses the standard draft",async()=>{
   const {callBasetenDraft}=await import("../lib/basetenClient.mjs");
-  const complete="Reports show more cases.\n\nPlease review Works A.\n\nCheck treatment records.";
-  for (const body of [complete,"Check chlorine readings and"]) {
+  const complete=[model.summary,model.source,model.checks].join("\n\n");
+  for (const checks of [model.checks,"Check chlorine readings and"]) {
     const handler=createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>({allowed:true}),write:()=>{},
-      call:(input,{apiKey})=>callBasetenDraft(input,{apiKey,fetch:async()=>Response.json({choices:[{finish_reason:"stop",message:{content:`<think>hidden</think><final>${JSON.stringify({subject:"Alert signal: review",body})}</final>`}}]})})});
+      call:(input,{apiKey})=>callBasetenDraft(input,{apiKey,fetch:async()=>Response.json({choices:[{finish_reason:"stop",message:{content:`<think>hidden</think><final>${JSON.stringify({...model,checks})}</final>`}}]})})});
     const result=await handler(request);
-    if (body===complete) {assert.equal(result.outcome,"model");assert.equal(result.draft.body,complete);assert.equal(result.draft.subject,"Alert signal: review");}
+    if (checks===model.checks) {assert.equal(result.outcome,"model");assert.equal(result.draft.body,complete);assert.equal(result.draft.subject,model.subject);}
     else {assert.equal(result.outcome,"fallback");assert.equal(result.reason,"invalid");assert.equal(result.validationReason,"incomplete");assert.ok(result.draft.body.includes("\n\n"));}
   }
 });

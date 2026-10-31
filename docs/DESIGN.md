@@ -209,6 +209,8 @@ R3 wording correction: standard-draft area lists join the final two names with "
 
 R4 supersedes the model's paragraph instruction: request a body of at most 700 characters in exactly three short paragraphs separated by blank lines (reports/counts, first possible source and limited evidence, fixed checks). The screen's recipient line supplies the address. Only the body needs sentence-ending punctuation; subjects retain their existing format. Local editing/validation caps remain 100/1200 characters. Provider schema has no length limit. Standard drafts, model drafts, human edits and Copy preserve internal paragraph breaks. No visual style change.
 
+R5 supersedes that provider body shape with three content fields: summary (300 characters), source (350) and checks (250), each one complete paragraph. The application joins them with blank lines before returning the existing subject/body contract. The subject cap stays 100 and the joined body cap stays 1200; provider schema has no length limit. Positive severity input supplies the exact case-card sentence for copying into summary. Standard draft, editor and Copy remain unchanged; no layout, token or style changes.
+
 ## Motion
 
 Motion only happens at three moments, plus small state changes:

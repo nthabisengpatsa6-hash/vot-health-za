@@ -6,11 +6,11 @@ import {callBasetenDraft} from "../functions/lib/basetenClient.mjs";
 import {DRAFT_PROMPT_HASH} from "../functions/lib/draftRequest.mjs";
 
 export async function main() {
-  const path=new URL("../docs/provenance/open-weights/draft-trial-2026-10-31-r4.jsonl",import.meta.url);
+  const path=new URL("../docs/provenance/open-weights/draft-trial-2026-10-31-r5.jsonl",import.meta.url);
   const existing=existsSync(path) ? readFileSync(path,"utf8").split(/\r?\n/).filter(Boolean).map((line)=>JSON.parse(line)) : [];
   const plans=planDraftTrial(), pending=plans.filter((plan)=>!existing.some((row)=>row.inputHash===plan.inputHash));
   console.log("Muse Spark Open on Baseten. Simulated seed-1 input only; one attempt per case, timeout 20 s, max_tokens 3000. No key file or environment variable is read.");
-  console.log("Revision 4: r1-r3 preserved; final model text, validation failures and provider finish reason will be recorded in draft-trial-2026-10-31-r4.jsonl.");
+  console.log("Revision 5: r1-r4 preserved; model fields, assembled draft, validation failures and provider finish reason will be recorded in draft-trial-2026-10-31-r5.jsonl.");
   console.log(`Fixed request promptHash (no per-call evidence): ${DRAFT_PROMPT_HASH}`);
   for (const plan of plans) console.log(`${plan.role}: day ${plan.day}, ${plan.level}${pending.includes(plan) ? "" : ", already recorded"}`);
   if (!plans.some((plan)=>plan.role==="signal-only")) console.log("No Signal-only day exists in seed 1; that third call is absent.");

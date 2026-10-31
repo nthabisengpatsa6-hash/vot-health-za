@@ -38,8 +38,8 @@ function createDraftHandler({apiKey = () => "", reserve = (...args) => limit.res
       let reply;try {reply=await provider(input,{apiKey:key});} catch {return fallback("unavailable");}
       for (const name of ["inputTokens","outputTokens","reasoningTokens"]) timing[name]=reply[name] ?? null;
       if (reply.reason) return fallback(reply.reason);
-      const {validateDraft} = await import("../shared/draft/validate.mjs");
-      const checked = validateDraft(reply.text,input,town);
+      const {validateModelDraft} = await import("../shared/draft/model.mjs");
+      const checked = validateModelDraft(reply.text,input,town);
       if (!checked.ok) return {...fallback("invalid"),validationReason:checked.reason};
       timing.outcome="model";
       return {outcome:"model",draft:checked.draft,footer:DRAFT_FOOTER,model:DRAFT_SETTINGS.model,ms:reply.ms};
