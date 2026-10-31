@@ -1,12 +1,16 @@
 # HANDOVER
 
-**Last updated:** 2026-10-31 17:27 SAST
+**Last updated:** 2026-10-31 18:09 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. Organisers confirmed the repo may stay private until submission but must be public before submitting. The plan remains to make it public on Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
+
+Task 20 is prepared locally, pending the separate Hosting approval and phone check. Today is available within both replays on the current day, with an in-memory area selector, seven-day counts from the existing shared chart arithmetic, and nearby signals in the chosen area and its direct neighbours. Signed-in Today outside the replay explains that real reports are not checked and links directly to replay Today. The public /demo/scorecard loads a compact derived scorecard on demand. No Functions or rules changes; no inference or live data access. A local generator rebuilds its JSON from the saved held-out record. The provenance scanner accepts this one additional exact derived JSON path with the same held-out artifact guards; other path restrictions remain unchanged.
+
+Validation so far: 298 web, 134 Functions and 94 local rules tests passed, plus lint/build and both scans. Across tuning seeds 1 to 10, 300 retained seven-day signal and per-area counts match the shared chart; all 125 earlier Signal/Alert chart comparisons and 48 frozen files remain pinned. On a cold phone-width local load, requested file content was 460,930 bytes at the baseline and 447,310 bytes after the change; signed-in entry 613,629 to 613,510 bytes and DemoScreen 34,439 to 20,014 bytes. The existing signed-in bundle warning remains. Before deployment, require clean committed source, then the separate approved H1; phone check and approved push remain separate stops.
 
 Task 19 is complete and live; the user has passed the phone check. Part F is at the final pre-push gate: ask Push now only after the complete a-to-i report, then wait for approved push. No deletion or further deployment is included. No phone-check card was saved, so the delete list is unchanged. Dated implementation, r1-r5 trial and deployment records are in docs/HISTORY.md and docs/provenance/open-weights/README.md.
 

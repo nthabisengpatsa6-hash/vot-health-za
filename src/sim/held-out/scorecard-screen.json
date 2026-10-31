@@ -1,0 +1,113 @@
+{
+  "sampleSize": 10,
+  "totalRuns": 20,
+  "firstSeed": 11,
+  "lastSeed": 20,
+  "tuning": {
+    "first": {
+      "watch": {
+        "median": 15,
+        "min": 14,
+        "max": 18
+      },
+      "signal": {
+        "median": 16,
+        "min": 15,
+        "max": 18
+      },
+      "alert": {
+        "median": 16,
+        "min": 15,
+        "max": 18
+      }
+    },
+    "falseSignals": {
+      "seeded": {
+        "watch": 10,
+        "signal": 0,
+        "alert": 0
+      },
+      "quiet": {
+        "watch": 10,
+        "signal": 0,
+        "alert": 0
+      },
+      "combined": {
+        "watch": 20,
+        "signal": 0,
+        "alert": 0
+      }
+    }
+  },
+  "heldOut": {
+    "first": {
+      "watch": {
+        "median": 15,
+        "min": 15,
+        "max": 16
+      },
+      "signal": {
+        "median": 16.5,
+        "min": 15,
+        "max": 18
+      },
+      "alert": {
+        "median": 16.5,
+        "min": 15,
+        "max": 18
+      }
+    },
+    "falseSignals": {
+      "seeded": {
+        "watch": 3,
+        "signal": 0,
+        "alert": 0
+      },
+      "quiet": {
+        "watch": 4,
+        "signal": 0,
+        "alert": 0
+      },
+      "combined": {
+        "watch": 7,
+        "signal": 0,
+        "alert": 0
+      }
+    }
+  },
+  "firstAlert": {
+    "worksFirst": 7,
+    "ranked": 10
+  },
+  "day19": {
+    "worksFirst": 10,
+    "ranked": 10
+  },
+  "tuningRanking": {
+    "worksFirstAtFirstAlert": 7,
+    "rankedFirstAlerts": 10,
+    "worksEverFirstByDay19": 10,
+    "seeds": 10
+  },
+  "quietRunsWithWatch": 2,
+  "rankingCount": 19,
+  "highCount": 8,
+  "highWorks": 8,
+  "misses": [
+    {
+      "seed": 12,
+      "source": "shop:Leeba View spaza shop",
+      "confidence": "medium"
+    },
+    {
+      "seed": 14,
+      "source": "school:Leeba View Primary School",
+      "confidence": "medium"
+    },
+    {
+      "seed": 16,
+      "source": "shop:Leeba View spaza shop",
+      "confidence": "medium"
+    }
+  ]
+}

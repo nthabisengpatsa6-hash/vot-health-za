@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 import AreaSheet from "../components/AreaSheet";
 import { PauseIcon, PlayIcon } from "../components/Icons";
@@ -6,7 +6,8 @@ import LevelBadge, { LevelKey } from "../components/LevelBadge";
 import Message from "../components/Message";
 import TownMap from "../components/TownMap";
 import Wordmark from "../components/Wordmark";
-import SignalDetail from "../components/SignalDetail";
+import { SignalDetail } from "../lib/loadSignalDetail";
+import ReplayToday from "../components/ReplayToday";
 import { LEVEL_ORDER } from "../config/levels";
 import { PRODUCT_NAME } from "../config/product";
 import { LIVE_REPLAY_FOOTER } from "../config/rankingCopy";
@@ -24,7 +25,7 @@ function loadReplay() {
   replayReady ??= Promise.all([import("../../functions/shared/sim/engine.mjs"), import("../../functions/shared/signals.mjs"), import("../../functions/shared/sastDay.mjs"), import("../../functions/shared/signalDetail.mjs")])
     .then(([engine, signals, sastDay, detail]) => {
       const replay = createReplay({ createRun: engine.createRun, computeSignals: signals.computeSignals, dayEnd: sastDay.dayEnd, dayOfDate: sastDay.dayOfDate, town: TOWN_FILE });
-      return { ...replay, chartFor: (runId, day, signal) => detail.dailySignalChart({ cards: replay.cardsUpTo(runId, day), asOf: replay.resultFor(runId, day).asOf, signal, town: TOWN_FILE }) };
+      return { ...replay, chartWindow: detail.chartWindow, chartFor: (runId, day, signal) => detail.dailySignalChart({ cards: replay.cardsUpTo(runId, day), asOf: replay.resultFor(runId, day).asOf, signal, town: TOWN_FILE }) };
     });
   return replayReady;
 }
@@ -33,7 +34,7 @@ const SECONDS_PER_DAY = 1.5;
 const SHOWN_CARDS = 3;
 const rankOf = (level) => LEVEL_ORDER.indexOf(level);
 
-export default function DemoScreen({ embedded = false, renderRanking, draftAction }) {
+export default function DemoScreen({ embedded = false, renderRanking, draftAction, profileArea, initialToday = false }) {
   const [replay, setReplay] = useState(null);
   const [failed, setFailed] = useState(false);
   const [runId, setRunId] = useState(RUNS[0].id);
@@ -41,6 +42,9 @@ export default function DemoScreen({ embedded = false, renderRanking, draftActio
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState(null);
   const [detailSignal, setDetailSignal] = useState(null);
+  const [detailArea, setDetailArea] = useState(null);
+  const [view, setView] = useState(initialToday ? "today" : "replay");
+  const [todayArea, setTodayArea] = useState(() => TOWN_FILE.areas.some((item) => item.name === profileArea) ? profileArea : TOWN_FILE.areas[0].name);
   const [heard, setHeard] = useState({ levels: null, text: "" });
   const opener = useRef(null);
 
@@ -80,6 +84,11 @@ export default function DemoScreen({ embedded = false, renderRanking, draftActio
     opener.current = element;
     setSelected(area);
   };
+  const openSignal = (signal, area = selected) => {
+    setPlaying(false);
+    setDetailArea(signal.areas.includes(area) ? area : signal.areas[0]);
+    setDetailSignal(signal);
+  };
   const closeSheet = useCallback(() => {
     setSelected(null);
     opener.current?.focus();
@@ -105,10 +114,10 @@ export default function DemoScreen({ embedded = false, renderRanking, draftActio
   const areas = MAP_AREAS.map((area) => area.name).sort((a, b) => rankOf(levels[b]) - rankOf(levels[a]));
   const Content = embedded ? "section" : "main";
 
-  if (detailSignal && replay) return <SignalDetail key={`${runId}|${day}|${detailSignal.id}`} signal={detailSignal} replay={replay} runId={runId} day={day} area={selected} town={TOWN_FILE} chart={replay.chartFor(runId, day, detailSignal)} renderRanking={renderRanking} draftAction={draftAction} signedIn={embedded} onBack={() => setDetailSignal(null)} />;
+  if (detailSignal && replay) return <Suspense fallback={<section className="screen"><p className="pill">{BANNER}</p><p role="status">Loading signal…</p></section>}><SignalDetail key={`${runId}|${day}|${detailSignal.id}`} signal={detailSignal} replay={replay} runId={runId} day={day} area={detailArea} town={TOWN_FILE} chart={replay.chartFor(runId, day, detailSignal)} renderRanking={renderRanking} draftAction={draftAction} signedIn={embedded} onBack={() => setDetailSignal(null)} /></Suspense>;
 
   return (
-    <div className={`demo${selected ? " has-sheet" : ""}${embedded ? " is-embedded" : ""}`}>
+    <div className={`demo${selected && view === "replay" ? " has-sheet" : ""}${embedded ? " is-embedded" : ""}`}>
       <header className="demo-header">
         {!embedded && <div className="demo-bar">
           <Link to="/" className="header-wordmark"><Wordmark /></Link>
@@ -132,6 +141,10 @@ export default function DemoScreen({ embedded = false, renderRanking, draftActio
         </div>
         <input className="replay-slider" type="range" min="0" max={LAST_DAY} step="1" value={day} disabled={!replay} aria-label="Replay day" aria-valuetext={date ? `Day ${day}, ${date}` : `Day ${day}`} onChange={(event) => chooseDay(Number(event.target.value))} />
         <p className="replay-ends" aria-hidden="true"><span>Day 0</span><span>Day {LAST_DAY}</span></p>
+
+        <div className="segmented" role="group" aria-label="Replay view"><button type="button" aria-pressed={view === "replay"} onClick={() => setView("replay")}>Replay</button><button type="button" aria-pressed={view === "today"} onClick={() => setView("today")}>Today</button></div>
+        {view === "today" && replay && <ReplayToday replay={replay} runId={runId} day={day} result={result} town={TOWN_FILE} area={todayArea} onArea={setTodayArea} onOpenSignal={openSignal} />}
+        {view === "replay" && <>
 
         <TownMap levels={levels} selected={selected} onSelect={replay ? openArea : null} description={`Map of ${TOWN_FILE.town}`} />
         <p className="visually-hidden" role="status">{heard.text}</p>
@@ -171,10 +184,12 @@ export default function DemoScreen({ embedded = false, renderRanking, draftActio
         <h2>What the levels mean</h2>
         <LevelKey />
         <p className="note">{embedded ? LIVE_REPLAY_FOOTER : FOOTER}</p>
+        </>}
+        {(day === LAST_DAY || embedded) && <Link to="/demo/scorecard" className="button button-secondary">View the scorecard</Link>}
         {!embedded && <Link to="/" className="button button-secondary">Health professionals: sign in</Link>}
       </Content>
 
-      {selected && result && <AreaSheet area={selected} result={result} since={since} onClose={closeSheet} replay={replay} day={day} runId={runId} renderRanking={renderRanking} onOpenSignal={(signal) => { setPlaying(false); setDetailSignal(signal); }} />}
+      {view === "replay" && selected && result && <AreaSheet area={selected} result={result} since={since} onClose={closeSheet} replay={replay} day={day} runId={runId} renderRanking={renderRanking} onOpenSignal={openSignal} />}
     </div>
   );
 }

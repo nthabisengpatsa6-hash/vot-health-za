@@ -37,7 +37,7 @@ test("the replay is seed 1 on both runs, days 0 to 28, with no way to a held-out
 });
 
 test("opening /demo or /replay never starts the signed-in app's download; every other address does", () => {
-  for (const path of ["/demo", "/demo/", "/Demo", "/replay", "/replay/"]) assert.ok(isReplayPath(path), path);
+  for (const path of ["/demo", "/demo/", "/Demo", "/replay", "/replay/", "/demo/scorecard"]) assert.ok(isReplayPath(path), path);
   for (const path of ["/", "/report", "/near-me", "/demo/x", "/demonstration"]) assert.ok(!isReplayPath(path), path);
 });
 

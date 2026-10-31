@@ -214,6 +214,18 @@ test("saved JSON is dynamically loaded only by the panel loader and excluded fro
   assert.match(sheet, /runId === "seeded" && \["signal", "alert"\]\.includes\(signal.level\) && <ReplayRanking/);
 });
 
+test("the public scorecard alone loads its compact JSON, on demand, without Firebase", () => {
+  const target = "src/sim/held-out/scorecard-screen.json";
+  const screen = "src/screens/ScorecardScreen.jsx";
+  assert.deepEqual(importersOf(target), [screen]);
+  assert.ok(importsOf(join(ROOT, screen)).find(({path}) => path && rel(path) === target).dynamic);
+  assert.ok(![...reachedFrom([join(ROOT, DEMO_ROUTE)]).keys()].map(rel).includes(target));
+  for (const [file, imports] of reachedFrom([join(ROOT, screen)])) {
+    assert.notEqual(rel(file), "src/lib/firebase.js");
+    for (const {specifier} of imports) assert.doesNotMatch(specifier, /^@?firebase(\/|$)/);
+  }
+});
+
 test("only the generator reads the scenario settings, and only the scorecard reads the ground truth and runs the statistics", () => {
   for (const file of importersOf("functions/shared/sim/scenarios.mjs")) assert.ok(MAY_READ_SETTINGS.includes(file), `${file} reads the scenario settings`);
   for (const file of importersOf("src/sim/groundTruth.js")) assert.ok(MAY_READ_GROUND_TRUTH.includes(file), `${file} reads the ground truth`);

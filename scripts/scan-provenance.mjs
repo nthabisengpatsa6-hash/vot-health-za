@@ -6,7 +6,7 @@ import {heldOutPath, assertHeldOutArtifact} from "./lib/heldoutArtifacts.mjs";
 
 export function inspectProvenance(text, type, file = "") {
   if (KEY_LIKE.test(text) || /authorization\s*["']?\s*[:=]/i.test(text)) throw new Error("Unsafe provenance.");
-  const allowed = heldOutPath(file);
+  const allowed = heldOutPath(file) || file === "src/sim/held-out/scorecard-screen.json";
   const inspect = allowed ? assertHeldOutArtifact : assertPublic;
   if (type === "json") inspect(JSON.parse(text));
   else if (type === "jsonl") text.split(/\r?\n/).filter(Boolean).forEach((line) => inspect(JSON.parse(line)));

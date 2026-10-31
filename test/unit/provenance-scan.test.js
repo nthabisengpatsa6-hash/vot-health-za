@@ -3,6 +3,13 @@ import assert from "node:assert/strict";
 import {assertNoSecrets, assertPublic} from "../../scripts/lib/noteArtifacts.mjs";
 import {inspectProvenance, scanProvenance} from "../../scripts/scan-provenance.mjs";
 import {heldOutPath, REPORT_JSON} from "../../scripts/lib/heldoutArtifacts.mjs";
+
+test("the screen scorecard alone permits held-out seeds while retaining artifact guards", () => {
+  const path = "src/sim/held-out/scorecard-screen.json";
+  assert.doesNotThrow(() => inspectProvenance('{"seed":11}', "json", path));
+  assert.throws(() => inspectProvenance('{"reporterRole":"synthetic"}', "json", path));
+  assert.throws(() => inspectProvenance('{"seed":11}', "json", `${path}.backup`));
+});
 import {mkdirSync, mkdtempSync, writeFileSync} from "node:fs";
 import {join, dirname} from "node:path";
 
