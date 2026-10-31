@@ -4,6 +4,14 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 17:20 SAST - Task 19 Part F, phone checks passed and final push gate
+
+- The user confirmed signed-out Signal detail, saved ranking and standard attribution; signed-in live ranking, model-labelled drafting, Copy and Mark as sent; and content-free draft_timing/note_timing with model IDs. The reported live promptHash prefix 8aaa4415 matches the approved r5 version 8aaa44150ff6fabe516e651de33ead9c56f4bbb598c858413671ef1149e0ed16. Full fixed-request equality was verified between the saved r5 calls and the deployed source; the user reported the prefix from live logs.
+- Report initially showed only the uncertainty marker on the user's phone. Notes were heard and cards appeared after restarting that phone, and also on a borrowed phone and laptop. No cause is established and no code fix is claimed. No card was saved, so the delete list is unchanged. No live data was read or removed by the agent.
+- Current live revisions remain processnote-00006-bob / draftnotification-00001-veh; rankSources ranksources-00001-nev and checkMetaConnection checkmetaconnection-00004-joh were unchanged by F1. BASETEN_API_KEY is in use for the successfully checked live draft; no secret value was accessed by the agent. H1's 30 live files/routes/cache headers were verified against the build. Draft caps remain 20/account and 200/app per SAST day, note caps 40/account and 200/app; resources and approved r5 prompt are unchanged.
+- Part F rerun: 290 web, 134 Functions and 94 local demo-fola rules tests passed (518 total), lint/build passed with the existing signed-in bundle warning. Emulator shutdown completed. The 125 exact chart/engine comparisons, 48 frozen blobs/pins and historical Baseten client remain unchanged. This checkpoint updates current-state documentation only. Final post-commit tests, both privacy scans and complete a-to-i report precede the separate approved push gate; no new deployment, paid model call or deletion.
+- The pre-push history review covers every added line in every pending commit. Runtime authorization templates, a credential-documentation phrase, reserved example.invalid email addresses and the exact deliberately rejected synthetic contact-test fixture are identified separately from real credentials/personal data. This local audit distinction changes no production guard, provenance restriction, transcript classification or fixed historical allowance.
+
 ### 31 Oct 2026, 16:14 SAST - Task 19 H1 Hosting deployed; user phone check next
 
 - After explicit approved H1, ran npm.cmd run build from clean f83e874: passed with the existing signed-in bundle size warning. Ran firebase deploy --project vot-health-za --only hosting: 30 files uploaded, version finalized/released, Deploy complete, exit 0. No CLI questions. Hosting URL reported: https://vot-health-za.web.app. No Functions/rules redeploy.
