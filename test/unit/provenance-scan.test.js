@@ -8,6 +8,9 @@ test("the screen scorecard alone permits held-out seeds while retaining artifact
   const path = "src/sim/held-out/scorecard-screen.json";
   assert.doesNotThrow(() => inspectProvenance('{"seed":11}', "json", path));
   assert.throws(() => inspectProvenance('{"reporterRole":"synthetic"}', "json", path));
+  const fakeKey = ["sk", "x".repeat(20)].join("-");
+  assert.throws(() => inspectProvenance(JSON.stringify({ value: fakeKey }), "json", path));
+  assert.throws(() => inspectProvenance('{"authorization":"synthetic"}', "json", path));
   assert.throws(() => inspectProvenance('{"seed":11}', "json", `${path}.backup`));
 });
 import {mkdirSync, mkdtempSync, writeFileSync} from "node:fs";

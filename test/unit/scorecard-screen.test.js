@@ -20,6 +20,8 @@ test("the compact scorecard is rebuilt exactly from the held-out record", () => 
 test("the scorecard renders the saved headline, comparisons and distinct day-19 definitions", async () => {
   const { Scorecard } = await loadComponent("../../src/screens/ScorecardScreen.jsx");
   const html = renderToStaticMarkup(createElement(Scorecard, { data: deriveScorecard(original) }));
+  assert.ok(html.includes("<p>Tested on 10 held-out simulation runs: every run reached Alert (median day 16.5). Muse Spark ranked works A first at the first Alert in 7 of 10, and in all 10 on day 19. No false Signals or Alerts; 7 false Watch signal-days across 20 runs.</p>"));
+  assert.ok(html.includes("<p>One signal-day is one signal on one day. A false signal-day is a signal-day outside the seeded illness, or any signal-day in a quiet run.</p>"));
   for (const text of ["median day 16.5", "in 7 of 10", "7 false Watch signal-days across 20 runs", "2 of 10 quiet runs", "8 of 19 held-out ranking events", "Tuning: works A was ever first by day 19", "Held-out: works A was first at the event in force on day 19"]) assert.ok(html.includes(text), text);
   assert.doesNotMatch(html, /accuracy|%|outbreak detected/i);
 });

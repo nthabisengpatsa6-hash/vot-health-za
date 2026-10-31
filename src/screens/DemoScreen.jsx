@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 import AreaSheet from "../components/AreaSheet";
 import { PauseIcon, PlayIcon } from "../components/Icons";
@@ -6,7 +6,7 @@ import LevelBadge, { LevelKey } from "../components/LevelBadge";
 import Message from "../components/Message";
 import TownMap from "../components/TownMap";
 import Wordmark from "../components/Wordmark";
-import { SignalDetail } from "../lib/loadSignalDetail";
+import SignalDetailLoad from "../components/SignalDetailLoad";
 import ReplayToday from "../components/ReplayToday";
 import { LEVEL_ORDER } from "../config/levels";
 import { PRODUCT_NAME } from "../config/product";
@@ -34,7 +34,7 @@ const SECONDS_PER_DAY = 1.5;
 const SHOWN_CARDS = 3;
 const rankOf = (level) => LEVEL_ORDER.indexOf(level);
 
-export default function DemoScreen({ embedded = false, renderRanking, draftAction, profileArea, initialToday = false }) {
+export default function DemoScreen({ embedded = false, renderRanking, draftAction, profileArea, initialToday = false, loadDetail }) {
   const [replay, setReplay] = useState(null);
   const [failed, setFailed] = useState(false);
   const [runId, setRunId] = useState(RUNS[0].id);
@@ -114,7 +114,7 @@ export default function DemoScreen({ embedded = false, renderRanking, draftActio
   const areas = MAP_AREAS.map((area) => area.name).sort((a, b) => rankOf(levels[b]) - rankOf(levels[a]));
   const Content = embedded ? "section" : "main";
 
-  if (detailSignal && replay) return <Suspense fallback={<section className="screen"><p className="pill">{BANNER}</p><p role="status">Loading signal…</p></section>}><SignalDetail key={`${runId}|${day}|${detailSignal.id}`} signal={detailSignal} replay={replay} runId={runId} day={day} area={detailArea} town={TOWN_FILE} chart={replay.chartFor(runId, day, detailSignal)} renderRanking={renderRanking} draftAction={draftAction} signedIn={embedded} onBack={() => setDetailSignal(null)} /></Suspense>;
+  if (detailSignal && replay) return <SignalDetailLoad key={`${runId}|${day}|${detailSignal.id}`} load={loadDetail} signal={detailSignal} replay={replay} runId={runId} day={day} area={detailArea} town={TOWN_FILE} chart={replay.chartFor(runId, day, detailSignal)} renderRanking={renderRanking} draftAction={draftAction} signedIn={embedded} onBack={() => setDetailSignal(null)} />;
 
   return (
     <div className={`demo${selected && view === "replay" ? " has-sheet" : ""}${embedded ? " is-embedded" : ""}`}>

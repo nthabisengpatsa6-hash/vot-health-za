@@ -226,6 +226,16 @@ test("the public scorecard alone loads its compact JSON, on demand, without Fire
   }
 });
 
+test("Today components and their helpers cannot import Firebase or callable clients", () => {
+  for (const start of ["src/components/ReplayToday.jsx", "src/lib/replayToday.js"]) {
+    for (const [file, imports] of reachedFrom([join(ROOT, start)])) {
+      assert.ok(!["src/lib/firebase.js", "src/lib/api.js", "src/lib/rankApi.js", "src/lib/draftApi.js"].includes(rel(file)), `${start} reaches ${rel(file)}`);
+      for (const {specifier} of imports) assert.doesNotMatch(specifier, /^@?firebase(\/|$)/);
+      if (/\.(js|jsx|mjs)$/.test(file)) assert.doesNotMatch(codeOnly(readFileSync(file, "utf8")), /httpsCallable|XMLHttpRequest|\bfetch\s*\(/);
+    }
+  }
+});
+
 test("only the generator reads the scenario settings, and only the scorecard reads the ground truth and runs the statistics", () => {
   for (const file of importersOf("functions/shared/sim/scenarios.mjs")) assert.ok(MAY_READ_SETTINGS.includes(file), `${file} reads the scenario settings`);
   for (const file of importersOf("src/sim/groundTruth.js")) assert.ok(MAY_READ_GROUND_TRUTH.includes(file), `${file} reads the ground truth`);
