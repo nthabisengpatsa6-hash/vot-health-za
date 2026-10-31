@@ -205,6 +205,8 @@ The detail view is a plain reading screen with the Simulation pill, existing lev
 
 Post-trial correction (31 Oct): Signal detail's headline and notification use the same whole-case usual wording, with its unit: "about 6 cases usually", or "fewer than 1 case usually" if rounding gives zero. The raw engine expectation and daily chart arithmetic are preserved. Standard drafts open with "An Alert signal", "A Signal" or "A Watch", omit zero observations, list available ranked sources with confidence words, and include "Possible checks for environmental health" with the first source's fixed checks. The cause reminder appears in the footer only. An untouched standard draft updates when its ranking arrives; human edits and completed model drafts persist.
 
+R3 wording correction: standard-draft area lists join the final two names with "and", for example "Thaga Park, Leeba View and Nonyana Flats". Model instructions call the underlying records case cards or clinicians' reports, preserve count units, request district environmental health checks without implying an investigation is underway, start the subject with its level and ask for 3 to 5 short paragraphs separated by blank lines. Styles and layout remain unchanged.
+
 ## Motion
 
 Motion only happens at three moments, plus small state changes:

@@ -7,6 +7,7 @@ import {buildDraftInput} from "../../functions/shared/draft/input.mjs";
 import {standardDraft,DRAFT_FOOTER} from "../../functions/shared/draft/standard.mjs";
 import {validateDraft} from "../../functions/shared/draft/validate.mjs";
 import {DRAFT_SETTINGS,DRAFT_PRICES} from "../../functions/shared/draft/settings.mjs";
+import {DRAFT_PROMPT_HASH} from "../../functions/lib/draftRequest.mjs";
 import town from "../../functions/data/places.json" with {type:"json"};
 
 export const draftInputHash = (input) => createHash("sha256").update(JSON.stringify(input)).digest("hex");
@@ -26,10 +27,12 @@ function draftTrialSignals() {
 export function planDraftTrial() {
   return draftTrialSignals().map(({role,day,signal})=>{const input=buildDraftInput(signal,{day,town});return {role,day,level:signal.level,input,inputHash:draftInputHash(input)};});
 }
-// Rebuild the original trial's decimal input independently of saved outputs.
+// Rebuild r1/r2 inputs, including their zero flags, independently of outputs.
 // These hashes verify history only; runDraftTrial accepts current plans only.
-export function legacyDraftTrialInputs() {
-  return draftTrialSignals().map(({day,signal}) => ({...buildDraftInput(signal,{day,town}),usualCases:signal.expected.cases}));
+export function legacyDraftTrialInputs(revision = 1) {
+  if (![1,2].includes(revision)) throw new Error("Unknown historical draft revision.");
+  return draftTrialSignals().map(({day,signal}) => ({...buildDraftInput(signal,{day,town}),...(revision === 1 ? {usualCases:signal.expected.cases} : {}),
+    observations:{moreSevere:signal.flags.moreSevere,notResponding:signal.flags.notResponding}}));
 }
 export function draftCost(tokens) {
   return Number.isSafeInteger(tokens.inputTokens) && Number.isSafeInteger(tokens.outputTokens) ? (tokens.inputTokens*DRAFT_PRICES.inputPerMillion+tokens.outputTokens*DRAFT_PRICES.outputPerMillion)/1e6 : null;
@@ -41,7 +44,7 @@ export async function runDraftTrial({plans=planDraftTrial(), existing=[], call, 
   const rows=[];
   for (const plan of plans) {
     if (existing.some((row)=>row.inputHash===plan.inputHash)) {print(`Day ${plan.day}: attempt already recorded; no repeat.`);continue;}
-    const identity={kind:"draft",input:plan.input,inputHash:plan.inputHash,role:plan.role,day:plan.day,level:plan.level,model:DRAFT_SETTINGS.model,provider:DRAFT_SETTINGS.provider};
+    const identity={kind:"draft",input:plan.input,inputHash:plan.inputHash,role:plan.role,day:plan.day,level:plan.level,model:DRAFT_SETTINGS.model,provider:DRAFT_SETTINGS.provider,promptHash:DRAFT_PROMPT_HASH};
     append({...identity,outcome:"pending"});
     let reply;try {reply=await call(plan.input);} catch {reply={reason:"unavailable",ms:0};}
     const checked=reply.reason ? null : validateDraft(reply.text,plan.input,town);

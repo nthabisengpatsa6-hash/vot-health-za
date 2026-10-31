@@ -28,7 +28,7 @@ export function validateDraft(raw, input, town) {
     text += normalized;
   }
   const exact = (match) => original.slice(spans[match.index]?.start ?? 0,spans[match.index+match[0].length-1]?.end ?? original.length);
-  const phrases = [...text.matchAll(/\b(?:water treatment works|treatment works)\b/gi)].filter((match) => /^(?:water treatment works|treatment works)$/i.test(exact(match)));
+  const phrases = [...text.matchAll(/\b(?:water treatment works|treatment works|treatment records)\b/gi)].filter((match) => /^(?:water treatment works|treatment works|treatment records)$/i.test(exact(match)));
   const banned = [...text.matchAll(/[a-z]+/gi)].filter((match) => {
     const word = match[0].toLowerCase();
     if (word === "treatment" && phrases.some((phrase) => match.index >= phrase.index && match.index+word.length <= phrase.index+phrase[0].length)) return false;
@@ -44,6 +44,7 @@ export function validateDraft(raw, input, town) {
   // Parse contiguous English number words as one number, not unrelated tokens.
   const sequences = [...numericText.matchAll(/\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million)(?:(?:[ -]+(?:and[ -]+)?)(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million))*\b/gi)];
   for (const sequence of sequences) {
+    if (/^one$/i.test(sequence[0])) continue;
     let total=0, group=0;
     for (const word of sequence[0].toLowerCase().split(/[ -]+/).filter((word) => word !== "and")) {const n=numberWords[word]; if (n === 100) group=(group || 1)*n; else if (n >= 1000) {total+=(group || 1)*n;group=0;} else group+=n;}
     if (!allowed.has(total+group)) invalidNumbers.push(exact(sequence));

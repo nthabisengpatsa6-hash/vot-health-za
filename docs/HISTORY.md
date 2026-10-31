@@ -4,6 +4,16 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 09:15 SAST - Task 19 revision 3 prepared after r2 wording review
+
+- Preserved r2's four pending/terminal rows unchanged: day 17 model (4359 ms, USD 0.004512), day 19 fallback:invalid:number with exact match One (3924 ms, USD 0.005056), total USD 0.009568. Model text showed community cards, claims of review already underway and confusion between flagged cards and cases. No new trial result is fabricated; r1/r2 lack a recorded prompt hash and are not backfilled.
+- Exempted standalone one case-insensitively while retaining digit 1, compound and other-number checks. Added only exact treatment records to the two approved treatment works exceptions; other treatment/advice forms remain rejected. Model input omits zero observation flags and keeps positive counts. Standard-draft area lists join the final two names with and.
+- Added the five requested prompt lines verbatim, with the product name read from its canonical setting: case cards/clinicians' reports, count units, a request for district environmental health checks without claiming work is underway, level-first subject and 3 to 5 short paragraphs.
+- One Functions-only request builder supplies the client and full fixed-request SHA-256 fingerprint. promptHash includes fixed system/instruction text, full schema/format, model ID, max_tokens and reasoning_effort; per-call evidence is excluded. Pending/terminal trial records and content-free draft_timing logs share it. Captured day-17/day-19 requests have identical hashes; changing every instruction line or any covered setting changes it. Current hash: be0a35f50f4c5ff3636bbd8231ccf63006b23798da018ed1bbc784e9458a5f00.
+- Prepared the separate r3 JSONL path and preserved the hidden-key confirmation, attempt/resume guards, quotas, provider/model, token cap and one 20-second attempt. The provenance catalog independently rebuilds r1/r2 inputs with their original zero flags; old inputs are refused for new calls. Historical allowances and private-audio classifications remain unchanged.
+- Validation: 275 web and 131 Functions tests, including 32 affected frontend/frozen/chart checks and 14 affected Functions checks; lint/build passed with the existing bundle warning. All 125 chart/engine comparisons, frozen files and fingerprint pins are unchanged. Both scans passed: 333 tracked files against 442 private-audio records, zero rejected overlaps, and 50 provenance files. R1/r2 file hashes unchanged. Rules unchanged and not retested for this draft-only change.
+- Awaiting the user's two-call r3 trial via npm.cmd run draft:trial. No paid agent call, secret setup, deploy, live data operation, delete or push. Separate secret/F1/H1/phone/final-push gates remain.
+
 ### 31 Oct 2026, 07:06 SAST - Task 19 post-trial draft corrections, revision 2 prepared
 
 - Preserved the original two-call trial unchanged: day 17 invalid:banned, day 19 invalid:number, USD 0.00754425 total. Both used the standard fallback. The runner omitted rejected model text and exact matches, so the specific causes cannot be recovered or inferred.

@@ -30,7 +30,8 @@ test("successful drafts are validated and receive only the code-owned footer; lo
   let reserved=false,log;
   const result=await createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>{reserved=true;return {allowed:true};},call:async(input)=>{assert.equal(reserved,true);assert.ok(input.cases);return {text:JSON.stringify({subject:"Signal to review",body:"Please review the linked evidence."}),ms:123,inputTokens:10,outputTokens:20,reasoningTokens:8};},write:(entry)=>{log=draftTimingEntry(entry);}})(request);
   assert.equal(result.outcome,"model");assert.equal(result.footer,DRAFT_FOOTER);assert.equal(result.ms,123);
-  assert.deepEqual(Object.keys(log),["model","provider","outcome","ms","inputTokens","outputTokens","reasoningTokens"]);
+  assert.deepEqual(Object.keys(log),["model","provider","promptHash","outcome","ms","inputTokens","outputTokens","reasoningTokens"]);
+  assert.equal(log.promptHash,(await import("../lib/draftRequest.mjs")).DRAFT_PROMPT_HASH);
   assert.equal(log.model,"meta-models/muse-spark-open-1026");assert.equal(log.inputTokens,10);
   assert.doesNotMatch(JSON.stringify(log),/subject|body|uid|Signal to review/);
 });

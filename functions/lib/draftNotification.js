@@ -17,7 +17,8 @@ function createDraftHandler({apiKey = () => "", reserve = (...args) => limit.res
   return async (request) => {
     const started = performance.now();
     const {DRAFT_SETTINGS} = await import("../shared/draft/settings.mjs");
-    const timing = {model:DRAFT_SETTINGS.model,provider:DRAFT_SETTINGS.provider,outcome:"fallback:bad-request"};
+    const {DRAFT_PROMPT_HASH} = await import("./draftRequest.mjs");
+    const timing = {model:DRAFT_SETTINGS.model,provider:DRAFT_SETTINGS.provider,promptHash:DRAFT_PROMPT_HASH,outcome:"fallback:bad-request"};
     try {
       if (!request.auth) {timing.outcome="fallback:signed-out";throw new HttpsError("unauthenticated","Please sign in to draft a notification.");}
       const {validateDraftRequest,buildDraftInput} = await import("../shared/draft/input.mjs");

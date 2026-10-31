@@ -1,9 +1,6 @@
 import {DRAFT_SETTINGS} from "../shared/draft/settings.mjs";
-import {DRAFT_SCHEMA} from "../shared/draft/schema.mjs";
-
-export const DRAFT_PROMPT = `Write a short environmental health notification from the supplied structured evidence only. Return JSON with exactly subject (at most 100 characters) and body (at most 1200 characters). Use plain words and signal language. Say what was seen, over the stated windowDays, and where to look first. Sources are possibilities, never confirmed causes. Supports and Against must remain honest. Give environmental checks only; no diagnosis, medical advice, blame or officials. Do not use words starting diagnos, treat, untreat or prescri, or outbreak, epidemic, pandemic, medication, antibiotic or dose. Only the exact phrases "water treatment works" and "treatment works" may contain treatment. Use digits for numbers; use only numbers and town area/source names present in the input. Use the supplied usualCases wording. No links, contact details, identifiers, signatures or footer. Do not include reasoning in the final answer.
-Use only the numbers given, exactly as written. Never calculate new numbers.
-Call each source by the name given.`;
+import {draftRequestBody} from "./draftRequest.mjs";
+export {DRAFT_PROMPT} from "./draftRequest.mjs";
 
 export function finalDraftContent(message) {
   let text = Array.isArray(message?.content) ? message.content.filter((part) => part.type === "text").map((part) => part.text || "").join("") : message?.content;
@@ -22,8 +19,7 @@ export async function callBasetenDraft(input, {apiKey, fetch:fetchImpl = globalT
   try {
     const timeout = new Promise((_, reject) => {timer = setTimeout(() => {controller.abort();reject(new Error("timeout"));}, timeoutMs);});
     const request = (async () => {
-      const response = await fetchImpl(`${baseUrl}/chat/completions`, {method:"POST",signal:controller.signal,headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json"},body:JSON.stringify({model,reasoning_effort:"low",temperature:0,max_tokens:DRAFT_SETTINGS.maxTokens,
-        response_format:{type:"json_schema",json_schema:{name:"notification_draft",strict:true,schema:DRAFT_SCHEMA}},messages:[{role:"system",content:DRAFT_PROMPT},{role:"user",content:JSON.stringify(input)}]})});
+      const response = await fetchImpl(`${baseUrl}/chat/completions`, {method:"POST",signal:controller.signal,headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json"},body:JSON.stringify(draftRequestBody(input))});
       if (!response.ok) return {reason:"unavailable"};
       const envelope = await response.json(), usage = envelope.usage;
       for (const [key, value] of Object.entries({inputTokens:usage?.prompt_tokens,outputTokens:usage?.completion_tokens,reasoningTokens:usage?.completion_tokens_details?.reasoning_tokens})) if (Number.isSafeInteger(value) && value >= 0) tokens[key] = value;

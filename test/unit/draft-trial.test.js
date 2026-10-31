@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {planDraftTrial,runDraftTrial,draftCost,legacyDraftTrialInputs,draftInputHash} from "../../scripts/lib/draftTrial.mjs";
 import {readFileSync} from "node:fs";
 import {authoredInputCatalog,verifiedAuthoredRecord} from "../../scripts/lib/authoredInputs.mjs";
+import {DRAFT_PROMPT_HASH} from "../../functions/lib/draftRequest.mjs";
 const plans=planDraftTrial();
 test("seed-1 trial selects the first Alert and day 19, with the absent Signal-only case explicit",()=>{
   assert.deepEqual(plans.map(({role,day,level})=>({role,day,level})),[{role:"first-alert",day:17,level:"alert"},{role:"day-19",day:19,level:"alert"}]);
@@ -13,6 +14,10 @@ test("trial persists attempts before calls and never repeats a recorded attempt"
   const results=await runDraftTrial({plans,call,append:(row)=>saved.push(row),print:(line)=>output.push(line)});
   assert.equal(calls,2);assert.equal(results.length,2);assert.equal(saved.length,4);
   assert.equal(results[0].usd,(10*1.25+20*4.25)/1e6);
+  assert.notDeepEqual(results[0].input,results[1].input);
+  assert.deepEqual(results.map(({day,promptHash})=>({day,promptHash})),[{day:17,promptHash:DRAFT_PROMPT_HASH},{day:19,promptHash:DRAFT_PROMPT_HASH}]);
+  assert.match(DRAFT_PROMPT_HASH,/^[a-f0-9]{64}$/);
+  assert.ok(saved.every((row)=>row.promptHash===DRAFT_PROMPT_HASH));
   await runDraftTrial({plans,existing:saved,call,append:()=>assert.fail("no writes on resume"),print:()=>{}});
   assert.equal(calls,2);
   const catalog=authoredInputCatalog();
@@ -52,5 +57,13 @@ test("original decimal trial records still verify, while old inputs cannot be us
   assert.deepEqual(legacy.map((input)=>input.usualCases),[6.93,5.97]);
   assert.deepEqual(legacy.map(draftInputHash),rows.filter((row)=>row.outcome==="pending").map((row)=>row.inputHash));
   for (const row of rows) assert.equal(verifiedAuthoredRecord(row,catalog),true);
+  await assert.rejects(runDraftTrial({plans:[{...plans[0],input:legacy[0],inputHash:draftInputHash(legacy[0])}]}),/fixed simulated/);
+});
+test("r2 zero-flag inputs still verify unchanged but cannot be used for new calls",async()=>{
+  const rows=readFileSync(new URL("../../docs/provenance/open-weights/draft-trial-2026-10-31-r2.jsonl",import.meta.url),"utf8").trim().split(/\r?\n/).map(JSON.parse);
+  const legacy=legacyDraftTrialInputs(2),catalog=authoredInputCatalog();
+  assert.deepEqual(legacy.map((input)=>input.usualCases),["about 7 cases usually","about 6 cases usually"]);
+  assert.deepEqual(legacy.map(draftInputHash),rows.filter((row)=>row.outcome==="pending").map((row)=>row.inputHash));
+  for (const row of rows) {assert.equal(verifiedAuthoredRecord(row,catalog),true);assert.equal(Object.hasOwn(row,"promptHash"),false);}
   await assert.rejects(runDraftTrial({plans:[{...plans[0],input:legacy[0],inputHash:draftInputHash(legacy[0])}]}),/fixed simulated/);
 });
