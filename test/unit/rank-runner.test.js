@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {spawnSync} from "node:child_process";
-import {existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync} from "node:fs";
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from "node:fs";
 import {join} from "node:path";
 import {test} from "node:test";
 import {executePlans, parseArgs} from "../../scripts/rank-saved.mjs";
@@ -10,6 +10,7 @@ import {readHiddenKey} from "../../scripts/lib/hiddenInput.mjs";
 import {EventEmitter} from "node:events";
 import {createRequire} from "node:module";
 import {rankingScorecard} from "../../src/sim/scorecard.js";
+import {scanProvenance} from "../../scripts/scan-provenance.mjs";
 
 const {PROMPT_HASH} = createRequire(import.meta.url)("../../functions/lib/callRanker.js");
 const plans = planRankings({seeds: [1]}).slice(0, 1);
@@ -138,22 +139,7 @@ test("hidden input refuses non-interactive input and never echoes typing", async
 });
 
 test("all saved provenance and the seed-1 output are scanned for key-like strings and private fields", () => {
-  const files = [];
-  function collect(path) {
-    if (!existsSync(path)) return;
-    for (const item of readdirSync(path, {withFileTypes: true})) {
-      const target = join(path, item.name);
-      if (item.isDirectory()) collect(target);
-      else files.push(target);
-    }
-  }
-  collect("docs/provenance");
-  collect("src/sim/saved-rankings");
-  for (const file of files) {
-    const text = readFileSync(file, "utf8");
-    if (file.endsWith(".json")) assertSafeArtifact(JSON.parse(text));
-    else assertSafeArtifact({text});
-  }
+  assert.ok(scanProvenance(process.cwd()) > 0);
 });
 
 test("scratch is ignored and has no tracked files", () => {

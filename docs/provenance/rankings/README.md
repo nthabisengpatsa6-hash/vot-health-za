@@ -1,6 +1,8 @@
 # Saved ranking runs
 
-Only tuning runs belong here. Cards are rebuilt from the generator; whole cards,
+Tuning runs belong at this level and in experiments/. Task 18's separate held-out/
+subfolder accepts only the approved held-out run; tuning tools remain locked.
+Cards are rebuilt from the generator; whole cards,
 transcripts, account data and credentials are never saved here.
 
 From the repository root in PowerShell:

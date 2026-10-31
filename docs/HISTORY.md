@@ -4,6 +4,17 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 04:42 SAST - Task 18 Part C, before unlock
+
+- Built separate explicit held-out preflight, statistics, ranking and scorecard commands after STOP 1 approval with eight refinements. Production statistics, thresholds, generator, ranking prompt/schema/settings/guards and tuning tools remain unchanged. No held-out statistics, signals, rankings or outcomes were computed. The existing fingerprint test generates seed 11 to 20 cards only to hash them, without computing those outcomes.
+- Preflight requires a clean tree, signal hash abc36af17d67a689, ranking prompt hash 01622c7f95af2326, exact HEAD/ab40db5 Git blob equality for every original frozen dependency, and both original fingerprints per seed. Proof records the implementation commit before unlock. The actual held-out ranking dry run is deferred to Part D; its complete entry point is tested with synthetic inputs and mocked boundaries.
+- Event selection uses the frozen match/change rules and carries the event active on day 19 with its original evidence day. Tuning tests prove first-Alert and event-trigger parity; an isolated source mirror produces identical selections with ground truth absent and with a throwing replacement. No test scores or ranks actual held-out seeds.
+- Separate Meta-only low-effort adapter keeps the exact production request but uses the approved one transport retry (connection, timeout, 429 or 5xx), without retrying invalid JSON. Hidden key entry, safe failures, durable started markers and terminal finished/unavailable records prevent silent duplicate calls. Accounted spending pauses at USD 2; each unknown-usage attempt counts estimated input plus the 8,000-output-token cap. Standard prices checked 31 Oct: USD 1.25/million input, USD 4.25/million output, from https://dev.meta.ai/docs/pricing-rate-limits.
+- First-Alert success is out of ranked first Alerts, listing no-Alert, unavailable and missing seeds on the same line. Reports label false signals (signal-days), retain exact-level counting and compare tuning recomputation against HANDOVER.md's 10 false Watch signals per scenario, 20 combined. Markdown and JSON generators are prepared; there are no held-out results or screen imports yet.
+- Provenance exceptions use only exact held-out path segments and the exact generated scorecard JSON path. Sibling paths are refused; all generated JSON under src/sim is scanned. Tuning artifact guards and transcript-scan classification/allowances remain unchanged.
+- Validation: 242 web, 113 Functions and 94 local demo-fola rules tests passed (449 total), plus lint/build. Rules required a separately approved sandbox rerun; nothing was deployed. The existing signed-in bundle-size warning remains. Staged provenance scan passed (33 files); transcript scan passed (286 tracked files, 442 private-audio records, zero rejected overlaps, fixed allowances unchanged). STOP 2 requires "approved unlock" next, with no push.
+- Monday afternoon, 2 Nov, is Claude Code's judges' local run path first (Firebase emulators under a demo- project, judges' own keys in functions/.secret.local), then speed work, then Task 17 only if time remains. Task 17 keeps its number. No key access, delete or deployment is authorised by this schedule change.
+
 ### Day 0 — Mon 26 Oct (setup)
 - React + Vite (JavaScript) app at the repo root.
 - src/config/product.js with PRODUCT_NAME = "Fola" (renaming the product is a one-line change).

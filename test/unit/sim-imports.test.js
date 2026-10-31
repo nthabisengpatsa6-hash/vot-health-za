@@ -229,7 +229,7 @@ test("nothing in functions reaches the ground truth or the scorecard", () => {
 });
 
 test("ranking code and the runner never reach ground truth or the scorecard", () => {
-  const starts = [...sourceFiles(RANK), join(ROOT, "functions/lib/callRanker.js"), join(ROOT, "scripts/rank-saved.mjs")];
+  const starts = [...sourceFiles(RANK), join(ROOT, "functions/lib/callRanker.js"), join(ROOT, "scripts/rank-saved.mjs"), join(ROOT,"scripts/heldout-rank.mjs"), join(ROOT,"scripts/lib/heldoutPlans.mjs")];
   for (const file of reachedFrom(starts).keys()) assert.ok(!["src/sim/groundTruth.js", "src/sim/scorecard.js"].includes(rel(file)), "ranking reaches " + rel(file));
 });
 
