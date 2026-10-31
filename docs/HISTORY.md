@@ -4,6 +4,13 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 19:16 SAST - Task 20 Hosting released and phone check confirmed
+
+- After explicit approved H1, the agent ran the two requested commands in order from 32eba87: npm.cmd run build and firebase deploy --project vot-health-za --only hosting. git status --short was empty before and after the build. No force flag, other deployment target or additional metadata query was used. Build passed with the existing signed-in bundle warning; CLI reported 36 files, version finalized, release complete and Deploy complete. It asked no questions.
+- The CLI release response identifies Hosting version f91d544f3f97a659 and live release 1793465819020000, released at 18:56:59.020 SAST. These are response fields from the deploy command, not a later API lookup. No separate live-file or header comparison was performed.
+- The user replied Phone check done after the checklist covering signed-out replay Today on quiet day 8 and signal day 19, opening Signal detail and returning to the same Today/day/area with the Simulation pill, the public scorecard from day 28 and its headline counts, and signed-in profile-area/default plus the honest real-reports note linking directly to replay Today. No agent signed-in inference or live-data operation was performed.
+- Part E updates current state and the pre-push checklist's already-approved exact derived-scorecard path, then commits and reruns the required local checks and a-to-i history/privacy review before the separate approved push gate. Functions, rules, model settings, all 48 frozen files and fixed transcript/privacy allowances are unchanged.
+
 ### 31 Oct 2026, 18:50 SAST - Task 20 local verification and Signal detail retry
 
 - Prepared replay Today and public /demo/scorecard in 29e4c3f, then strengthened the approved verification before H1. This remains Hosting-only source work; no Functions/rules change, deploy, inference, live-data operation or push.
