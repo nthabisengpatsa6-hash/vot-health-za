@@ -1,0 +1,5960 @@
+{
+  "version": 1,
+  "simulation": true,
+  "sampleSize": 10,
+  "proof": {
+    "version": 1,
+    "commit": "ccff74acf67183b48193a7631b98a87c817716ef",
+    "freezeCommit": "ab40db54d3ff7d173742df16127aab3f63ee6cca",
+    "clean": true,
+    "signalHash": "abc36af17d67a689",
+    "rankingPromptHash": "01622c7f95af2326",
+    "dependencies": [
+      {
+        "file": "functions/data/places.json",
+        "baselineBlob": "cde108f3ffe87570868282ecae09469eb13fa957",
+        "headBlob": "cde108f3ffe87570868282ecae09469eb13fa957",
+        "status": "same"
+      },
+      {
+        "file": "functions/lib/callRanker.js",
+        "baselineBlob": "2f0a43d2eb44c58cd69abf32f49707dede6a1621",
+        "headBlob": "2f0a43d2eb44c58cd69abf32f49707dede6a1621",
+        "status": "same"
+      },
+      {
+        "file": "functions/lib/rankTiming.js",
+        "baselineBlob": "94fbfe101b88d9f352ede00b802c54f7951ccfa7",
+        "headBlob": "94fbfe101b88d9f352ede00b802c54f7951ccfa7",
+        "status": "same"
+      },
+      {
+        "file": "functions/prompts/rank-sources.md",
+        "baselineBlob": "359391d34613bdba98ae359c231b39f46d220274",
+        "headBlob": "359391d34613bdba98ae359c231b39f46d220274",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/baseline.mjs",
+        "baselineBlob": "0a54dfd4dbf09eacdb654899b4f4bbe7c4207a5d",
+        "headBlob": "0a54dfd4dbf09eacdb654899b4f4bbe7c4207a5d",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/cardDoc.mjs",
+        "baselineBlob": "535816ede7e512b20daf81b4925c231f73deab84",
+        "headBlob": "535816ede7e512b20daf81b4925c231f73deab84",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/cardFields.mjs",
+        "baselineBlob": "fdbd791d082850e0c09dbd1162e2ed1ace30fcc1",
+        "headBlob": "fdbd791d082850e0c09dbd1162e2ed1ace30fcc1",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/layers.mjs",
+        "baselineBlob": "c7982b66e892984bcffc51b65e13df6607e530a2",
+        "headBlob": "c7982b66e892984bcffc51b65e13df6607e530a2",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/clues.mjs",
+        "baselineBlob": "79fa979a35a482e3f3032f9351eca2d359080385",
+        "headBlob": "79fa979a35a482e3f3032f9351eca2d359080385",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/input.mjs",
+        "baselineBlob": "c8ae5d1bccb8e3b2f8b3282796c7a1037f4f1def",
+        "headBlob": "c8ae5d1bccb8e3b2f8b3282796c7a1037f4f1def",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/match.mjs",
+        "baselineBlob": "a2f2f9b4afcd166dbe2069db62620b8f8e654825",
+        "headBlob": "a2f2f9b4afcd166dbe2069db62620b8f8e654825",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/schema.mjs",
+        "baselineBlob": "f7e9827eab066aa8ded8d606a57bb0f0d48d4996",
+        "headBlob": "f7e9827eab066aa8ded8d606a57bb0f0d48d4996",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/settings.mjs",
+        "baselineBlob": "47ac6bff9c99ee070d3c9f251e438fb56aa631e6",
+        "headBlob": "47ac6bff9c99ee070d3c9f251e438fb56aa631e6",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/validate.mjs",
+        "baselineBlob": "1ae1c16da9d3552b7e8c3a2ae1b22697a6b25657",
+        "headBlob": "1ae1c16da9d3552b7e8c3a2ae1b22697a6b25657",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sastDay.mjs",
+        "baselineBlob": "90a39660bdfc4667d94d93859142bd93e0562600",
+        "headBlob": "90a39660bdfc4667d94d93859142bd93e0562600",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/settings.mjs",
+        "baselineBlob": "4bd45f30290f7e4504ed5465594001f789bacc74",
+        "headBlob": "4bd45f30290f7e4504ed5465594001f789bacc74",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/signals.mjs",
+        "baselineBlob": "5b3bad24abb1963e53630a61ab6067c9d1d6162f",
+        "headBlob": "5b3bad24abb1963e53630a61ab6067c9d1d6162f",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/background.mjs",
+        "baselineBlob": "ec48007f937ea6ab6b4d60c6b9a26d11be956369",
+        "headBlob": "ec48007f937ea6ab6b4d60c6b9a26d11be956369",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/calendar.mjs",
+        "baselineBlob": "ce6b218441192860e07e8953dfd011565cb07403",
+        "headBlob": "ce6b218441192860e07e8953dfd011565cb07403",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/card.mjs",
+        "baselineBlob": "ec2166fdc205f838d611be8166896a3ea81d6456",
+        "headBlob": "ec2166fdc205f838d611be8166896a3ea81d6456",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/draws.mjs",
+        "baselineBlob": "9472a1076340f43e468c99acfd1422fdcc6d200a",
+        "headBlob": "9472a1076340f43e468c99acfd1422fdcc6d200a",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/engine.mjs",
+        "baselineBlob": "502cfacdc5918b53e84b900a2ddb20ceebd18690",
+        "headBlob": "502cfacdc5918b53e84b900a2ddb20ceebd18690",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/phrases.mjs",
+        "baselineBlob": "00f0fa5e2e95ca106e79b3c30478a6a3cc9c4322",
+        "headBlob": "00f0fa5e2e95ca106e79b3c30478a6a3cc9c4322",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/random.mjs",
+        "baselineBlob": "f66d804cfe8f52fbd23003c2c953f6e54079df3b",
+        "headBlob": "f66d804cfe8f52fbd23003c2c953f6e54079df3b",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/reporters.mjs",
+        "baselineBlob": "94ca8338f9a6ae9c6524a069c01711f09fadca78",
+        "headBlob": "94ca8338f9a6ae9c6524a069c01711f09fadca78",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/scenarios.mjs",
+        "baselineBlob": "21037eaae22340fbef679b64b7055ab6ee67c0ff",
+        "headBlob": "21037eaae22340fbef679b64b7055ab6ee67c0ff",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/seededCluster.mjs",
+        "baselineBlob": "344e0583f14d70da78781caf3fcd2eeb3d132375",
+        "headBlob": "344e0583f14d70da78781caf3fcd2eeb3d132375",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/town.mjs",
+        "baselineBlob": "60be9c9dc03b3fe0a73d99ca52ea55a6c00e26f3",
+        "headBlob": "60be9c9dc03b3fe0a73d99ca52ea55a6c00e26f3",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/tail.mjs",
+        "baselineBlob": "b23f1eff4002967e2ff5c4e6ce20b74a8f882124",
+        "headBlob": "b23f1eff4002967e2ff5c4e6ce20b74a8f882124",
+        "status": "same"
+      },
+      {
+        "file": "scripts/lib/rankArtifacts.mjs",
+        "baselineBlob": "f3a4ad1ca19351dba51f70c1e91e8f5d3a99ed2b",
+        "headBlob": "f3a4ad1ca19351dba51f70c1e91e8f5d3a99ed2b",
+        "status": "same"
+      },
+      {
+        "file": "scripts/lib/rankPlans.mjs",
+        "baselineBlob": "4989ca179d8ffc973abe582b7ef48799ea583f9e",
+        "headBlob": "4989ca179d8ffc973abe582b7ef48799ea583f9e",
+        "status": "same"
+      },
+      {
+        "file": "scripts/rank-saved.mjs",
+        "baselineBlob": "21e5afceeae4a89e494fd1c76e01b23a2075d60c",
+        "headBlob": "21e5afceeae4a89e494fd1c76e01b23a2075d60c",
+        "status": "same"
+      },
+      {
+        "file": "scripts/scorecard.mjs",
+        "baselineBlob": "2932efd3e8725034a97b34e7c530996158031cd5",
+        "headBlob": "2932efd3e8725034a97b34e7c530996158031cd5",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/background.js",
+        "baselineBlob": "fffa6a1d5d9175f3ba730397ec193bed1f14595c",
+        "headBlob": "fffa6a1d5d9175f3ba730397ec193bed1f14595c",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/calendar.js",
+        "baselineBlob": "62228cc35011b1dadaa340bedfe1c7b9964a4740",
+        "headBlob": "62228cc35011b1dadaa340bedfe1c7b9964a4740",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/card.js",
+        "baselineBlob": "4db8bd79b8a7178737ab06b5a0b41e739a9352e1",
+        "headBlob": "4db8bd79b8a7178737ab06b5a0b41e739a9352e1",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/draws.js",
+        "baselineBlob": "af05d6eeccce4227962f681f34ead81d536b0513",
+        "headBlob": "af05d6eeccce4227962f681f34ead81d536b0513",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/engine.js",
+        "baselineBlob": "30ac13696d9301ed9d9d8a5f464fd7ae68c3e610",
+        "headBlob": "30ac13696d9301ed9d9d8a5f464fd7ae68c3e610",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/groundTruth.js",
+        "baselineBlob": "6046db234fb6c187f10304e4292b418c15ab2878",
+        "headBlob": "6046db234fb6c187f10304e4292b418c15ab2878",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/phrases.js",
+        "baselineBlob": "a6dbb5041d2ab34f113e5e4d2f35c0b7d489c425",
+        "headBlob": "a6dbb5041d2ab34f113e5e4d2f35c0b7d489c425",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/random.js",
+        "baselineBlob": "1c46d389d232757ac3bfd56c523def51b2cebc2c",
+        "headBlob": "1c46d389d232757ac3bfd56c523def51b2cebc2c",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/reporters.js",
+        "baselineBlob": "fa299608671e4db961809b343a9444689ac30fbc",
+        "headBlob": "fa299608671e4db961809b343a9444689ac30fbc",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/saved-rankings/seed-1.json",
+        "baselineBlob": "0a1fe7b9a9ef93035ce64f7f8cf33b6ee1444ad2",
+        "headBlob": "0a1fe7b9a9ef93035ce64f7f8cf33b6ee1444ad2",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/scenarios.js",
+        "baselineBlob": "1af13f55fe882456671753ef24a1c5f617320cd1",
+        "headBlob": "1af13f55fe882456671753ef24a1c5f617320cd1",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/scorecard.js",
+        "baselineBlob": "82356a905fc91db3a84fc6aa2abec9e72b6cc4fc",
+        "headBlob": "82356a905fc91db3a84fc6aa2abec9e72b6cc4fc",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/seededCluster.js",
+        "baselineBlob": "7cab3263821137bb9027fe7a71309e669aa8feaa",
+        "headBlob": "7cab3263821137bb9027fe7a71309e669aa8feaa",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/town.js",
+        "baselineBlob": "60c2e4f03ccc616cb9b63495530fbf4361bad726",
+        "headBlob": "60c2e4f03ccc616cb9b63495530fbf4361bad726",
+        "status": "same"
+      },
+      {
+        "file": "test-fixtures/sim-move-fingerprints.json",
+        "baselineBlob": "2c68d1533791edcffa83a9a10f1028da68be65fb",
+        "headBlob": "2c68d1533791edcffa83a9a10f1028da68be65fb",
+        "status": "same"
+      }
+    ],
+    "fingerprints": [
+      {
+        "seed": 11,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 12,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 13,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 14,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 15,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 16,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 17,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 18,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 19,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 20,
+        "water": "match",
+        "none": "match"
+      }
+    ],
+    "heldOutOutcomesComputed": false,
+    "preUnlockStatement": "The existing fingerprint test generates seed 11 to 20 cards only to hash them. It computes no statistics, signals, rankings or outcomes from them. No held-out statistics, signals, rankings or outcomes were computed during Part C."
+  },
+  "statistics": {
+    "version": 1,
+    "proof": {
+      "version": 1,
+      "commit": "ccff74acf67183b48193a7631b98a87c817716ef",
+      "freezeCommit": "ab40db54d3ff7d173742df16127aab3f63ee6cca",
+      "clean": true,
+      "signalHash": "abc36af17d67a689",
+      "rankingPromptHash": "01622c7f95af2326",
+      "dependencies": [
+        {
+          "file": "functions/data/places.json",
+          "baselineBlob": "cde108f3ffe87570868282ecae09469eb13fa957",
+          "headBlob": "cde108f3ffe87570868282ecae09469eb13fa957",
+          "status": "same"
+        },
+        {
+          "file": "functions/lib/callRanker.js",
+          "baselineBlob": "2f0a43d2eb44c58cd69abf32f49707dede6a1621",
+          "headBlob": "2f0a43d2eb44c58cd69abf32f49707dede6a1621",
+          "status": "same"
+        },
+        {
+          "file": "functions/lib/rankTiming.js",
+          "baselineBlob": "94fbfe101b88d9f352ede00b802c54f7951ccfa7",
+          "headBlob": "94fbfe101b88d9f352ede00b802c54f7951ccfa7",
+          "status": "same"
+        },
+        {
+          "file": "functions/prompts/rank-sources.md",
+          "baselineBlob": "359391d34613bdba98ae359c231b39f46d220274",
+          "headBlob": "359391d34613bdba98ae359c231b39f46d220274",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/baseline.mjs",
+          "baselineBlob": "0a54dfd4dbf09eacdb654899b4f4bbe7c4207a5d",
+          "headBlob": "0a54dfd4dbf09eacdb654899b4f4bbe7c4207a5d",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/cardDoc.mjs",
+          "baselineBlob": "535816ede7e512b20daf81b4925c231f73deab84",
+          "headBlob": "535816ede7e512b20daf81b4925c231f73deab84",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/cardFields.mjs",
+          "baselineBlob": "fdbd791d082850e0c09dbd1162e2ed1ace30fcc1",
+          "headBlob": "fdbd791d082850e0c09dbd1162e2ed1ace30fcc1",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/layers.mjs",
+          "baselineBlob": "c7982b66e892984bcffc51b65e13df6607e530a2",
+          "headBlob": "c7982b66e892984bcffc51b65e13df6607e530a2",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/rank/clues.mjs",
+          "baselineBlob": "79fa979a35a482e3f3032f9351eca2d359080385",
+          "headBlob": "79fa979a35a482e3f3032f9351eca2d359080385",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/rank/input.mjs",
+          "baselineBlob": "c8ae5d1bccb8e3b2f8b3282796c7a1037f4f1def",
+          "headBlob": "c8ae5d1bccb8e3b2f8b3282796c7a1037f4f1def",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/rank/match.mjs",
+          "baselineBlob": "a2f2f9b4afcd166dbe2069db62620b8f8e654825",
+          "headBlob": "a2f2f9b4afcd166dbe2069db62620b8f8e654825",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/rank/schema.mjs",
+          "baselineBlob": "f7e9827eab066aa8ded8d606a57bb0f0d48d4996",
+          "headBlob": "f7e9827eab066aa8ded8d606a57bb0f0d48d4996",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/rank/settings.mjs",
+          "baselineBlob": "47ac6bff9c99ee070d3c9f251e438fb56aa631e6",
+          "headBlob": "47ac6bff9c99ee070d3c9f251e438fb56aa631e6",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/rank/validate.mjs",
+          "baselineBlob": "1ae1c16da9d3552b7e8c3a2ae1b22697a6b25657",
+          "headBlob": "1ae1c16da9d3552b7e8c3a2ae1b22697a6b25657",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sastDay.mjs",
+          "baselineBlob": "90a39660bdfc4667d94d93859142bd93e0562600",
+          "headBlob": "90a39660bdfc4667d94d93859142bd93e0562600",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/settings.mjs",
+          "baselineBlob": "4bd45f30290f7e4504ed5465594001f789bacc74",
+          "headBlob": "4bd45f30290f7e4504ed5465594001f789bacc74",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/signals.mjs",
+          "baselineBlob": "5b3bad24abb1963e53630a61ab6067c9d1d6162f",
+          "headBlob": "5b3bad24abb1963e53630a61ab6067c9d1d6162f",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/background.mjs",
+          "baselineBlob": "ec48007f937ea6ab6b4d60c6b9a26d11be956369",
+          "headBlob": "ec48007f937ea6ab6b4d60c6b9a26d11be956369",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/calendar.mjs",
+          "baselineBlob": "ce6b218441192860e07e8953dfd011565cb07403",
+          "headBlob": "ce6b218441192860e07e8953dfd011565cb07403",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/card.mjs",
+          "baselineBlob": "ec2166fdc205f838d611be8166896a3ea81d6456",
+          "headBlob": "ec2166fdc205f838d611be8166896a3ea81d6456",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/draws.mjs",
+          "baselineBlob": "9472a1076340f43e468c99acfd1422fdcc6d200a",
+          "headBlob": "9472a1076340f43e468c99acfd1422fdcc6d200a",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/engine.mjs",
+          "baselineBlob": "502cfacdc5918b53e84b900a2ddb20ceebd18690",
+          "headBlob": "502cfacdc5918b53e84b900a2ddb20ceebd18690",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/phrases.mjs",
+          "baselineBlob": "00f0fa5e2e95ca106e79b3c30478a6a3cc9c4322",
+          "headBlob": "00f0fa5e2e95ca106e79b3c30478a6a3cc9c4322",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/random.mjs",
+          "baselineBlob": "f66d804cfe8f52fbd23003c2c953f6e54079df3b",
+          "headBlob": "f66d804cfe8f52fbd23003c2c953f6e54079df3b",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/reporters.mjs",
+          "baselineBlob": "94ca8338f9a6ae9c6524a069c01711f09fadca78",
+          "headBlob": "94ca8338f9a6ae9c6524a069c01711f09fadca78",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/scenarios.mjs",
+          "baselineBlob": "21037eaae22340fbef679b64b7055ab6ee67c0ff",
+          "headBlob": "21037eaae22340fbef679b64b7055ab6ee67c0ff",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/seededCluster.mjs",
+          "baselineBlob": "344e0583f14d70da78781caf3fcd2eeb3d132375",
+          "headBlob": "344e0583f14d70da78781caf3fcd2eeb3d132375",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/sim/town.mjs",
+          "baselineBlob": "60be9c9dc03b3fe0a73d99ca52ea55a6c00e26f3",
+          "headBlob": "60be9c9dc03b3fe0a73d99ca52ea55a6c00e26f3",
+          "status": "same"
+        },
+        {
+          "file": "functions/shared/tail.mjs",
+          "baselineBlob": "b23f1eff4002967e2ff5c4e6ce20b74a8f882124",
+          "headBlob": "b23f1eff4002967e2ff5c4e6ce20b74a8f882124",
+          "status": "same"
+        },
+        {
+          "file": "scripts/lib/rankArtifacts.mjs",
+          "baselineBlob": "f3a4ad1ca19351dba51f70c1e91e8f5d3a99ed2b",
+          "headBlob": "f3a4ad1ca19351dba51f70c1e91e8f5d3a99ed2b",
+          "status": "same"
+        },
+        {
+          "file": "scripts/lib/rankPlans.mjs",
+          "baselineBlob": "4989ca179d8ffc973abe582b7ef48799ea583f9e",
+          "headBlob": "4989ca179d8ffc973abe582b7ef48799ea583f9e",
+          "status": "same"
+        },
+        {
+          "file": "scripts/rank-saved.mjs",
+          "baselineBlob": "21e5afceeae4a89e494fd1c76e01b23a2075d60c",
+          "headBlob": "21e5afceeae4a89e494fd1c76e01b23a2075d60c",
+          "status": "same"
+        },
+        {
+          "file": "scripts/scorecard.mjs",
+          "baselineBlob": "2932efd3e8725034a97b34e7c530996158031cd5",
+          "headBlob": "2932efd3e8725034a97b34e7c530996158031cd5",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/background.js",
+          "baselineBlob": "fffa6a1d5d9175f3ba730397ec193bed1f14595c",
+          "headBlob": "fffa6a1d5d9175f3ba730397ec193bed1f14595c",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/calendar.js",
+          "baselineBlob": "62228cc35011b1dadaa340bedfe1c7b9964a4740",
+          "headBlob": "62228cc35011b1dadaa340bedfe1c7b9964a4740",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/card.js",
+          "baselineBlob": "4db8bd79b8a7178737ab06b5a0b41e739a9352e1",
+          "headBlob": "4db8bd79b8a7178737ab06b5a0b41e739a9352e1",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/draws.js",
+          "baselineBlob": "af05d6eeccce4227962f681f34ead81d536b0513",
+          "headBlob": "af05d6eeccce4227962f681f34ead81d536b0513",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/engine.js",
+          "baselineBlob": "30ac13696d9301ed9d9d8a5f464fd7ae68c3e610",
+          "headBlob": "30ac13696d9301ed9d9d8a5f464fd7ae68c3e610",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/groundTruth.js",
+          "baselineBlob": "6046db234fb6c187f10304e4292b418c15ab2878",
+          "headBlob": "6046db234fb6c187f10304e4292b418c15ab2878",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/phrases.js",
+          "baselineBlob": "a6dbb5041d2ab34f113e5e4d2f35c0b7d489c425",
+          "headBlob": "a6dbb5041d2ab34f113e5e4d2f35c0b7d489c425",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/random.js",
+          "baselineBlob": "1c46d389d232757ac3bfd56c523def51b2cebc2c",
+          "headBlob": "1c46d389d232757ac3bfd56c523def51b2cebc2c",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/reporters.js",
+          "baselineBlob": "fa299608671e4db961809b343a9444689ac30fbc",
+          "headBlob": "fa299608671e4db961809b343a9444689ac30fbc",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/saved-rankings/seed-1.json",
+          "baselineBlob": "0a1fe7b9a9ef93035ce64f7f8cf33b6ee1444ad2",
+          "headBlob": "0a1fe7b9a9ef93035ce64f7f8cf33b6ee1444ad2",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/scenarios.js",
+          "baselineBlob": "1af13f55fe882456671753ef24a1c5f617320cd1",
+          "headBlob": "1af13f55fe882456671753ef24a1c5f617320cd1",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/scorecard.js",
+          "baselineBlob": "82356a905fc91db3a84fc6aa2abec9e72b6cc4fc",
+          "headBlob": "82356a905fc91db3a84fc6aa2abec9e72b6cc4fc",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/seededCluster.js",
+          "baselineBlob": "7cab3263821137bb9027fe7a71309e669aa8feaa",
+          "headBlob": "7cab3263821137bb9027fe7a71309e669aa8feaa",
+          "status": "same"
+        },
+        {
+          "file": "src/sim/town.js",
+          "baselineBlob": "60c2e4f03ccc616cb9b63495530fbf4361bad726",
+          "headBlob": "60c2e4f03ccc616cb9b63495530fbf4361bad726",
+          "status": "same"
+        },
+        {
+          "file": "test-fixtures/sim-move-fingerprints.json",
+          "baselineBlob": "2c68d1533791edcffa83a9a10f1028da68be65fb",
+          "headBlob": "2c68d1533791edcffa83a9a10f1028da68be65fb",
+          "status": "same"
+        }
+      ],
+      "fingerprints": [
+        {
+          "seed": 11,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 12,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 13,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 14,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 15,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 16,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 17,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 18,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 19,
+          "water": "match",
+          "none": "match"
+        },
+        {
+          "seed": 20,
+          "water": "match",
+          "none": "match"
+        }
+      ],
+      "heldOutOutcomesComputed": false,
+      "preUnlockStatement": "The existing fingerprint test generates seed 11 to 20 cards only to hash them. It computes no statistics, signals, rankings or outcomes from them. No held-out statistics, signals, rankings or outcomes were computed during Part C."
+    },
+    "tuning": {
+      "sampleSize": 10,
+      "rows": [
+        {
+          "seed": 1,
+          "first": {
+            "watch": 15,
+            "signal": 17,
+            "alert": 17
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 2,
+          "first": {
+            "watch": 15,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 4,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 4,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 3,
+          "first": {
+            "watch": 15,
+            "signal": 16,
+            "alert": 16
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 4,
+          "first": {
+            "watch": 14,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 1,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 1,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 5,
+          "first": {
+            "watch": 16,
+            "signal": 17,
+            "alert": 17
+          },
+          "seededFalseSignals": {
+            "watch": 3,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 3,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 6,
+          "first": {
+            "watch": 14,
+            "signal": 16,
+            "alert": 16
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 7,
+          "first": {
+            "watch": 15,
+            "signal": 16,
+            "alert": 18
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 8,
+          "first": {
+            "watch": 14,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 2,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 2,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 9,
+          "first": {
+            "watch": 14,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 10,
+          "first": {
+            "watch": 18,
+            "signal": 18,
+            "alert": 18
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        }
+      ],
+      "first": {
+        "watch": {
+          "median": 15,
+          "min": 14,
+          "max": 18,
+          "reached": 10,
+          "notReachedSeeds": []
+        },
+        "signal": {
+          "median": 16,
+          "min": 15,
+          "max": 18,
+          "reached": 10,
+          "notReachedSeeds": []
+        },
+        "alert": {
+          "median": 16,
+          "min": 15,
+          "max": 18,
+          "reached": 10,
+          "notReachedSeeds": []
+        }
+      },
+      "falseSignals": {
+        "seeded": {
+          "watch": 10,
+          "signal": 0,
+          "alert": 0
+        },
+        "quiet": {
+          "watch": 10,
+          "signal": 0,
+          "alert": 0
+        },
+        "combined": {
+          "watch": 20,
+          "signal": 0,
+          "alert": 0
+        }
+      }
+    },
+    "heldOut": {
+      "sampleSize": 10,
+      "rows": [
+        {
+          "seed": 11,
+          "first": {
+            "watch": 15,
+            "signal": 17,
+            "alert": 17
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 12,
+          "first": {
+            "watch": 15,
+            "signal": 16,
+            "alert": 16
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 13,
+          "first": {
+            "watch": 15,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 14,
+          "first": {
+            "watch": 15,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 15,
+          "first": {
+            "watch": 15,
+            "signal": 17,
+            "alert": 17
+          },
+          "seededFalseSignals": {
+            "watch": 1,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 1,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 16,
+          "first": {
+            "watch": 15,
+            "signal": 15,
+            "alert": 15
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 17,
+          "first": {
+            "watch": 15,
+            "signal": 16,
+            "alert": 16
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 18,
+          "first": {
+            "watch": 16,
+            "signal": 18,
+            "alert": 18
+          },
+          "seededFalseSignals": {
+            "watch": 2,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 3,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 19,
+          "first": {
+            "watch": 15,
+            "signal": 18,
+            "alert": 18
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        },
+        {
+          "seed": 20,
+          "first": {
+            "watch": 15,
+            "signal": 18,
+            "alert": 18
+          },
+          "seededFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          },
+          "quietFalseSignals": {
+            "watch": 0,
+            "signal": 0,
+            "alert": 0
+          }
+        }
+      ],
+      "first": {
+        "watch": {
+          "median": 15,
+          "min": 15,
+          "max": 16,
+          "reached": 10,
+          "notReachedSeeds": []
+        },
+        "signal": {
+          "median": 16.5,
+          "min": 15,
+          "max": 18,
+          "reached": 10,
+          "notReachedSeeds": []
+        },
+        "alert": {
+          "median": 16.5,
+          "min": 15,
+          "max": 18,
+          "reached": 10,
+          "notReachedSeeds": []
+        }
+      },
+      "falseSignals": {
+        "seeded": {
+          "watch": 3,
+          "signal": 0,
+          "alert": 0
+        },
+        "quiet": {
+          "watch": 4,
+          "signal": 0,
+          "alert": 0
+        },
+        "combined": {
+          "watch": 7,
+          "signal": 0,
+          "alert": 0
+        }
+      }
+    },
+    "tuningReconciliation": [
+      {
+        "metric": "First Watch minimum",
+        "published": 14,
+        "actual": 14,
+        "match": true
+      },
+      {
+        "metric": "First Watch maximum",
+        "published": 18,
+        "actual": 18,
+        "match": true
+      },
+      {
+        "metric": "First Watch median",
+        "published": 15,
+        "actual": 15,
+        "match": true
+      },
+      {
+        "metric": "First Signal median",
+        "published": 16,
+        "actual": 16,
+        "match": true
+      },
+      {
+        "metric": "First Alert median",
+        "published": 16,
+        "actual": 16,
+        "match": true
+      },
+      {
+        "metric": "seeded: false signals (signal-days), watch",
+        "published": 10,
+        "actual": 10,
+        "match": true
+      },
+      {
+        "metric": "seeded: false signals (signal-days), signal",
+        "published": 0,
+        "actual": 0,
+        "match": true
+      },
+      {
+        "metric": "seeded: false signals (signal-days), alert",
+        "published": 0,
+        "actual": 0,
+        "match": true
+      },
+      {
+        "metric": "quiet: false signals (signal-days), watch",
+        "published": 10,
+        "actual": 10,
+        "match": true
+      },
+      {
+        "metric": "quiet: false signals (signal-days), signal",
+        "published": 0,
+        "actual": 0,
+        "match": true
+      },
+      {
+        "metric": "quiet: false signals (signal-days), alert",
+        "published": 0,
+        "actual": 0,
+        "match": true
+      }
+    ]
+  },
+  "ranking": {
+    "rows": [
+      {
+        "seed": 11,
+        "evidenceDay": 17,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "ab764a6e6543e9f16ca0a6d8f13cf7c852a6fa80c42dc1e05f0b5062a03f0bee",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-16-14",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-17-20",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-16"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-18"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-18-10"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-17-20",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-16"
+                ]
+              },
+              "sim-2027-02-17-20",
+              "sim-2027-02-17-17"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-18-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-16-15",
+                  "sim-2027-02-18-03"
+                ]
+              }
+            ],
+            "reason": "Signal in three areas fits Works A catchment with high inside rate, usual outside rate and many tap water complaints.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-18"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-16-14",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-17-20",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-16"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-14"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-15"
+                ]
+              }
+            ],
+            "reason": "Two signal areas fit this shop catchment but Nonyana Flats cases lie outside and only one food mention supports it.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-18"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-16-14",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-15",
+                  "sim-2027-02-17-20",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-16"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-14"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-18-10"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-15"
+                ]
+              }
+            ],
+            "reason": "Two signal areas fit this school catchment but Nonyana Flats cases lie outside and only one school mention supports it.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 14041,
+        "tokens": {
+          "input": 5417,
+          "output": 1264
+        },
+        "attempts": 1,
+        "accountedCost": 0.01214325,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 11,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "8820d7231585a8e0cc5da161528f0cda39e6767a662d7c099f6c25c065235dda",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-08",
+                  "sim-2027-02-20-10",
+                  "sim-2027-02-20-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-05"
+                ]
+              },
+              "sim-2027-02-20-05",
+              "sim-2027-02-20-02",
+              "sim-2027-02-20-01",
+              "sim-2027-02-19-16",
+              "sim-2027-02-19-04",
+              "sim-2027-02-19-02",
+              "sim-2027-02-18-16"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-19-17"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-18-03"
+                ]
+              }
+            ],
+            "reason": "Covers all three signal areas with strongest rise and repeated tap water complaints, though two catchment areas show no rise.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-08",
+                  "sim-2027-02-20-10",
+                  "sim-2027-02-20-13"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-09"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-11"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-07"
+                ]
+              }
+            ],
+            "reason": "Matches two signal areas but leaves third unexplained and food notes do not mention the shop.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-08",
+                  "sim-2027-02-20-10",
+                  "sim-2027-02-20-13"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-09"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-18-10"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-07"
+                ]
+              }
+            ],
+            "reason": "Matches two signal areas but misses one signal area and includes a catchment area with no rise.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 12951,
+        "tokens": {
+          "input": 5528,
+          "output": 1859
+        },
+        "attempts": 1,
+        "accountedCost": 0.01481075,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 12,
+        "evidenceDay": 16,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "bac2ebb1c59de9a8dbfb6be8d19cac0371de113860be783df17afe9c419fb8b1",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-14"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-07"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-13"
+                ]
+              }
+            ],
+            "contradicting": [],
+            "reason": "Signal areas match this catchment exactly with high rate and outside areas near usual, but no direct exposure mention.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "water:A",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-14"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-10"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-03"
+                ]
+              },
+              "sim-2027-02-17-03",
+              "sim-2027-02-16-09",
+              "sim-2027-02-16-07",
+              "sim-2027-02-16-06"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-17-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-17-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "Water words reported in young children in signal areas, but three other catchment areas show no rise.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-14"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-07"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-13"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-04"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-04"
+                ]
+              },
+              "sim-2027-02-16-04",
+              "sim-2027-02-15-09"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-15-05"
+                ]
+              }
+            ],
+            "reason": "Two cards name the school event, but only a small part of the signal and one catchment area is normal.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 2,
+        "schoolRank": 3,
+        "shopRank": 1,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 17566,
+        "tokens": {
+          "input": 4701,
+          "output": 2023
+        },
+        "attempts": 1,
+        "accountedCost": 0.014474,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 12,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "7d18304deaff0692a70664275903cc6363d1c20f978731e66414e618274e768e",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-02"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-19-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-20-01"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-17-13",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-05"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNormal",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "Signal covers three areas served by Works A with many water complaints and usual levels outside, favouring water as possible source.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-01"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-02"
+                ]
+              }
+            ],
+            "reason": "Raised levels in its two areas and a food mention give some support, but raised Nonyana cases lie outside its catchment.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-04"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-16-04"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-19-09"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-02"
+                ]
+              }
+            ],
+            "reason": "Sports day mentions link a few cases to the school, but Nonyana cases and normal levels in Kgwedi Heights argue against one school source.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 17670,
+        "tokens": {
+          "input": 6860,
+          "output": 2143
+        },
+        "attempts": 1,
+        "accountedCost": 0.01768275,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 13,
+        "evidenceDay": 15,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "61f92d484d3d659aea9c3584136ac33cc6612c2601f138eb78a722daf5b74539",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-02",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-05",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-17"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": []
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-15",
+                  "sim-2027-02-16-17"
+                ]
+              },
+              "sim-2027-02-16-17",
+              "sim-2027-02-16-15",
+              "sim-2027-02-16-08",
+              "sim-2027-02-15-11",
+              "sim-2027-02-15-09"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-16-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-16-16"
+                ]
+              }
+            ],
+            "reason": "Covers all three signal areas with high rate and no cases outside, plus five water mentions, though two catchment areas show no rise.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-05",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-15"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-02",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-07"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-07"
+                ]
+              },
+              "sim-2027-02-16-07"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-17"
+                ]
+              }
+            ],
+            "reason": "Covers two signal areas with raised counts and a food mention, but cannot explain the raised counts in Nonyana Flats.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-05",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-15"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-02",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-07"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-15-02",
+                  "sim-2027-02-16-01"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-15-02",
+                  "sim-2027-02-16-01"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-02"
+                ]
+              },
+              "sim-2027-02-16-01",
+              "sim-2027-02-15-02",
+              "sim-2027-02-14-01"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-17"
+                ]
+              }
+            ],
+            "reason": "Links Thaga Park and Leeba View cases to a school sports day with a named mention, but misses Nonyana Flats signal.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "shop:Lebone Gardens spaza shop",
+            "rank": 4,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Lebone Gardens spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-17"
+                ]
+              },
+              {
+                "sourceId": "shop:Lebone Gardens spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-06"
+                ]
+              },
+              "sim-2027-02-16-06",
+              "sim-2027-02-16-02"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Lebone Gardens spaza shop",
+                "kind": "insideAreaNormal",
+                "area": "Lebone Gardens",
+                "cardIds": []
+              },
+              {
+                "sourceId": "shop:Lebone Gardens spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-02",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-07"
+                ]
+              },
+              {
+                "sourceId": "shop:Lebone Gardens spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-05",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-15"
+                ]
+              }
+            ],
+            "reason": "Links some Nonyana Flats cases to food, but home area is normal and it misses the Thaga Park and Leeba View signal.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 13893,
+        "tokens": {
+          "input": 4890,
+          "output": 1743
+        },
+        "attempts": 1,
+        "accountedCost": 0.01352025,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 13,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "0cee206ddb00da22ddb05c39771b032cd6d8b7b24b88219330ac447d756fef58",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-20-07",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-20-10"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-20-04"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-02"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-10"
+                ]
+              },
+              "sim-2027-02-20-10",
+              "sim-2027-02-19-13",
+              "sim-2027-02-19-12",
+              "sim-2027-02-19-11",
+              "sim-2027-02-19-10",
+              "sim-2027-02-18-05"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-20-01"
+                ]
+              }
+            ],
+            "reason": "Four signal areas raised inside Works A with much higher rate inside than outside, plus tap water complaints, favouring a shared water source.",
+            "fromClinicianCluesOnly": false
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": "not ranked",
+        "shopRank": "not ranked",
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 13844,
+        "tokens": {
+          "input": 4912,
+          "output": 1195
+        },
+        "attempts": 1,
+        "accountedCost": 0.01121875,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 14,
+        "evidenceDay": 15,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "c2620e52ca1cf0a2bf857e727d989f05d1695906c3c3ac3a16419cab26d38422",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-04",
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-15-15",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-10"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-07",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-14",
+                  "sim-2027-02-16-11"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-04"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-04"
+                ]
+              },
+              "sim-2027-02-16-04",
+              "sim-2027-02-15-10",
+              "sim-2027-02-14-02"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-14-08",
+                  "sim-2027-02-16-07"
+                ]
+              }
+            ],
+            "reason": "Three cards name Leeba View Primary School sports day and both signal areas are raised while outside stays near usual.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-04",
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-15-15",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-10"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-14-07",
+                  "sim-2027-02-14-08",
+                  "sim-2027-02-15-09",
+                  "sim-2027-02-15-14",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-11"
+                ]
+              }
+            ],
+            "contradicting": [],
+            "reason": "Catchment matches the signal areas exactly with high rate inside and near usual outside, but only one generic food mention.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "water:A",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-14-02",
+                  "sim-2027-02-14-04",
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-15-15",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-03",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-08",
+                  "sim-2027-02-16-10"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              "sim-2027-02-16-13",
+              "sim-2027-02-16-10",
+              "sim-2027-02-16-01",
+              "sim-2027-02-15-05"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-14-01",
+                  "sim-2027-02-15-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-14-07",
+                  "sim-2027-02-16-11"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-15-14"
+                ]
+              }
+            ],
+            "reason": "Four cards mention tap water problems in both areas, but three other areas in the same catchment show no rise.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 3,
+        "schoolRank": 1,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 17448,
+        "tokens": {
+          "input": 4409,
+          "output": 2202
+        },
+        "attempts": 1,
+        "accountedCost": 0.01486975,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 14,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "7893855a4b53e4f061bc9350ac084852b5fe25956544f239b9104358f6564fe7",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-06",
+                  "sim-2027-02-20-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-20-12",
+                  "sim-2027-02-20-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-06",
+                  "sim-2027-02-20-07",
+                  "sim-2027-02-20-09",
+                  "sim-2027-02-20-12"
+                ]
+              },
+              "sim-2027-02-20-12",
+              "sim-2027-02-20-03",
+              "sim-2027-02-18-07"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-20-02"
+                ]
+              }
+            ],
+            "reason": "Three signal areas are raised with many tap water complaints and quiet areas outside, though two catchment areas show no rise.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-06",
+                  "sim-2027-02-20-09"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-12"
+                ]
+              },
+              "sim-2027-02-19-12",
+              "sim-2027-02-19-10"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-20-12",
+                  "sim-2027-02-20-13"
+                ]
+              }
+            ],
+            "reason": "Two areas are raised with a few food mentions, but the signal is also raised in Nonyana Flats outside its catchment.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": "not ranked",
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 10317,
+        "tokens": {
+          "input": 5260,
+          "output": 1249
+        },
+        "attempts": 1,
+        "accountedCost": 0.01188325,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 15,
+        "evidenceDay": 17,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "28c1b03b05b270ae9418f751322859bd0f782e4537c68a3582e9f4ccd4e7b436",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-18-20"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-17",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-22"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-18-24"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-20",
+                  "sim-2027-02-18-21"
+                ]
+              },
+              "sim-2027-02-18-20",
+              "sim-2027-02-18-04"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-13"
+                ]
+              }
+            ],
+            "reason": "Signal affects three areas sharing Works A with high counts inside and usual levels outside plus repeated water quality remarks.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-17",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-22"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-18-20"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-18-02"
+                ]
+              },
+              "sim-2027-02-18-02",
+              "sim-2027-02-17-11"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-18-24"
+                ]
+              }
+            ],
+            "reason": "Covers two signal areas with raised counts and two food mentions but leaves Nonyana Flats raised outside its catchment.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-11",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-17",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-22"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-18-20"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-16-11"
+                ]
+              },
+              "sim-2027-02-16-11"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-16-01"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-18-24"
+                ]
+              }
+            ],
+            "reason": "Covers two signal areas but has only one school mention and leaves Nonyana Flats raised outside while Kgwedi Heights is normal.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 13335,
+        "tokens": {
+          "input": 5478,
+          "output": 1716
+        },
+        "attempts": 1,
+        "accountedCost": 0.0141405,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 15,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "2b117fd9bf57aa02829230220fac39d1d6e654432111cba270b394bfdb989b16",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-18-20",
+                  "sim-2027-02-19-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-17",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-22",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-22",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-18-24",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-21",
+                  "sim-2027-02-19-23",
+                  "sim-2027-02-19-25"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-20",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-23",
+                  "sim-2027-02-19-25"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-20-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-14"
+                ]
+              }
+            ],
+            "reason": "Signal in three areas matches Works A catchment with very high inside rate, low outside rate and many tap water complaints.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-17",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-22",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-22",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-18-20",
+                  "sim-2027-02-19-09"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-02"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-18-24",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-21",
+                  "sim-2027-02-19-23",
+                  "sim-2027-02-19-25"
+                ]
+              }
+            ],
+            "reason": "Two signal areas match shop catchment but third signal area lies outside it and only one food mention was recorded.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-18-17",
+                  "sim-2027-02-18-19",
+                  "sim-2027-02-18-22",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-22",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-18-18",
+                  "sim-2027-02-18-20",
+                  "sim-2027-02-19-09"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-21",
+                  "sim-2027-02-18-24",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-21",
+                  "sim-2027-02-19-23",
+                  "sim-2027-02-19-25"
+                ]
+              }
+            ],
+            "reason": "Two signal areas match school catchment but third signal area lies outside it with no school exposure clues.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 15731,
+        "tokens": {
+          "input": 6044,
+          "output": 1622
+        },
+        "attempts": 1,
+        "accountedCost": 0.0144485,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 16,
+        "evidenceDay": 15,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "54c457527e0b9f13e2b3807cf1bbcb09a994bc4593fab3be33d049060389cb83",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-12"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-15-08",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-14"
+                ]
+              }
+            ],
+            "contradicting": [],
+            "reason": "Signal areas match this catchment exactly with raised counts inside and usual levels outside.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 2,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-12"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-12"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-12"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-12"
+                ]
+              },
+              "sim-2027-02-14-03",
+              "sim-2027-02-15-07",
+              "sim-2027-02-16-12"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-16-05"
+                ]
+              }
+            ],
+            "reason": "Three cards name the school after a sports day, with raised counts in two catchment areas.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "water:A",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-14-03",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-04",
+                  "sim-2027-02-16-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-05"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-08",
+                  "sim-2027-02-16-02",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-16-14"
+                ]
+              },
+              "sim-2027-02-16-02",
+              "sim-2027-02-16-13"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-15-06"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-01",
+                  "sim-2027-02-15-08",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-14"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "Two cards mention dirty tap water, but three other catchment areas show no rise.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 3,
+        "schoolRank": 2,
+        "shopRank": 1,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 10938,
+        "tokens": {
+          "input": 3851,
+          "output": 1287
+        },
+        "attempts": 1,
+        "accountedCost": 0.0102835,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 16,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "83ac7bbce12d706742e491f4b045270a4ab0060f3203273ae50763ab7a2431bd",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-18",
+                  "sim-2027-02-20-06"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-07",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-04"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-04"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-19-14"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-07"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "Signal matches all four Works A areas with high inside rate and near usual outside rate, plus water complaints in each area.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-07",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-18",
+                  "sim-2027-02-20-06"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-13"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-04"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-04"
+                ]
+              }
+            ],
+            "reason": "Covers Leeba View and Thaga Park with food mentions, but leaves raised cases in Sefate Extension and Nonyana Flats unexplained.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-13",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-07",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-18",
+                  "sim-2027-02-20-06"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-19-11"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-04"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-04"
+                ]
+              }
+            ],
+            "reason": "Covers Leeba View and Thaga Park but leaves other signal areas unexplained and includes a normal catchment area.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 14464,
+        "tokens": {
+          "input": 5494,
+          "output": 1743
+        },
+        "attempts": 1,
+        "accountedCost": 0.01427525,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 17,
+        "evidenceDay": 16,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "fd5ad37b6b4714c0a372b9ad0ccdced44bf685d044147a49e68d65edb7557e7c",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-16-15",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-16"
+                ]
+              },
+              "sim-2027-02-17-16",
+              "sim-2027-02-16-01",
+              "sim-2027-02-16-13",
+              "sim-2027-02-15-04"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "All three signal areas are raised inside the catchment with tap water concerns across them, and rates are higher inside than outside.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-12"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-15-11",
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-16-07",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-16-15",
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17"
+                ]
+              }
+            ],
+            "reason": "Two signal areas are raised inside the catchment, but Nonyana Flats cases lie outside and leave part of the signal unexplained.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-15-04",
+                  "sim-2027-02-15-05",
+                  "sim-2027-02-15-07",
+                  "sim-2027-02-16-05",
+                  "sim-2027-02-16-09",
+                  "sim-2027-02-16-10",
+                  "sim-2027-02-16-12",
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-12"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-15-03",
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-01",
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-06",
+                  "sim-2027-02-16-09"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "nameMentioned",
+                "cardIds": [
+                  "sim-2027-02-15-06"
+                ]
+              },
+              "sim-2027-02-15-06",
+              "sim-2027-02-16-09"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-16-06",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-09"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-15-10",
+                  "sim-2027-02-16-13",
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17"
+                ]
+              }
+            ],
+            "reason": "Two signal areas are raised with school sports day mentions, but most cases are under five and Nonyana Flats lies outside.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 14613,
+        "tokens": {
+          "input": 5257,
+          "output": 1803
+        },
+        "attempts": 1,
+        "accountedCost": 0.014234,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 17,
+        "evidenceDay": 18,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "c2cd34bb15af6a1f3ad7d6dc6e16de2f0a86a24c9a5e83a69bc98bd5add81f28",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-21"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-21"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-13"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": []
+              }
+            ],
+            "reason": "All three signal areas are raised in Works A catchment with near usual levels outside and ten water mentions across them.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-21"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-19-20"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-07"
+                ]
+              }
+            ],
+            "reason": "Covers Thaga Park and Leeba View with raised levels but leaves Nonyana Flats unexplained and has only one food mention.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-17-07",
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-17-12",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-17-16",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-21"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": [
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-18-07"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-17-11",
+                  "sim-2027-02-17-17",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-18-09",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-19-07"
+                ]
+              }
+            ],
+            "reason": "Covers two signal areas with raised levels but Kgwedi Heights is normal and Nonyana Flats outside is raised.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 12072,
+        "tokens": {
+          "input": 5529,
+          "output": 1310
+        },
+        "attempts": 1,
+        "accountedCost": 0.01247875,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 18,
+        "evidenceDay": 18,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "b2d357af7a45d3c165ee0a98a0bd8974a906b518c65df3f630ad34b5205ec6f0",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-17-13",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-19-20"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22"
+                ]
+              },
+              "sim-2027-02-19-22",
+              "sim-2027-02-19-10",
+              "sim-2027-02-19-05",
+              "sim-2027-02-19-04",
+              "sim-2027-02-17-09"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-17-06",
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-13"
+                ]
+              }
+            ],
+            "reason": "All three signal areas are raised inside this catchment with near-usual levels outside and several water mentions.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05"
+                ]
+              }
+            ],
+            "reason": "Two signal areas are raised inside its catchment, but the third signal area is also raised outside it.",
+            "fromClinicianCluesOnly": true
+          },
+          {
+            "sourceId": "school:Leeba View Primary School",
+            "rank": 3,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-17-14",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22"
+                ]
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-09",
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "insideAreaNormal",
+                "area": "Kgwedi Heights",
+                "cardIds": []
+              },
+              {
+                "sourceId": "school:Leeba View Primary School",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05"
+                ]
+              }
+            ],
+            "reason": "Two signal areas are raised inside, yet one catchment area is normal and the third signal area lies outside.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": 3,
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 12688,
+        "tokens": {
+          "input": 4450,
+          "output": 1423
+        },
+        "attempts": 1,
+        "accountedCost": 0.01161025,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 18,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "a359f6115756853a643e98cfa947e2cfad36d0fbeb9bf37d625d2dbd040f5614",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-09",
+                  "sim-2027-02-20-11"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-20-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-20-05"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-08"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-13"
+                ]
+              }
+            ],
+            "reason": "Signal covers four Works A areas with raised counts and nine water mentions, while outside areas stayed near usual.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-16",
+                  "sim-2027-02-19-12",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-19-17",
+                  "sim-2027-02-19-22",
+                  "sim-2027-02-20-04",
+                  "sim-2027-02-20-09",
+                  "sim-2027-02-20-11"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-20-09"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-20-12"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-08"
+                ]
+              }
+            ],
+            "reason": "Only one card mentions spaza shop food and the signal is also raised in areas outside its catchment.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": "not ranked",
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 13015,
+        "tokens": {
+          "input": 5372,
+          "output": 1204
+        },
+        "attempts": 1,
+        "accountedCost": 0.011832,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 19,
+        "evidenceDay": 18,
+        "roles": [
+          "firstAlert",
+          "day19"
+        ],
+        "recordId": "767bf9cdec460b6d04365595e963822afdee0e5c9f2644d3d59ee4d8bdebc61c",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-02",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-16"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-11",
+                  "sim-2027-02-19-04",
+                  "sim-2027-02-19-14",
+                  "sim-2027-02-19-18",
+                  "sim-2027-02-19-20"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-19",
+                  "sim-2027-02-19-23"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-06",
+                  "sim-2027-02-18-14",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-22"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-19-11"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-03"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-08",
+                  "sim-2027-02-18-03",
+                  "sim-2027-02-18-13",
+                  "sim-2027-02-18-15",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-14",
+                  "sim-2027-02-19-20",
+                  "sim-2027-02-19-23"
+                ]
+              },
+              "sim-2027-02-19-23",
+              "sim-2027-02-19-08",
+              "sim-2027-02-19-07",
+              "sim-2027-02-18-15",
+              "sim-2027-02-18-13"
+            ],
+            "contradicting": [],
+            "reason": "All five Works A areas show raised signal levels with usual levels outside and nine tap-water complaints across the catchment.",
+            "fromClinicianCluesOnly": false
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": "not ranked",
+        "shopRank": "not ranked",
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 10635,
+        "tokens": {
+          "input": 5500,
+          "output": 1367
+        },
+        "attempts": 1,
+        "accountedCost": 0.01268475,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 20,
+        "evidenceDay": 18,
+        "roles": [
+          "firstAlert"
+        ],
+        "recordId": "93e94d0db76bc11e0ef0afe0475478fb7cf7ad876f510d2eb1a31c72c718c000",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "medium",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-14",
+                  "sim-2027-02-19-15"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-06"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-17-04",
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-16"
+                ]
+              },
+              "sim-2027-02-19-15",
+              "sim-2027-02-19-08",
+              "sim-2027-02-18-07",
+              "sim-2027-02-17-05",
+              "sim-2027-02-17-01"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-16"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-17-03",
+                  "sim-2027-02-19-03"
+                ]
+              }
+            ],
+            "reason": "Signal areas all lie in Works A catchment with raised counts and tap water taste and smell reports across each area.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-08"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-17-01",
+                  "sim-2027-02-17-05",
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-14",
+                  "sim-2027-02-19-15"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-17-10",
+                  "sim-2027-02-18-10"
+                ]
+              },
+              "sim-2027-02-17-10",
+              "sim-2027-02-18-10"
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-06"
+                ]
+              }
+            ],
+            "reason": "Two food mentions fit Leeba View area but signal is also raised in Sefate Extension outside the shop catchment.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": "not ranked",
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 15169,
+        "tokens": {
+          "input": 4426,
+          "output": 1742
+        },
+        "attempts": 1,
+        "accountedCost": 0.012936,
+        "costIncludesEstimate": false
+      },
+      {
+        "seed": 20,
+        "evidenceDay": 19,
+        "roles": [
+          "day19"
+        ],
+        "recordId": "c970824c3b1fdd8bb309362446bb005d3d71a5bd1eaf3049f2767a3c3e6ebbfa",
+        "ranked": true,
+        "outcome": "ok",
+        "sources": [
+          {
+            "sourceId": "water:A",
+            "rank": 1,
+            "confidence": "high",
+            "supporting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-14",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-20-11",
+                  "sim-2027-02-20-12"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-20-04"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-06",
+                  "sim-2027-02-20-08",
+                  "sim-2027-02-20-09"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "outsideNearUsual",
+                "cardIds": [
+                  "sim-2027-02-19-05",
+                  "sim-2027-02-19-09",
+                  "sim-2027-02-19-10",
+                  "sim-2027-02-19-11"
+                ]
+              },
+              {
+                "sourceId": "water:A",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-03",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-09",
+                  "sim-2027-02-20-12"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "water:A",
+                "kind": "insideAreaNotRaised",
+                "area": "Mmutla Ridge",
+                "cardIds": [
+                  "sim-2027-02-19-03"
+                ]
+              }
+            ],
+            "reason": "All four signal areas in Works A catchment are raised with high counts, outside areas are near usual, with repeated tap-water complaints.",
+            "fromClinicianCluesOnly": false
+          },
+          {
+            "sourceId": "shop:Leeba View spaza shop",
+            "rank": 2,
+            "confidence": "low",
+            "supporting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Leeba View",
+                "cardIds": [
+                  "sim-2027-02-18-04",
+                  "sim-2027-02-18-10",
+                  "sim-2027-02-18-12",
+                  "sim-2027-02-19-01",
+                  "sim-2027-02-19-08",
+                  "sim-2027-02-20-02",
+                  "sim-2027-02-20-05",
+                  "sim-2027-02-20-07"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "insideAreaRaised",
+                "area": "Thaga Park",
+                "cardIds": [
+                  "sim-2027-02-19-02",
+                  "sim-2027-02-19-14",
+                  "sim-2027-02-19-15",
+                  "sim-2027-02-20-11",
+                  "sim-2027-02-20-12"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "exposureMentioned",
+                "cardIds": [
+                  "sim-2027-02-18-10"
+                ]
+              }
+            ],
+            "contradicting": [
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Sefate Extension",
+                "cardIds": [
+                  "sim-2027-02-18-01",
+                  "sim-2027-02-18-05",
+                  "sim-2027-02-18-07",
+                  "sim-2027-02-19-06",
+                  "sim-2027-02-20-04"
+                ]
+              },
+              {
+                "sourceId": "shop:Leeba View spaza shop",
+                "kind": "outsideAreaRaised",
+                "area": "Nonyana Flats",
+                "cardIds": [
+                  "sim-2027-02-18-02",
+                  "sim-2027-02-18-08",
+                  "sim-2027-02-19-07",
+                  "sim-2027-02-19-16",
+                  "sim-2027-02-20-01",
+                  "sim-2027-02-20-03",
+                  "sim-2027-02-20-06",
+                  "sim-2027-02-20-08",
+                  "sim-2027-02-20-09"
+                ]
+              }
+            ],
+            "reason": "Covers only two signal areas with one food mention while the other signal areas are also raised, so cannot explain the full signal.",
+            "fromClinicianCluesOnly": true
+          }
+        ],
+        "worksRank": 1,
+        "schoolRank": "not ranked",
+        "shopRank": 2,
+        "dropCounts": {
+          "invalidJson": 0,
+          "invalidShape": 0,
+          "unknownSource": 0,
+          "unknownCitation": 0,
+          "noSupporting": 0,
+          "invalidConfidence": 0,
+          "extraSources": 0,
+          "duplicateSource": 0,
+          "ranksRepaired": 0,
+          "bannedReason": 0,
+          "idInReason": 0,
+          "invalidReason": 0
+        },
+        "ms": 14042,
+        "tokens": {
+          "input": 5711,
+          "output": 1670
+        },
+        "attempts": 1,
+        "accountedCost": 0.01423625,
+        "costIncludesEstimate": false
+      }
+    ],
+    "summary": {
+      "firstAlert": {
+        "worksFirst": 7,
+        "ranked": 10,
+        "withEvent": 10,
+        "noEventSeeds": [],
+        "unavailableSeeds": [],
+        "missingSeeds": []
+      },
+      "day19": {
+        "worksFirst": 10,
+        "ranked": 10,
+        "withEvent": 10,
+        "noEventSeeds": [],
+        "unavailableSeeds": [],
+        "missingSeeds": []
+      }
+    }
+  },
+  "comparison": [
+    {
+      "metric": "First watch median day",
+      "tuning": 15,
+      "heldOut": 15
+    },
+    {
+      "metric": "First signal median day",
+      "tuning": 16,
+      "heldOut": 16.5
+    },
+    {
+      "metric": "First alert median day",
+      "tuning": 16,
+      "heldOut": 16.5
+    },
+    {
+      "metric": "seeded false signals (signal-days): watch",
+      "tuning": 10,
+      "heldOut": 3
+    },
+    {
+      "metric": "seeded false signals (signal-days): signal",
+      "tuning": 0,
+      "heldOut": 0
+    },
+    {
+      "metric": "seeded false signals (signal-days): alert",
+      "tuning": 0,
+      "heldOut": 0
+    },
+    {
+      "metric": "quiet false signals (signal-days): watch",
+      "tuning": 10,
+      "heldOut": 4
+    },
+    {
+      "metric": "quiet false signals (signal-days): signal",
+      "tuning": 0,
+      "heldOut": 0
+    },
+    {
+      "metric": "quiet false signals (signal-days): alert",
+      "tuning": 0,
+      "heldOut": 0
+    }
+  ],
+  "observations": [
+    "Held-out First signal median day is higher than tuning (16.5 versus 16).",
+    "Held-out First alert median day is higher than tuning (16.5 versus 16)."
+  ],
+  "tuningRanking": {
+    "worksFirstAtFirstAlert": 7,
+    "rankedFirstAlerts": 10,
+    "worksEverFirstByDay19": 10,
+    "seeds": 10
+  },
+  "day19Definition": "Latest ranking event carried forward by frozen matching and change rules, with original evidence day. Tuning's ever-first-by-day-19 metric is different.",
+  "retryPolicy": "Held-out: once for connection failure, timeout, HTTP 429 or 5xx only. Production: invalid JSON only; unchanged."
+}
