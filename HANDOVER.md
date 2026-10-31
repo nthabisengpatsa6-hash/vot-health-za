@@ -1,12 +1,16 @@
 # HANDOVER
 
-**Last updated:** 2026-10-31 05:29 SAST
+**Last updated:** 2026-10-31 06:04 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. Organisers confirmed the repo may stay private until submission but must be public before submitting. The plan remains to make it public on Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
+
+Task 19 Part C is in progress after the approved plan with four corrections. First commit: processNote now reserves its existing 40/account slot and a new 200/app slot together before any Meta call. The app counter uses noteAppUsage/app, separate from noteUsage/{uid}; no rules change. The new app-cap message uses the shared product name. Existing note/ranking failures and both timing logs stay unchanged; no billing classifier. Targeted validation: 28 Functions tests and three web tests pass, including extraction/Baseline request and signal-hash proofs. No deployment, paid calls, secret access or deletion. The live revisions above remain current.
+
+The Task 19 chart-data check covers all 125 Signal/Alert entries across tuning seeds 1 to 10 and both scenarios. Its winning-window observed/expected card and case totals match the frozen engine exactly by summing baseline day weights before multiplication and rounding; daily expectations are not rounded before aggregation. Headlines will use only engine output, and Usual gets the approved plain explanation without baseline-card links. The historical basetenScoring.mjs remains byte-identical to dc38d22. Signal detail, drafting and the user-run trial are still being built; Part C ends at the separate Trial done STOP.
 
 Task 18 is complete locally and at STOP 4 for "approved push". The Markdown scorecard is docs/provenance/held-out/scorecard-held-out-seeds-11-20.md; the matching JSON is src/sim/held-out/scorecard-held-out-seeds-11-20.json, ready for Sunday's screen with no screen wiring. The saved proof records pre-unlock commit ccff74acf67183b48193a7631b98a87c817716ef, signal hash abc36af17d67a689, ranking prompt hash 01622c7f95af2326, all 48 original dependency blobs unchanged from ab40db5, and matching fingerprints for seeds 11 to 20. Statistics and selected inputs were fixed in 061780f before any paid call; production/tuning code remains unchanged. No further paid calls, screen changes, deploys or deletions.
 

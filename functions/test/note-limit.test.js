@@ -66,6 +66,30 @@ test("the day turns at midnight SAST, which is 22:00 UTC", () => {
   assert.equal(sastDay(new Date("2026-10-28T00:30:00Z")), "2026-10-28");
 });
 
+test("the 200th app note is allowed and the next is refused without changing either counter", async () => {
+  const db = fakeDb({"noteAppUsage/app": {day: "2026-10-28", count: 199}});
+  assert.equal((await reserveNote("u1", {db, now: NOON_SAST})).allowed, true);
+  assert.equal(db.docs.get("noteAppUsage/app").count, 200);
+  assert.equal((await reserveNote("u2", {db, now: NOON_SAST})).reason, "app-note-limit");
+  assert.equal(db.docs.has("noteUsage/u2"), false);
+  assert.equal(db.docs.get("noteAppUsage/app").count, 200);
+});
+
+test("an account refusal leaves the app counter alone; both reset on a new SAST day", async () => {
+  const db = fakeDb({"noteUsage/u1": {day: "2026-10-28", count: 40}, "noteAppUsage/app": {day: "2026-10-28", count: 199}});
+  assert.equal((await reserveNote("u1", {db, now: NOON_SAST})).allowed, false);
+  assert.equal(db.docs.get("noteAppUsage/app").count, 199);
+  assert.equal((await reserveNote("u1", {db, now: new Date("2026-10-28T22:00:00Z")})).count, 1);
+  assert.equal(db.docs.get("noteAppUsage/app").count, 1);
+});
+
+test("a UID named app cannot collide with the app-wide counter", async () => {
+  const db = fakeDb();
+  await reserveNote("app", {db, now: NOON_SAST});
+  assert.equal(db.docs.get("noteUsage/app").count, 1);
+  assert.equal(db.docs.get("noteAppUsage/app").count, 1);
+});
+
 const signedInNote = () => ({
   auth: {uid: "limit-test"},
   data: {audioBase64: makeWav({seconds: 1}).toString("base64")},
@@ -106,6 +130,12 @@ test("if the counter can't be reached, the note is refused", async (t) => {
   });
   withNoNetwork(t);
   await assert.rejects(processNote.run(signedInNote()), {code: "unavailable"});
+});
+
+test("the app-wide cap stops processNote before either Meta call", async (t) => {
+  withReserve(t, async () => ({allowed: false, count: 0, reason: "app-note-limit"}));
+  withNoNetwork(t);
+  await assert.rejects(processNote.run(signedInNote()), {code: "resource-exhausted", details: {reason: "app-note-limit"}});
 });
 
 test("bad audio is refused before it is counted", async (t) => {

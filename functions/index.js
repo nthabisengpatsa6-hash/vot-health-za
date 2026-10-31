@@ -137,6 +137,12 @@ async function takeDailyPlace(uid, timing) {
   }
   if (!usage.allowed) {
     timing.outcome = "limit";
+    if (usage.reason === "app-note-limit") {
+      const {PRODUCT_NAME} = await import("./shared/product.mjs");
+      throw new HttpsError("resource-exhausted",
+          `${PRODUCT_NAME} has reached today's limit for live notes. Try again after midnight, or explore the replay.`,
+          {reason: "app-note-limit"});
+    }
     throw new HttpsError(
         "resource-exhausted",
         "Daily limit reached. Try again tomorrow.",

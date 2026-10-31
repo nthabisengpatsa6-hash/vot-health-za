@@ -10,6 +10,7 @@ import { PRODUCT_NAME } from "../config/product";
 import { streamFunction } from "../lib/api";
 import { answersNeeded, cardFieldId, draftFromCard, firstToFix, handleSaveTap, saveButtonAction } from "../lib/cardDraft";
 import { saveCards } from "../lib/cards";
+import { appNoteLimitMessage } from "../lib/noteErrors";
 import { MAX_SECONDS, MicrophoneError, startRecording } from "../lib/recorder";
 import { SHOW_TIMING, formatTiming } from "../lib/timing";
 import { bytesToBase64, encodeWav, recordingToSamples, wavePeaks } from "../lib/wav";
@@ -84,6 +85,8 @@ function formatTime(seconds) {
 }
 
 function sendProblem(err) {
+  const appLimit = appNoteLimitMessage(err);
+  if (appLimit) return { kind: "limit", text: appLimit };
   const code = String((err && err.code) || "").replace(/^functions\//, "");
   // These two messages are written by processNote for people to read.
   if (code === "resource-exhausted") return { kind: "limit", text: err.message };

@@ -1,5 +1,5 @@
 const {FieldValue} = require("firebase-admin/firestore");
-const {DAILY_NOTE_LIMIT} = require("../constants");
+const {DAILY_NOTE_LIMIT, APP_DAILY_NOTE_LIMIT} = require("../constants");
 const {defaultDb} = require("./admin");
 
 const SAST_OFFSET_MS = 2 * 60 * 60 * 1000;
@@ -26,14 +26,21 @@ async function reserveNote(uid, {
   db = defaultDb(),
   now = new Date(),
   limit = DAILY_NOTE_LIMIT,
+  appLimit = APP_DAILY_NOTE_LIMIT,
 } = {}) {
   const ref = db.collection("noteUsage").doc(uid);
+  const appRef = db.collection("noteAppUsage").doc("app");
   return db.runTransaction(async (transaction) => {
     const snap = await transaction.get(ref);
+    const appSnap = await transaction.get(appRef);
     const current = snap.exists ? snap.data() : null;
-    const next = nextUsage(current, sastDay(now), limit);
+    const today = sastDay(now);
+    const next = nextUsage(current, today, limit);
+    const appNext = nextUsage(appSnap.exists ? appSnap.data() : null, today, appLimit);
+    if (!appNext) return {allowed: false, count: current && current.day === today ? current.count : 0, reason: "app-note-limit"};
     if (!next) return {allowed: false, count: current.count};
     transaction.set(ref, {...next, updatedAt: FieldValue.serverTimestamp()});
+    transaction.set(appRef, {...appNext, updatedAt: FieldValue.serverTimestamp()});
     return {allowed: true, count: next.count};
   });
 }

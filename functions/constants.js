@@ -23,6 +23,7 @@ exports.EARS_GRACE_MS = 30000;
 // Anyone can create an account, so each one may send at most this many voice
 // notes per SAST day. Each note costs two transcriptions and a card call.
 exports.DAILY_NOTE_LIMIT = 40;
+exports.APP_DAILY_NOTE_LIMIT = 200;
 // Practice mode (local emulators only) holds each progress stage this long,
 // so the stages can be seen and tested.
 exports.PRACTICE_STAGE_MS = 1500;
