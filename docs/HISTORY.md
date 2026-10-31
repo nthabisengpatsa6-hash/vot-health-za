@@ -4,6 +4,13 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 15:17 SAST - Task 19 r5 trial approved for live use; secret step next
+
+- The user approved both r5 drafts for live use. Preserved all four pending/terminal rows unchanged in draft-trial-2026-10-31-r5.jsonl. Day 17: model, 4436 ms, 827 input / 1308 output / 1110 reasoning tokens, finish stop, USD 0.00659275. Day 19: model, 3643 ms, 827 / 1131 / 933, finish stop, USD 0.0058405. Total USD 0.01243325.
+- All four rows share promptHash 8aaa44150ff6fabe516e651de33ead9c56f4bbb598c858413671ef1149e0ed16, equal to the current request builder used by draft_timing. HANDOVER records it as the approved live draft prompt version, with deployment pending. Both actual final texts pass the unchanged validator, assemble to exactly three paragraphs and include the exact supplied severity sentence. Rebuilt inputs/hashes, saved model fields/drafts, footer and usage-cost arithmetic agree.
+- Validation: 15 affected trial/prompt-hash tests and direct saved-result audit passed. Both staged scans passed: 338 tracked files against 442 private-audio records with zero rejected overlaps, and 53 provenance files. R5's original file bytes are unchanged. No source changed, so the full r5 implementation suite/build/browser results remain applicable without rerunning them.
+- Record/docs-only checkpoint; no prompt, schema, validator or application change and no new inference. Secret setup remains user-only: firebase functions:secrets:set BASETEN_API_KEY, hidden prompt, then clipboard cleanup and secret set. Functions/Hosting deployment, phone check and final push retain their separate gates. No secret was read or set by the agent; live revisions and delete list remain unchanged.
+
 ### 31 Oct 2026, 10:11 SAST - Task 19 revision 5 prepared after r4 paragraph/unit review
 
 - Preserved the user's r4 trial unchanged: day 17 model (5336 ms, 767 input / 1575 output / 1379 reasoning tokens, USD 0.0076525), day 19 model (2964 ms, 767 / 919 / 711, USD 0.0048645), total USD 0.012517. Both finish reasons are stop and all records share e9874fbea3cedf78673386a122c18c0de2babfeb2e67cb0666b46a6e8f564530. Both drafts passed old checks but omitted paragraph breaks and called severe case cards cases. No historical outcome or metadata is rewritten.
