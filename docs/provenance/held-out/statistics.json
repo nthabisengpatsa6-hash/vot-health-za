@@ -1,0 +1,873 @@
+{
+  "version": 1,
+  "proof": {
+    "version": 1,
+    "commit": "ccff74acf67183b48193a7631b98a87c817716ef",
+    "freezeCommit": "ab40db54d3ff7d173742df16127aab3f63ee6cca",
+    "clean": true,
+    "signalHash": "abc36af17d67a689",
+    "rankingPromptHash": "01622c7f95af2326",
+    "dependencies": [
+      {
+        "file": "functions/data/places.json",
+        "baselineBlob": "cde108f3ffe87570868282ecae09469eb13fa957",
+        "headBlob": "cde108f3ffe87570868282ecae09469eb13fa957",
+        "status": "same"
+      },
+      {
+        "file": "functions/lib/callRanker.js",
+        "baselineBlob": "2f0a43d2eb44c58cd69abf32f49707dede6a1621",
+        "headBlob": "2f0a43d2eb44c58cd69abf32f49707dede6a1621",
+        "status": "same"
+      },
+      {
+        "file": "functions/lib/rankTiming.js",
+        "baselineBlob": "94fbfe101b88d9f352ede00b802c54f7951ccfa7",
+        "headBlob": "94fbfe101b88d9f352ede00b802c54f7951ccfa7",
+        "status": "same"
+      },
+      {
+        "file": "functions/prompts/rank-sources.md",
+        "baselineBlob": "359391d34613bdba98ae359c231b39f46d220274",
+        "headBlob": "359391d34613bdba98ae359c231b39f46d220274",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/baseline.mjs",
+        "baselineBlob": "0a54dfd4dbf09eacdb654899b4f4bbe7c4207a5d",
+        "headBlob": "0a54dfd4dbf09eacdb654899b4f4bbe7c4207a5d",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/cardDoc.mjs",
+        "baselineBlob": "535816ede7e512b20daf81b4925c231f73deab84",
+        "headBlob": "535816ede7e512b20daf81b4925c231f73deab84",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/cardFields.mjs",
+        "baselineBlob": "fdbd791d082850e0c09dbd1162e2ed1ace30fcc1",
+        "headBlob": "fdbd791d082850e0c09dbd1162e2ed1ace30fcc1",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/layers.mjs",
+        "baselineBlob": "c7982b66e892984bcffc51b65e13df6607e530a2",
+        "headBlob": "c7982b66e892984bcffc51b65e13df6607e530a2",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/clues.mjs",
+        "baselineBlob": "79fa979a35a482e3f3032f9351eca2d359080385",
+        "headBlob": "79fa979a35a482e3f3032f9351eca2d359080385",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/input.mjs",
+        "baselineBlob": "c8ae5d1bccb8e3b2f8b3282796c7a1037f4f1def",
+        "headBlob": "c8ae5d1bccb8e3b2f8b3282796c7a1037f4f1def",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/match.mjs",
+        "baselineBlob": "a2f2f9b4afcd166dbe2069db62620b8f8e654825",
+        "headBlob": "a2f2f9b4afcd166dbe2069db62620b8f8e654825",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/schema.mjs",
+        "baselineBlob": "f7e9827eab066aa8ded8d606a57bb0f0d48d4996",
+        "headBlob": "f7e9827eab066aa8ded8d606a57bb0f0d48d4996",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/settings.mjs",
+        "baselineBlob": "47ac6bff9c99ee070d3c9f251e438fb56aa631e6",
+        "headBlob": "47ac6bff9c99ee070d3c9f251e438fb56aa631e6",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/rank/validate.mjs",
+        "baselineBlob": "1ae1c16da9d3552b7e8c3a2ae1b22697a6b25657",
+        "headBlob": "1ae1c16da9d3552b7e8c3a2ae1b22697a6b25657",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sastDay.mjs",
+        "baselineBlob": "90a39660bdfc4667d94d93859142bd93e0562600",
+        "headBlob": "90a39660bdfc4667d94d93859142bd93e0562600",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/settings.mjs",
+        "baselineBlob": "4bd45f30290f7e4504ed5465594001f789bacc74",
+        "headBlob": "4bd45f30290f7e4504ed5465594001f789bacc74",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/signals.mjs",
+        "baselineBlob": "5b3bad24abb1963e53630a61ab6067c9d1d6162f",
+        "headBlob": "5b3bad24abb1963e53630a61ab6067c9d1d6162f",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/background.mjs",
+        "baselineBlob": "ec48007f937ea6ab6b4d60c6b9a26d11be956369",
+        "headBlob": "ec48007f937ea6ab6b4d60c6b9a26d11be956369",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/calendar.mjs",
+        "baselineBlob": "ce6b218441192860e07e8953dfd011565cb07403",
+        "headBlob": "ce6b218441192860e07e8953dfd011565cb07403",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/card.mjs",
+        "baselineBlob": "ec2166fdc205f838d611be8166896a3ea81d6456",
+        "headBlob": "ec2166fdc205f838d611be8166896a3ea81d6456",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/draws.mjs",
+        "baselineBlob": "9472a1076340f43e468c99acfd1422fdcc6d200a",
+        "headBlob": "9472a1076340f43e468c99acfd1422fdcc6d200a",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/engine.mjs",
+        "baselineBlob": "502cfacdc5918b53e84b900a2ddb20ceebd18690",
+        "headBlob": "502cfacdc5918b53e84b900a2ddb20ceebd18690",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/phrases.mjs",
+        "baselineBlob": "00f0fa5e2e95ca106e79b3c30478a6a3cc9c4322",
+        "headBlob": "00f0fa5e2e95ca106e79b3c30478a6a3cc9c4322",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/random.mjs",
+        "baselineBlob": "f66d804cfe8f52fbd23003c2c953f6e54079df3b",
+        "headBlob": "f66d804cfe8f52fbd23003c2c953f6e54079df3b",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/reporters.mjs",
+        "baselineBlob": "94ca8338f9a6ae9c6524a069c01711f09fadca78",
+        "headBlob": "94ca8338f9a6ae9c6524a069c01711f09fadca78",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/scenarios.mjs",
+        "baselineBlob": "21037eaae22340fbef679b64b7055ab6ee67c0ff",
+        "headBlob": "21037eaae22340fbef679b64b7055ab6ee67c0ff",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/seededCluster.mjs",
+        "baselineBlob": "344e0583f14d70da78781caf3fcd2eeb3d132375",
+        "headBlob": "344e0583f14d70da78781caf3fcd2eeb3d132375",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/sim/town.mjs",
+        "baselineBlob": "60be9c9dc03b3fe0a73d99ca52ea55a6c00e26f3",
+        "headBlob": "60be9c9dc03b3fe0a73d99ca52ea55a6c00e26f3",
+        "status": "same"
+      },
+      {
+        "file": "functions/shared/tail.mjs",
+        "baselineBlob": "b23f1eff4002967e2ff5c4e6ce20b74a8f882124",
+        "headBlob": "b23f1eff4002967e2ff5c4e6ce20b74a8f882124",
+        "status": "same"
+      },
+      {
+        "file": "scripts/lib/rankArtifacts.mjs",
+        "baselineBlob": "f3a4ad1ca19351dba51f70c1e91e8f5d3a99ed2b",
+        "headBlob": "f3a4ad1ca19351dba51f70c1e91e8f5d3a99ed2b",
+        "status": "same"
+      },
+      {
+        "file": "scripts/lib/rankPlans.mjs",
+        "baselineBlob": "4989ca179d8ffc973abe582b7ef48799ea583f9e",
+        "headBlob": "4989ca179d8ffc973abe582b7ef48799ea583f9e",
+        "status": "same"
+      },
+      {
+        "file": "scripts/rank-saved.mjs",
+        "baselineBlob": "21e5afceeae4a89e494fd1c76e01b23a2075d60c",
+        "headBlob": "21e5afceeae4a89e494fd1c76e01b23a2075d60c",
+        "status": "same"
+      },
+      {
+        "file": "scripts/scorecard.mjs",
+        "baselineBlob": "2932efd3e8725034a97b34e7c530996158031cd5",
+        "headBlob": "2932efd3e8725034a97b34e7c530996158031cd5",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/background.js",
+        "baselineBlob": "fffa6a1d5d9175f3ba730397ec193bed1f14595c",
+        "headBlob": "fffa6a1d5d9175f3ba730397ec193bed1f14595c",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/calendar.js",
+        "baselineBlob": "62228cc35011b1dadaa340bedfe1c7b9964a4740",
+        "headBlob": "62228cc35011b1dadaa340bedfe1c7b9964a4740",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/card.js",
+        "baselineBlob": "4db8bd79b8a7178737ab06b5a0b41e739a9352e1",
+        "headBlob": "4db8bd79b8a7178737ab06b5a0b41e739a9352e1",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/draws.js",
+        "baselineBlob": "af05d6eeccce4227962f681f34ead81d536b0513",
+        "headBlob": "af05d6eeccce4227962f681f34ead81d536b0513",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/engine.js",
+        "baselineBlob": "30ac13696d9301ed9d9d8a5f464fd7ae68c3e610",
+        "headBlob": "30ac13696d9301ed9d9d8a5f464fd7ae68c3e610",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/groundTruth.js",
+        "baselineBlob": "6046db234fb6c187f10304e4292b418c15ab2878",
+        "headBlob": "6046db234fb6c187f10304e4292b418c15ab2878",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/phrases.js",
+        "baselineBlob": "a6dbb5041d2ab34f113e5e4d2f35c0b7d489c425",
+        "headBlob": "a6dbb5041d2ab34f113e5e4d2f35c0b7d489c425",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/random.js",
+        "baselineBlob": "1c46d389d232757ac3bfd56c523def51b2cebc2c",
+        "headBlob": "1c46d389d232757ac3bfd56c523def51b2cebc2c",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/reporters.js",
+        "baselineBlob": "fa299608671e4db961809b343a9444689ac30fbc",
+        "headBlob": "fa299608671e4db961809b343a9444689ac30fbc",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/saved-rankings/seed-1.json",
+        "baselineBlob": "0a1fe7b9a9ef93035ce64f7f8cf33b6ee1444ad2",
+        "headBlob": "0a1fe7b9a9ef93035ce64f7f8cf33b6ee1444ad2",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/scenarios.js",
+        "baselineBlob": "1af13f55fe882456671753ef24a1c5f617320cd1",
+        "headBlob": "1af13f55fe882456671753ef24a1c5f617320cd1",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/scorecard.js",
+        "baselineBlob": "82356a905fc91db3a84fc6aa2abec9e72b6cc4fc",
+        "headBlob": "82356a905fc91db3a84fc6aa2abec9e72b6cc4fc",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/seededCluster.js",
+        "baselineBlob": "7cab3263821137bb9027fe7a71309e669aa8feaa",
+        "headBlob": "7cab3263821137bb9027fe7a71309e669aa8feaa",
+        "status": "same"
+      },
+      {
+        "file": "src/sim/town.js",
+        "baselineBlob": "60c2e4f03ccc616cb9b63495530fbf4361bad726",
+        "headBlob": "60c2e4f03ccc616cb9b63495530fbf4361bad726",
+        "status": "same"
+      },
+      {
+        "file": "test-fixtures/sim-move-fingerprints.json",
+        "baselineBlob": "2c68d1533791edcffa83a9a10f1028da68be65fb",
+        "headBlob": "2c68d1533791edcffa83a9a10f1028da68be65fb",
+        "status": "same"
+      }
+    ],
+    "fingerprints": [
+      {
+        "seed": 11,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 12,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 13,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 14,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 15,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 16,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 17,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 18,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 19,
+        "water": "match",
+        "none": "match"
+      },
+      {
+        "seed": 20,
+        "water": "match",
+        "none": "match"
+      }
+    ],
+    "heldOutOutcomesComputed": false,
+    "preUnlockStatement": "The existing fingerprint test generates seed 11 to 20 cards only to hash them. It computes no statistics, signals, rankings or outcomes from them. No held-out statistics, signals, rankings or outcomes were computed during Part C."
+  },
+  "tuning": {
+    "sampleSize": 10,
+    "rows": [
+      {
+        "seed": 1,
+        "first": {
+          "watch": 15,
+          "signal": 17,
+          "alert": 17
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 2,
+        "first": {
+          "watch": 15,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 4,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 4,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 3,
+        "first": {
+          "watch": 15,
+          "signal": 16,
+          "alert": 16
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 4,
+        "first": {
+          "watch": 14,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 1,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 1,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 5,
+        "first": {
+          "watch": 16,
+          "signal": 17,
+          "alert": 17
+        },
+        "seededFalseSignals": {
+          "watch": 3,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 3,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 6,
+        "first": {
+          "watch": 14,
+          "signal": 16,
+          "alert": 16
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 7,
+        "first": {
+          "watch": 15,
+          "signal": 16,
+          "alert": 18
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 8,
+        "first": {
+          "watch": 14,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 2,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 2,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 9,
+        "first": {
+          "watch": 14,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 10,
+        "first": {
+          "watch": 18,
+          "signal": 18,
+          "alert": 18
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      }
+    ],
+    "first": {
+      "watch": {
+        "median": 15,
+        "min": 14,
+        "max": 18,
+        "reached": 10,
+        "notReachedSeeds": []
+      },
+      "signal": {
+        "median": 16,
+        "min": 15,
+        "max": 18,
+        "reached": 10,
+        "notReachedSeeds": []
+      },
+      "alert": {
+        "median": 16,
+        "min": 15,
+        "max": 18,
+        "reached": 10,
+        "notReachedSeeds": []
+      }
+    },
+    "falseSignals": {
+      "seeded": {
+        "watch": 10,
+        "signal": 0,
+        "alert": 0
+      },
+      "quiet": {
+        "watch": 10,
+        "signal": 0,
+        "alert": 0
+      },
+      "combined": {
+        "watch": 20,
+        "signal": 0,
+        "alert": 0
+      }
+    }
+  },
+  "heldOut": {
+    "sampleSize": 10,
+    "rows": [
+      {
+        "seed": 11,
+        "first": {
+          "watch": 15,
+          "signal": 17,
+          "alert": 17
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 12,
+        "first": {
+          "watch": 15,
+          "signal": 16,
+          "alert": 16
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 13,
+        "first": {
+          "watch": 15,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 14,
+        "first": {
+          "watch": 15,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 15,
+        "first": {
+          "watch": 15,
+          "signal": 17,
+          "alert": 17
+        },
+        "seededFalseSignals": {
+          "watch": 1,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 1,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 16,
+        "first": {
+          "watch": 15,
+          "signal": 15,
+          "alert": 15
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 17,
+        "first": {
+          "watch": 15,
+          "signal": 16,
+          "alert": 16
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 18,
+        "first": {
+          "watch": 16,
+          "signal": 18,
+          "alert": 18
+        },
+        "seededFalseSignals": {
+          "watch": 2,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 3,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 19,
+        "first": {
+          "watch": 15,
+          "signal": 18,
+          "alert": 18
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      },
+      {
+        "seed": 20,
+        "first": {
+          "watch": 15,
+          "signal": 18,
+          "alert": 18
+        },
+        "seededFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        },
+        "quietFalseSignals": {
+          "watch": 0,
+          "signal": 0,
+          "alert": 0
+        }
+      }
+    ],
+    "first": {
+      "watch": {
+        "median": 15,
+        "min": 15,
+        "max": 16,
+        "reached": 10,
+        "notReachedSeeds": []
+      },
+      "signal": {
+        "median": 16.5,
+        "min": 15,
+        "max": 18,
+        "reached": 10,
+        "notReachedSeeds": []
+      },
+      "alert": {
+        "median": 16.5,
+        "min": 15,
+        "max": 18,
+        "reached": 10,
+        "notReachedSeeds": []
+      }
+    },
+    "falseSignals": {
+      "seeded": {
+        "watch": 3,
+        "signal": 0,
+        "alert": 0
+      },
+      "quiet": {
+        "watch": 4,
+        "signal": 0,
+        "alert": 0
+      },
+      "combined": {
+        "watch": 7,
+        "signal": 0,
+        "alert": 0
+      }
+    }
+  },
+  "tuningReconciliation": [
+    {
+      "metric": "First Watch minimum",
+      "published": 14,
+      "actual": 14,
+      "match": true
+    },
+    {
+      "metric": "First Watch maximum",
+      "published": 18,
+      "actual": 18,
+      "match": true
+    },
+    {
+      "metric": "First Watch median",
+      "published": 15,
+      "actual": 15,
+      "match": true
+    },
+    {
+      "metric": "First Signal median",
+      "published": 16,
+      "actual": 16,
+      "match": true
+    },
+    {
+      "metric": "First Alert median",
+      "published": 16,
+      "actual": 16,
+      "match": true
+    },
+    {
+      "metric": "seeded: false signals (signal-days), watch",
+      "published": 10,
+      "actual": 10,
+      "match": true
+    },
+    {
+      "metric": "seeded: false signals (signal-days), signal",
+      "published": 0,
+      "actual": 0,
+      "match": true
+    },
+    {
+      "metric": "seeded: false signals (signal-days), alert",
+      "published": 0,
+      "actual": 0,
+      "match": true
+    },
+    {
+      "metric": "quiet: false signals (signal-days), watch",
+      "published": 10,
+      "actual": 10,
+      "match": true
+    },
+    {
+      "metric": "quiet: false signals (signal-days), signal",
+      "published": 0,
+      "actual": 0,
+      "match": true
+    },
+    {
+      "metric": "quiet: false signals (signal-days), alert",
+      "published": 0,
+      "actual": 0,
+      "match": true
+    }
+  ]
+}

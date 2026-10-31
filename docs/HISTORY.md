@@ -4,6 +4,14 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 04:58 SAST - Task 18 Part D, authorised unlock
+
+- The user explicitly approved unlock. Ran heldout:stats once from pre-unlock commit ccff74acf67183b48193a7631b98a87c817716ef after clean-tree, frozen-hash, dependency-blob and fingerprint checks. Recorded the original proof, statistics and selected input/reference plan under docs/provenance/held-out/. No model calls or source changes.
+- Held-out sample: 10 seeds, both scenarios, days 0 to 28. First Watch median 15 (range 15 to 16); first Signal and Alert medians 16.5 (range 15 to 18), all reached in every seed. False signals (signal-days): seeded 3 Watch, quiet 4 Watch, combined 7 Watch; zero false Signal or Alert. Signal/Alert medians are 0.5 day later than tuning.
+- Tuning recomputation matches every recorded handover figure: Watch range 14 to 18/median 15, Signal and Alert median 16, false signals (signal-days) 10 Watch/0 Signal/0 Alert per scenario, 20 Watch combined. No change was made to fit the outcomes.
+- Selected 19 ranking calls: first Alert and carried day-19 event for each seed, deduplicating seed 19's day-18 event. Seed 17's day-19 event uses evidence day 18. Every seed has both roles. The committed ranking-plan.json is 995,501 bytes, over 500 kB, and must be named in the pre-push size report. Results are committed before the paid run; the agent runs only the dry run and waits at STOP 3 for the user's "Run done" and summary.
+- Part C's 449 passing tests/lint/build carry forward because source is unchanged. The Part D report lists all 17 new tests individually, including the ground-truth removed/scrambled test and both exact/sibling-path checks. No screen, deployment, deletion, push or paid agent inference.
+
 ### 31 Oct 2026, 04:42 SAST - Task 18 Part C, before unlock
 
 - Built separate explicit held-out preflight, statistics, ranking and scorecard commands after STOP 1 approval with eight refinements. Production statistics, thresholds, generator, ranking prompt/schema/settings/guards and tuning tools remain unchanged. No held-out statistics, signals, rankings or outcomes were computed. The existing fingerprint test generates seed 11 to 20 cards only to hash them, without computing those outcomes.
