@@ -8,6 +8,7 @@ import {planDraftTrial} from "../../scripts/lib/draftTrial.mjs";
 import {dailySignalChart} from "../../functions/shared/signalDetail.mjs";
 import {createRun} from "../../functions/shared/sim/engine.mjs";
 import {computeSignals} from "../../functions/shared/signals.mjs";
+import {usualCasesText} from "../../functions/shared/draft/counts.mjs";
 import {dayEnd,dayOfDate} from "../../functions/shared/sastDay.mjs";
 import town from "../../functions/data/places.json" with {type:"json"};
 const {DraftEditor}=await loadComponent("../../src/components/DraftedNotification.jsx");
@@ -37,8 +38,16 @@ test("detail shows only engine counts, merged-window metadata and the approved p
   const chart=dailySignalChart({cards,asOf,signal,town});
   const html=renderToStaticMarkup(createElement(SignalDetail,{signal,replay:{cardsUpTo:()=>cards,dateOf:()=>"2027-02-18"},runId:"seeded",day,area:signal.areas[0],town,chart,onBack:noop}));
   assert.ok(html.includes(`${signal.observed.cases} cases in ${signal.timeWindow.days} days`));
-  assert.ok(html.includes(`usual about ${signal.expected.cases}`));
+  assert.ok(html.includes(usualCasesText(signal.expected.cases)));
+  assert.ok(!html.includes(`usual about ${signal.expected.cases}`));
   assert.match(html,/Usual comes from this area&#x27;s 8 weeks of reports ending 2 weeks before today\./);
   assert.doesNotMatch(html,/baseline-card|reporterUid|reporterRole|reporterFacilityType|reporterArea|probabil|chance/);
   assert.match(html,/Daily cases/);assert.match(html,/class="voice-quote"/);assert.match(html,/Sign in to draft with Muse Spark Open/);
+});
+test("Signal detail says fewer than 1 case usually when the displayed usual rounds to zero",()=>{
+  const run=createRun({seed:1}),day=17,cards=run.cardsUpTo(day),asOf=dayEnd(dayOfDate(run.startDate)+day);
+  const signal=computeSignals({cards,asOf,town}).signals.find((s)=>s.level==="alert");
+  const chart=dailySignalChart({cards,asOf,signal,town});
+  const html=renderToStaticMarkup(createElement(SignalDetail,{signal:{...signal,expected:{...signal.expected,cases:0.49}},replay:{cardsUpTo:()=>cards,dateOf:()=>"2027-02-18"},runId:"seeded",day,area:signal.areas[0],town,chart,onBack:noop}));
+  assert.match(html,/fewer than 1 case usually/);assert.doesNotMatch(html,/about 0 cases/);
 });

@@ -4,6 +4,7 @@ import LevelBadge from "./LevelBadge";
 import DailySquaresChart from "./DailySquaresChart";
 import ReplayRanking from "./ReplayRanking";
 import DraftedNotification from "./DraftedNotification";
+import { usualCasesText } from "../../functions/shared/draft/counts.mjs";
 
 function CardLinks({ ids, label }) {
   return <details className="signal-evidence"><summary>{label}</summary>{ids.length ? <ul>{ids.map((id, index) => <li key={id}><a href={`#card-${id}`}>View card {index + 1}</a></li>)}</ul> : <p>No cards recorded.</p>}</details>;
@@ -24,7 +25,7 @@ export default function SignalDetail({ signal, replay, runId, day, area, town, c
       <LevelBadge level={signal.level} detail={`Day ${day}, ${dateLabel(replay.dateOf(day))}`} />
       <h2>{groupLabel(signal.symptomGroup)}</h2>
       <p>{signal.areas.join(", ")}</p>
-      <p className="signal-count"><strong>{signal.observed.cases} cases in {signal.timeWindow.days} days</strong>; usual about {signal.expected.cases}.</p>
+      <p className="signal-count"><strong>{signal.observed.cases} cases in {signal.timeWindow.days} days</strong>; {usualCasesText(signal.expected.cases)}.</p>
       <p>{signal.observed.cards} cards from {signal.independentReporters} places of care.</p>
       <p className="note">Usual comes from this area's 8 weeks of reports ending 2 weeks before today.</p>
       <CardLinks ids={signal.cardIds} label="Cards behind these counts" />

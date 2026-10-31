@@ -41,11 +41,14 @@ test("timeouts, malformed JSON and unsafe replies fall back without showing reje
   }
 });
 test("new Baseten client uses only the final content and the exact guarded request",async()=>{
-  const {callBasetenDraft}=await import("../lib/basetenClient.mjs");
+  const {callBasetenDraft,DRAFT_PROMPT}=await import("../lib/basetenClient.mjs");
+  assert.ok(DRAFT_PROMPT.includes("Use only the numbers given, exactly as written. Never calculate new numbers."));
+  assert.ok(DRAFT_PROMPT.includes("Call each source by the name given."));
   let count=0;
   const result=await callBasetenDraft({cases:4},{apiKey:"offline-placeholder",fetch:async(url,init)=>{
     count++;assert.equal(url,"https://inference.baseten.co/v1/chat/completions");
     const body=JSON.parse(init.body);assert.equal(body.max_tokens,3000);assert.equal(body.max_completion_tokens,undefined);assert.equal(body.response_format.type,"json_schema");assert.equal(body.model,"meta-models/muse-spark-open-1026");
+    assert.equal(body.messages[0].content,DRAFT_PROMPT);
     return Response.json({choices:[{finish_reason:"stop",message:{reasoning_content:"hidden reasoning",content:'<think>hidden</think><final>{"subject":"Signal","body":"Review evidence."}</final>'}}],usage:{prompt_tokens:10,completion_tokens:20,completion_tokens_details:{reasoning_tokens:12}}});
   }});
   assert.equal(count,1);assert.equal(result.outputTokens,20);assert.equal(result.reasoningTokens,12);assert.equal(result.text,'{"subject":"Signal","body":"Review evidence."}');assert.ok(!JSON.stringify(result).includes("hidden"));

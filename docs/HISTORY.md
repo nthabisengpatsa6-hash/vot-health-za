@@ -4,6 +4,15 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 07:06 SAST - Task 19 post-trial draft corrections, revision 2 prepared
+
+- Preserved the original two-call trial unchanged: day 17 invalid:banned, day 19 invalid:number, USD 0.00754425 total. Both used the standard fallback. The runner omitted rejected model text and exact matches, so the specific causes cannot be recovered or inferred.
+- Applied the user's approved exceptions: only exact case-insensitive water treatment works / treatment works may contain treatment; treatment, treat, treated and untreated patients fail. No general rounding tolerance is added. The prompt forbids calculated numbers and asks for each source's given name.
+- Shared display-only whole-case usual wording between Signal detail, model input and standard draft, including fewer than 1 case usually when rounding gives zero. Raw frozen engine/chart values remain exact. Corrected level articles, omitted zero observations, added ranked sources/confidence and first-source fixed environmental checks, and removed the body's duplicate cause sentence. Untouched standard drafts follow a loaded ranking without replacing human edits or completed model drafts.
+- Revision 2 uses its own JSONL path and retains final model text, parseable subject/body and every validation failure with exact matches. Existing app first-code fallback/log behavior remains. Reasoning and credential echoes are suppressed by the client before trial retention. Original decimal and revised rounded input hashes verify independently; old inputs are refused for new calls. No original trial row, historical allowance or private-audio classification is changed.
+- Validation: 271 web and 127 Functions tests; all 26 affected tests passed again after the final strict-schema regression, along with lint/build. Frozen-file/fingerprint proofs and all 125 chart/engine comparisons remain unchanged. Headless 360 px checks confirm ranking arrival, preserved human/model drafts, subject/body edits, Copy/footer, replay day, no overflow and zero external requests. Both scans passed: 330 tracked files against 442 private-audio records, zero rejected overlaps, 49 provenance files. Original trial file hash unchanged. Rules are unchanged; the previous 94 rules tests were not rerun for this draft-only change. Helpers stay ignored; browser/server closed.
+- Awaiting the user's revision-2 trial via npm.cmd run draft:trial. No agent-paid call, secret setup, deploy, live data operation, delete or push. Separate secret/F1/H1/phone/final-push gates remain.
+
 ### 31 Oct 2026, 06:27 SAST - Task 19 Part C, local implementation before user trial
 
 - Applied the approved corrections: no credit/billing classifier or Meta error-client change; existing note/ranking failures remain; historical basetenScoring.mjs is byte-identical to dc38d22. Note safeguard commit a200b1d reserves 40/account and 200/app daily slots atomically before Meta calls. Counter collections remain Admin-only under the unchanged deny-all rules.

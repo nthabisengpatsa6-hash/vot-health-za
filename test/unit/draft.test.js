@@ -6,10 +6,11 @@ import {validateDraft} from "../../functions/shared/draft/validate.mjs";
 import {standardDraft,notificationText,DRAFT_FOOTER,fallbackLabel} from "../../functions/shared/draft/standard.mjs";
 import {SYMPTOM_LABELS} from "../../functions/shared/draft/copy.mjs";
 import {SYMPTOM_GROUPS} from "../../src/config/cardOptions.js";
+import {usualCasesText} from "../../functions/shared/draft/counts.mjs";
 import town from "../../functions/data/places.json" with {type:"json"};
 
 const input=planDraftTrial()[0].input;
-const good={subject:"A signal to review",body:`Please review ${input.sources[0].name}. ${input.cases} cases in ${input.windowDays} days, usual about ${input.usualCases}.`};
+const good={subject:"A signal to review",body:`Please review ${input.sources[0].name}. ${input.cases} cases in ${input.windowDays} days, ${input.usualCases}.`};
 test("draft input contains only structured allow-listed values and fixed wording", () => {
   const text=JSON.stringify(input);
   assert.doesNotMatch(text,/reporter|chance|probability|seed|groundTruth|cardIds|sourceId|symptomsInWords|suppliesNote|exposure.*words/);
@@ -35,12 +36,59 @@ test("standard drafts fit the caps, use the actual window and get their footer o
     assert.equal(notificationText(edited),`Human subject\n\nHuman body\n\n${DRAFT_FOOTER}`);
   }
 });
-test("valid JSON and permitted decimals pass", () => {assert.equal(validateDraft(JSON.stringify(good),input,town).ok,true);});
+test("model input gives the same whole-case usual wording as the standard draft", () => {
+  assert.deepEqual(planDraftTrial().map(({input})=>input.usualCases),["about 7 cases usually","about 6 cases usually"]);
+  assert.equal(validateDraft(JSON.stringify(good),input,town).ok,true);
+  assert.equal(validateDraft({...good,body:"6.93 cases usually"},input,town).reason,"number");
+  assert.equal(usualCasesText(1.1),"about 1 case usually");
+});
+test("rounded zero usual is fewer than 1 case in model input and standard draft", () => {
+  for (const cases of [0,0.01,0.49]) {
+    const signal={sources:[],areas:["Thaga Park"],level:"watch",symptomGroup:"diarrhoea_vomiting",timeWindow:{days:3},observed:{cases:3,cards:2},expected:{cases},independentReporters:1,flags:{moreSevere:0,notResponding:0}};
+    const rounded=buildDraftInput(signal,{day:17,town});
+    assert.equal(rounded.usualCases,"fewer than 1 case usually");
+    assert.match(standardDraft(rounded).body,/fewer than 1 case usually/);
+    assert.doesNotMatch(standardDraft(rounded).body,/about 0|0 cards describe/);
+    assert.equal(validateDraft({...good,body:rounded.usualCases},rounded,town).ok,true);
+  }
+});
+test("standard drafts use correct level articles, nonzero observations, ranking and first-source checks", () => {
+  for (const [level,opening] of [["alert","An Alert signal"],["signal","A Signal"],["watch","A Watch"]]) {
+    const ranked={...input,level,observations:{moreSevere:0,notResponding:2},sources:[{...input.sources[0],confidence:"medium"},{name:"School C",confidence:"low",checks:"Ask School C about water points."}]};
+    const draft=standardDraft(ranked);
+    assert.ok(draft.body.startsWith(opening));
+    assert.match(draft.body,/2 cards describe patients not improving as usual\./);
+    assert.doesNotMatch(draft.body,/sicker than usual|0 cards|This does not confirm a cause\./);
+    assert.ok(draft.body.includes(`1. ${ranked.sources[0].name} (medium confidence)\n2. School C (low confidence)`));
+    assert.ok(draft.body.endsWith(`Possible checks for environmental health:\n${ranked.sources[0].checks}`));
+    assert.ok(draft.subject.length<=100 && draft.body.length<=1200);
+  }
+});
 test("JSON shape, empty strings, types and both caps fail safely", () => {
-  for(const raw of ["bad",null,[],{}, {...good,extra:1},{...good,subject:" "},{...good,body:4},{...good,subject:"a".repeat(101)},{...good,body:"a".repeat(1201)}]) assert.equal(validateDraft(raw,input,town).ok,false);
+  for(const raw of ["bad",null,[],{},Object.create(good), {...good,extra:1},{...good,subject:" "},{...good,body:4},{...good,subject:"a".repeat(101)},{...good,body:"a".repeat(1201)}]) assert.equal(validateDraft(raw,input,town).ok,false);
 });
 test("banned words, advice prefixes and political words fail", () => {
   for(const word of ["outbreak","outbreaks","epidemic","pandemic","diagnosing","treated","prescription","medication","antibiotics","dose","mayor","blame"]) assert.equal(validateDraft({...good,body:word},input,town).reason,"banned",word);
+});
+test("only the exact treatment works phrases pass, case-insensitively", () => {
+  for (const body of ["water treatment works","treatment works","WATER TREATMENT WORKS","Treatment Works"]) assert.equal(validateDraft({...good,body},input,town).ok,true,body);
+  for (const body of ["treatment","treat","treated","untreated patients","treatment records","treatment-works","treatment  works","treatment\nworks","treatment workss","pretreatment treatment","ｔｒｅａｔｍｅｎｔ works"]) assert.equal(validateDraft({...good,body},input,town).reason,"banned",body);
+  assert.deepEqual(validateDraft({...good,body:"water treatment works; treated and untreated patients"},input,town).failures,[{rule:"banned",matches:["treated","untreated"]}]);
+});
+test("validation reports every failed rule and every exact match, including original Unicode spelling", () => {
+  const restricted={...input,areas:["Thaga Park"],evidenceAreas:["Thaga Park"],sources:[{name:"Works A"}]};
+  const result=validateDraft({subject:"Outbreak",body:"ＴＲＥＡＴＥＤ patients: 999, 888 and Nine Hundred. Review Works B and works b; mail@example.invalid",extra:true},restricted,town);
+  assert.equal(result.reason,"schema");
+  assert.deepEqual(result.failures.map(({rule})=>rule),["schema","banned","contact-or-id","number","name"]);
+  assert.deepEqual(result.failures.find(({rule})=>rule==="banned").matches,["Outbreak","ＴＲＥＡＴＥＤ"]);
+  assert.deepEqual(result.failures.find(({rule})=>rule==="number").matches,["999","888","Nine Hundred"]);
+  assert.deepEqual(result.failures.find(({rule})=>rule==="name").matches,["Works B","works b"]);
+  assert.deepEqual(result.failures.find(({rule})=>rule==="contact-or-id").matches,["@","example.invalid"]);
+  const tooLong=validateDraft({...good,subject:"Outbreak".repeat(13),body:"999 cases"},input,town);
+  assert.deepEqual(tooLong.failures.map(({rule})=>rule),["length","banned","number"]);
+  assert.equal(tooLong.failures[1].matches.length,1);
+  const malformed=validateDraft('Outbreak 999 {',input,town);
+  assert.deepEqual(malformed.failures.map(({rule})=>rule),["json","banned","number"]);
 });
 test("all numbers must be allowed, including written and signed numbers; list markers are bounded", () => {
   for(const body of ["999 cases","nine hundred and ninety-nine cases","-999 cases","1e9 cases"]) assert.equal(validateDraft({...good,body},input,town).ok,false,body);

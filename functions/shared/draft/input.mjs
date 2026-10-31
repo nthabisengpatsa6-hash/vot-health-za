@@ -1,5 +1,6 @@
 import {exposureLayers} from "../layers.mjs";
 import {CHECKS, FACTS, SYMPTOM_LABELS} from "./copy.mjs";
+import {usualCasesText} from "./counts.mjs";
 
 const object = (value) => value && typeof value === "object" && !Array.isArray(value);
 export function validateDraftRequest(data, town) {
@@ -29,7 +30,7 @@ export function buildDraftInput(signal, {day, town, ranking} = {}) {
     return {name:source.name, ...(confidence ? {confidence} : {}), supports:facts(source.supporting), against:facts(source.contradicting), checks:CHECKS[source.kind](source.name)};
   });
   return {day, level:signal.level, symptomGroup:SYMPTOM_LABELS[signal.symptomGroup], areas:[...signal.areas], evidenceAreas:[...areas],
-    windowDays:signal.timeWindow.days, windows:[3,7], cases:signal.observed.cases, usualCases:signal.expected.cases, cards:signal.observed.cards,
+    windowDays:signal.timeWindow.days, windows:[3,7], cases:signal.observed.cases, usualCases:usualCasesText(signal.expected.cases), cards:signal.observed.cards,
     placesOfCare:signal.independentReporters, observations:{moreSevere:signal.flags.moreSevere, notResponding:signal.flags.notResponding}, sources};
 }
 

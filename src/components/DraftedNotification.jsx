@@ -27,7 +27,10 @@ export function DraftEditor({ draft, label, loading = false, capped = false, edi
 export default function DraftedNotification({ signal, day, area, town, entry, onDraft, publicDemo = true }) {
   const ranking = useMemo(() => draftRankingFor(signal, entry, day), [signal, entry, day]);
   const input = useMemo(() => buildDraftInput(signal, { day, town, ranking }), [signal, day, town, ranking]);
-  const [draft, setDraft] = useState(() => standardDraft(input));
+  const [draftOverride, setDraft] = useState(null);
+  // Derive an untouched standard draft so a late ranking can update it.
+  // Edits and completed model/fallback requests keep their own draft.
+  const draft = draftOverride ?? standardDraft(input);
   const [result, setResult] = useState(null), [loading, setLoading] = useState(false), [edited, setEdited] = useState(false), [sent, setSent] = useState(false), [notice, setNotice] = useState("");
   const active = useRef(false), busy = useRef(false);
   useEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
@@ -46,5 +49,5 @@ export default function DraftedNotification({ signal, day, area, town, entry, on
   };
   const copy = async () => { try { await navigator.clipboard.writeText(notificationText(draft)); if (active.current) setNotice("Copied subject and body, including the reminder."); } catch { if (active.current) setNotice("Copy didn't finish. Select the subject and body to copy them."); } };
   const label = !onDraft ? (publicDemo ? "Standard draft. Sign in to draft with Muse Spark Open." : "Standard draft. Live drafting is available at Signal or Alert in the seeded replay.") : result?.outcome === "model" ? `Drafted by Muse Spark Open on Baseten just now, in ${(result.ms / 1000).toFixed(1)} s.` : result ? fallbackLabel(result.reason) : "Standard draft.";
-  return <><p className="note">{ranking ? "Drafting uses eligible sources from this day's ranking." : "Drafting uses the current candidate order, without confidence words."}</p><DraftEditor draft={draft} label={label} loading={loading} capped={["account-cap", "app-cap"].includes(result?.reason)} edited={edited} sent={sent} notice={notice} onDraft={onDraft ? run : undefined} onEdit={(field, value) => { setDraft((current) => ({ ...current, [field]: value })); setEdited(true); setSent(false); }} onCopy={copy} onSent={() => setSent(true)} /></>;
+  return <><p className="note">{ranking ? "Drafting uses eligible sources from this day's ranking." : "Drafting uses the current candidate order, without confidence words."}</p><DraftEditor draft={draft} label={label} loading={loading} capped={["account-cap", "app-cap"].includes(result?.reason)} edited={edited} sent={sent} notice={notice} onDraft={onDraft ? run : undefined} onEdit={(field, value) => { setDraft((current) => ({ ...(current ?? draft), [field]: value })); setEdited(true); setSent(false); }} onCopy={copy} onSent={() => setSent(true)} /></>;
 }

@@ -10,7 +10,7 @@ import {DRAFT_SETTINGS,DRAFT_PRICES} from "../../functions/shared/draft/settings
 import town from "../../functions/data/places.json" with {type:"json"};
 
 export const draftInputHash = (input) => createHash("sha256").update(JSON.stringify(input)).digest("hex");
-export function planDraftTrial() {
+function draftTrialSignals() {
   const run=createRun({seed:1,scenario:"water"}), days=[];
   for (let day=0;day<=run.lastDay;day++) days.push({day,signals:computeSignals({cards:run.cardsUpTo(day),asOf:dayEnd(dayOfDate(run.startDate)+day),town}).signals});
   const first=days.find((row)=>row.signals.some((signal)=>signal.level==="alert"));
@@ -21,7 +21,15 @@ export function planDraftTrial() {
   if (current && ["signal","alert"].includes(current.level)) selected.push({role:"day-19",day:19,signal:current});
   const signalDay=days.find((row)=>row.signals.some((signal)=>signal.level==="signal"));
   if (signalDay) selected.push({role:"signal-only",day:signalDay.day,signal:signalDay.signals.find((signal)=>signal.level==="signal")});
-  return selected.map(({role,day,signal})=>{const input=buildDraftInput(signal,{day,town});return {role,day,level:signal.level,input,inputHash:draftInputHash(input)};});
+  return selected;
+}
+export function planDraftTrial() {
+  return draftTrialSignals().map(({role,day,signal})=>{const input=buildDraftInput(signal,{day,town});return {role,day,level:signal.level,input,inputHash:draftInputHash(input)};});
+}
+// Rebuild the original trial's decimal input independently of saved outputs.
+// These hashes verify history only; runDraftTrial accepts current plans only.
+export function legacyDraftTrialInputs() {
+  return draftTrialSignals().map(({day,signal}) => ({...buildDraftInput(signal,{day,town}),usualCases:signal.expected.cases}));
 }
 export function draftCost(tokens) {
   return Number.isSafeInteger(tokens.inputTokens) && Number.isSafeInteger(tokens.outputTokens) ? (tokens.inputTokens*DRAFT_PRICES.inputPerMillion+tokens.outputTokens*DRAFT_PRICES.outputPerMillion)/1e6 : null;
@@ -41,9 +49,16 @@ export async function runDraftTrial({plans=planDraftTrial(), existing=[], call, 
     const draft=reason ? standardDraft(plan.input) : checked.draft;
     const tokens=Object.fromEntries(["inputTokens","outputTokens","reasoningTokens"].map((key)=>[key,reply[key] ?? null]));
     const validationReason=reason === "invalid" ? checked?.reason ?? null : null;
-    const record={...identity,date:new Date().toISOString(),outcome:reason ? "fallback" : "model",reason,validationReason,ms:reply.ms,...tokens,usd:draftCost(tokens),draft,footer:DRAFT_FOOTER};
+    // The client has removed reasoning and refused credential echoes before
+    // returning final text. Provider failures have no retainable model text.
+    const modelFinalText=checked ? reply.text : null;
+    let modelDraft=null;
+    try {const value=JSON.parse(modelFinalText);if (typeof value?.subject === "string" && typeof value?.body === "string") modelDraft={subject:value.subject,body:value.body};} catch { /* Invalid JSON is retained as final text only. */ }
+    const validationFailures=checked ? checked.failures ?? [] : null;
+    const record={...identity,date:new Date().toISOString(),outcome:reason ? "fallback" : "model",reason,validationReason,validationFailures,modelFinalText,modelDraft,ms:reply.ms,...tokens,usd:draftCost(tokens),draft,footer:DRAFT_FOOTER};
     append(record);rows.push(record);
     print(`Day ${plan.day} | ${plan.level} | ${reason ? `fallback:${reason}${validationReason ? `:${validationReason}` : ""}` : "model"} | ${reply.ms} ms | input ${tokens.inputTokens ?? "unknown"}, output ${tokens.outputTokens ?? "unknown"}, reasoning ${tokens.reasoningTokens ?? "unknown"} | USD ${record.usd ?? "unknown"}`);
+    if (modelFinalText !== null) {print(`Model final text (simulated evidence):\n${modelFinalText}`);print(`Validation failures: ${JSON.stringify(validationFailures)}`);}
     print(`${draft.subject}\n\n${draft.body}\n\n${DRAFT_FOOTER}`);
     if (record.usd===null) {print("Usage is unknown. Review provider billing before any further trial; no more calls made.");break;}
   }

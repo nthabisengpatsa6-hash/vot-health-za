@@ -203,6 +203,8 @@ Task 19 (31 Oct): Signal detail opens from Open signal in the replay's area shee
 
 The detail view is a plain reading screen with the Simulation pill, existing level badge and Back to replay. The ranking action sits immediately below its attribution. The draft's subject input follows the existing input style; its body is a multiline textarea with the same border, radius, tokens and 16/22 UI type, at least 264 px high. Machine text and the fixed footer use Hanken Grotesk. Human edits remain while rankings load or change. Drafting reuses the existing processing waveform and reduced-motion behavior. Names of possible sources are permitted within the drafted notification as well as Possible sources; no new map outlines, print uses or animations are introduced. Copy and Mark as sent use secondary buttons; feedback uses plain status text or the existing wash message.
 
+Post-trial correction (31 Oct): Signal detail's headline and notification use the same whole-case usual wording, with its unit: "about 6 cases usually", or "fewer than 1 case usually" if rounding gives zero. The raw engine expectation and daily chart arithmetic are preserved. Standard drafts open with "An Alert signal", "A Signal" or "A Watch", omit zero observations, list available ranked sources with confidence words, and include "Possible checks for environmental health" with the first source's fixed checks. The cause reminder appears in the footer only. An untouched standard draft updates when its ranking arrives; human edits and completed model drafts persist.
+
 ## Motion
 
 Motion only happens at three moments, plus small state changes:
