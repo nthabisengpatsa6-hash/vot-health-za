@@ -20,6 +20,12 @@ test("notification has editable subject/body, a generic recipient and code foote
   assert.match(html,/To: District environmental health/);assert.match(html,/>Copy</);assert.match(html,/>Mark as sent</);
   assert.ok(html.includes(DRAFT_FOOTER.replaceAll("'","&#x27;")));assert.doesNotMatch(html,/font-voice|voice-quote|mailto:|reporter/);
 });
+test("the editable field preserves three blank-line paragraphs for model and standard drafts",()=>{
+  const body="Reports show more cases.\n\nPlease review Works A.\n\nCheck treatment records.";
+  assert.ok(render({draft:{subject:"Alert signal: review",body}}).includes(`>${body}</textarea>`));
+  assert.ok(draft.body.includes("\n\n"));
+  assert.ok(render().includes(draft.body));
+});
 test("public mode has the standard attribution and no live button; loading and caps disable live drafting",()=>{
   const publicHtml=render({label:"Standard draft. Sign in to draft with Muse Spark Open."});
   assert.match(publicHtml,/Sign in to draft/);assert.doesNotMatch(publicHtml,/>Draft with Muse Spark Open</);

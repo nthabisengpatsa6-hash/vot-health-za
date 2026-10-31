@@ -14,23 +14,21 @@ export function validateDraftRequest(data, town) {
 }
 
 // A fresh object, never a spread of a card, signal, ranking or client payload.
-export function buildDraftInput(signal, {day, town, ranking} = {}) {
+export function buildDraftInput(signal, {town, ranking} = {}) {
   const candidates = signal.sources.filter((source) => source.candidate);
   const knownSources = new Set(exposureLayers(town).map((source) => source.id));
   if (candidates.some((source) => !knownSources.has(source.layer))) throw new Error("unknown-source");
   if (ranking?.some((item) => !candidates.some((source) => source.layer === item.sourceId))) throw new Error("not-candidate");
   const ordered = ranking?.length ? ranking.map((item) => ({source:candidates.find((source) => source.layer === item.sourceId), confidence:item.confidence})) : candidates.slice(0,4).map((source) => ({source}));
-  const areas = new Set(signal.areas);
   const sources = ordered.map(({source, confidence}) => {
     const facts = (entries) => entries.map((fact) => {
-      if (fact.area) areas.add(fact.area);
       const template = FACTS[fact.kind];
       return template ? template({area:fact.area, name:source.name, count:fact.cards ?? fact.cardIds?.length ?? 0, type:fact.type || "shared exposure clues"}) : null;
     }).filter(Boolean);
-    return {name:source.name, ...(confidence ? {confidence} : {}), supports:facts(source.supporting), against:facts(source.contradicting), checks:CHECKS[source.kind](source.name)};
+    return {name:source.name, ...(confidence ? {confidence} : {}), supports:facts(source.supporting.slice(0,3)), against:facts(source.contradicting.slice(0,2)), checks:CHECKS[source.kind](source.name)};
   });
-  return {day, level:signal.level, symptomGroup:SYMPTOM_LABELS[signal.symptomGroup], areas:[...signal.areas], evidenceAreas:[...areas],
-    windowDays:signal.timeWindow.days, windows:[3,7], cases:signal.observed.cases, usualCases:usualCasesText(signal.expected.cases), cards:signal.observed.cards,
+  return {level:signal.level, symptomGroup:SYMPTOM_LABELS[signal.symptomGroup].toLowerCase(), areas:[...signal.areas], window:`in the last ${signal.timeWindow.days} days`,
+    cases:signal.observed.cases, usualCases:usualCasesText(signal.expected.cases), cards:signal.observed.cards,
     placesOfCare:signal.independentReporters, observations:Object.fromEntries(["moreSevere","notResponding"].filter((flag) => signal.flags[flag] > 0).map((flag) => [flag,signal.flags[flag]])), sources};
 }
 

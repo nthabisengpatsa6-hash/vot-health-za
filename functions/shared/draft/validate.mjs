@@ -50,12 +50,14 @@ export function validateDraft(raw, input, town) {
     if (!allowed.has(total+group)) invalidNumbers.push(exact(sequence));
   }
   fail("number",invalidNumbers);
-  const allowedNames = new Set([...input.areas,...input.evidenceAreas,...input.sources.map((source) => source.name)].map((name) => name.toLowerCase()));
+  const evidence = input.sources.flatMap(({supports = [],against = []}) => [...supports,...against]).join("\n").toLowerCase();
+  const allowedNames = new Set([...input.areas,...town.areas.filter(({name}) => evidence.includes(name.toLowerCase())).map(({name}) => name),...input.sources.map((source) => source.name)].map((name) => name.toLowerCase()));
   const invalidNames = [];
   for (const name of [...town.areas.map((area) => area.name),...exposureLayers(town).map((source) => source.name)]) if (!allowedNames.has(name.toLowerCase())) {
     for (const match of text.matchAll(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"))) invalidNames.push(exact(match));
   }
   fail("name",invalidNames);
+  if (typeof value?.body === "string" && value.body.trim() && !/[.!?]$/.test(value.body.trim())) fail("incomplete",[value.body]);
   if (failures.length) return {ok:false,reason:failures[0].rule,failures};
   return {ok:true, draft:{subject:value.subject.trim(),body:value.body.trim()}};
 }

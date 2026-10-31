@@ -11,12 +11,12 @@ export function standardDraft(input) {
   const ranked = input.sources.filter((source) => source.confidence);
   const sources = ranked.length ? `Possible sources, ranked:\n${ranked.map((source, index) => `${index + 1}. ${source.name} (${source.confidence} confidence)`).join("\n")}` : first ? `Please review ${first.name} first as a possible source, alongside the other evidence.` : "Please review the linked evidence and possible shared exposures. No candidate source was identified.";
   const paragraphs = [`${input.level === "alert" ? "An" : "A"} ${level} for ${input.symptomGroup.toLowerCase()} covers ${areas}.`,
-    `${input.cases} cases were reported on ${input.cards} cards in ${input.windowDays} days, against ${input.usualCases}, from ${input.placesOfCare} places of care.`,
+    `${input.cases} cases were reported on ${input.cards} cards ${input.window}, against ${input.usualCases}, from ${input.placesOfCare} places of care.`,
     ...observations, sources, first ? `Possible checks for environmental health:\n${first.checks}` : null];
   return {subject:`${level}: ${input.symptomGroup}`,body:paragraphs.filter(Boolean).join("\n\n")};
 }
 export function notificationText(draft) { return `${draft.subject}\n\n${draft.body}\n\n${DRAFT_FOOTER}`; }
 export function fallbackLabel(reason, product = PRODUCT_NAME) {
-  const reasons = {"no-key":"Muse Spark Open isn't configured here.", "account-cap":"Today's account drafting limit is reached.", "app-cap":"Today's app drafting limit is reached.", "counter-failed":"The drafting limit couldn't be checked.", timeout:"Muse Spark Open didn't finish in time.", unavailable:"Muse Spark Open isn't available right now.", invalid:`Muse Spark Open's draft didn't pass ${product}'s checks.`};
+  const reasons = {"no-key":"Muse Spark Open isn't configured here.", "account-cap":"Today's account drafting limit is reached.", "app-cap":"Today's app drafting limit is reached.", "counter-failed":"The drafting limit couldn't be checked.", timeout:"Muse Spark Open didn't finish in time.", unavailable:"Muse Spark Open isn't available right now.", incomplete:"Muse Spark Open's draft was incomplete.", invalid:`Muse Spark Open's draft didn't pass ${product}'s checks.`};
   return `Standard draft. ${reasons[reason] || reasons.unavailable}`;
 }

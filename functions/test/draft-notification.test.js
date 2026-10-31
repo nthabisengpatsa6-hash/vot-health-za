@@ -63,7 +63,25 @@ test("new Baseten client never retries timeout, HTTP errors or incomplete conten
   const failed=await callBasetenDraft({}, {apiKey:"offline-placeholder",fetch:async()=>{calls++;return new Response("unread",{status:429});}});
   assert.equal(failed.reason,"unavailable");assert.equal(calls,2);
   const incomplete=await callBasetenDraft({}, {apiKey:"offline-placeholder",fetch:async()=>Response.json({choices:[{finish_reason:"length",message:{content:"partial"}}]})});
-  assert.equal(incomplete.reason,"invalid");
+  assert.equal(incomplete.reason,"incomplete");assert.equal(incomplete.finishReason,"length");assert.equal(incomplete.text,undefined);
   const echo=await callBasetenDraft({}, {apiKey:"offline-placeholder",fetch:async()=>Response.json({choices:[{finish_reason:"stop",message:{content:"offline-placeholder"}}]})});
   assert.equal(echo.reason,"invalid");assert.equal(echo.text,undefined);
+});
+test("provider cutoff rejects the entire response even with a complete body and an unpunctuated subject",async()=>{
+  const {callBasetenDraft}=await import("../lib/basetenClient.mjs");
+  const reply=await callBasetenDraft({}, {apiKey:"offline-placeholder",fetch:async()=>Response.json({choices:[{finish_reason:"length",message:{content:JSON.stringify({subject:"Alert signal: review",body:"Please review the evidence."})}}],usage:{prompt_tokens:10,completion_tokens:20}})});
+  assert.equal(reply.reason,"incomplete");assert.equal(reply.finishReason,"length");assert.equal(reply.text,undefined);
+  const result=await createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>({allowed:true}),call:async()=>reply,write:()=>{}})(request);
+  assert.equal(result.outcome,"fallback");assert.equal(result.reason,"incomplete");
+});
+test("provider and callable preserve three paragraphs, while an unfinished body uses the standard draft",async()=>{
+  const {callBasetenDraft}=await import("../lib/basetenClient.mjs");
+  const complete="Reports show more cases.\n\nPlease review Works A.\n\nCheck treatment records.";
+  for (const body of [complete,"Check chlorine readings and"]) {
+    const handler=createDraftHandler({apiKey:()=>"offline-placeholder",reserve:async()=>({allowed:true}),write:()=>{},
+      call:(input,{apiKey})=>callBasetenDraft(input,{apiKey,fetch:async()=>Response.json({choices:[{finish_reason:"stop",message:{content:`<think>hidden</think><final>${JSON.stringify({subject:"Alert signal: review",body})}</final>`}}]})})});
+    const result=await handler(request);
+    if (body===complete) {assert.equal(result.outcome,"model");assert.equal(result.draft.body,complete);assert.equal(result.draft.subject,"Alert signal: review");}
+    else {assert.equal(result.outcome,"fallback");assert.equal(result.reason,"invalid");assert.equal(result.validationReason,"incomplete");assert.ok(result.draft.body.includes("\n\n"));}
+  }
 });

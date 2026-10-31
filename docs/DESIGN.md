@@ -207,6 +207,8 @@ Post-trial correction (31 Oct): Signal detail's headline and notification use th
 
 R3 wording correction: standard-draft area lists join the final two names with "and", for example "Thaga Park, Leeba View and Nonyana Flats". Model instructions call the underlying records case cards or clinicians' reports, preserve count units, request district environmental health checks without implying an investigation is underway, start the subject with its level and ask for 3 to 5 short paragraphs separated by blank lines. Styles and layout remain unchanged.
 
+R4 supersedes the model's paragraph instruction: request a body of at most 700 characters in exactly three short paragraphs separated by blank lines (reports/counts, first possible source and limited evidence, fixed checks). The screen's recipient line supplies the address. Only the body needs sentence-ending punctuation; subjects retain their existing format. Local editing/validation caps remain 100/1200 characters. Provider schema has no length limit. Standard drafts, model drafts, human edits and Copy preserve internal paragraph breaks. No visual style change.
+
 ## Motion
 
 Motion only happens at three moments, plus small state changes:

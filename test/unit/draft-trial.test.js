@@ -10,7 +10,7 @@ test("seed-1 trial selects the first Alert and day 19, with the absent Signal-on
 });
 test("trial persists attempts before calls and never repeats a recorded attempt",async()=>{
   const saved=[],output=[];let calls=0;
-  const call=async()=>{calls++;assert.equal(saved.at(-1).outcome,"pending");return {text:JSON.stringify({subject:"Signal to review",body:"Review the linked evidence."}),ms:4,inputTokens:10,outputTokens:20,reasoningTokens:12};};
+  const call=async()=>{calls++;assert.equal(saved.at(-1).outcome,"pending");assert.equal(saved.at(-1).finishReason,null);return {text:JSON.stringify({subject:"Signal to review",body:"Review the linked evidence."}),finishReason:"stop",ms:4,inputTokens:10,outputTokens:20,reasoningTokens:12};};
   const results=await runDraftTrial({plans,call,append:(row)=>saved.push(row),print:(line)=>output.push(line)});
   assert.equal(calls,2);assert.equal(results.length,2);assert.equal(saved.length,4);
   assert.equal(results[0].usd,(10*1.25+20*4.25)/1e6);
@@ -18,12 +18,32 @@ test("trial persists attempts before calls and never repeats a recorded attempt"
   assert.deepEqual(results.map(({day,promptHash})=>({day,promptHash})),[{day:17,promptHash:DRAFT_PROMPT_HASH},{day:19,promptHash:DRAFT_PROMPT_HASH}]);
   assert.match(DRAFT_PROMPT_HASH,/^[a-f0-9]{64}$/);
   assert.ok(saved.every((row)=>row.promptHash===DRAFT_PROMPT_HASH));
+  assert.ok(results.every((row)=>row.finishReason==="stop"));
   await runDraftTrial({plans,existing:saved,call,append:()=>assert.fail("no writes on resume"),print:()=>{}});
   assert.equal(calls,2);
   const catalog=authoredInputCatalog();
   for(const row of saved)assert.equal(verifiedAuthoredRecord(row,catalog),true);
   assert.equal(verifiedAuthoredRecord({...saved[1],input:{...saved[1].input,cases:999999}},catalog),false);
   assert.equal(verifiedAuthoredRecord({...saved[1],kind:"recording"},catalog),false);
+});
+test("r3 evidence and prompt hashes verify unchanged while its unfinished bodies fail the new rule",async()=>{
+  const {validateDraft}=await import("../../functions/shared/draft/validate.mjs");
+  const {default:town}=await import("../../functions/data/places.json",{with:{type:"json"}});
+  const rows=readFileSync(new URL("../../docs/provenance/open-weights/draft-trial-2026-10-31-r3.jsonl",import.meta.url),"utf8").trim().split(/\r?\n/).map(JSON.parse);
+  const legacy=legacyDraftTrialInputs(3),catalog=authoredInputCatalog();
+  assert.deepEqual(legacy.map(draftInputHash),rows.filter((row)=>row.outcome==="pending").map((row)=>row.inputHash));
+  for (const row of rows) {
+    assert.equal(verifiedAuthoredRecord(row,catalog),true);assert.equal(Object.hasOwn(row,"finishReason"),false);
+    assert.equal(row.promptHash,"be0a35f50f4c5ff3636bbd8231ccf63006b23798da018ed1bbc784e9458a5f00");
+    if (row.modelDraft) assert.equal(validateDraft(row.modelDraft,row.input,town).reason,"incomplete");
+  }
+  await assert.rejects(runDraftTrial({plans:[{...plans[0],input:legacy[0],inputHash:draftInputHash(legacy[0])}]}),/fixed simulated/);
+});
+test("provider-marked cutoff records its finish reason and incomplete failure without partial text",async()=>{
+  const [row]=await runDraftTrial({plans:[plans[0]],call:async()=>({reason:"incomplete",finishReason:"length",ms:1,inputTokens:10,outputTokens:20}),append:()=>{},print:()=>{}});
+  assert.equal(row.reason,"incomplete");assert.equal(row.finishReason,"length");assert.equal(row.outcome,"fallback");
+  assert.deepEqual(row.validationFailures,[{rule:"incomplete",matches:["length"]}]);
+  assert.equal(row.modelFinalText,null);assert.equal(row.modelDraft,null);
 });
 test("trial stops after unknown billing, and rejects more than three or forged inputs",async()=>{
   let calls=0;

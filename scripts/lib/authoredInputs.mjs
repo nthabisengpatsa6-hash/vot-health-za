@@ -11,7 +11,7 @@ export function authoredInputCatalog() {
   const hashes = new Set([...Object.values(ideal), ...special.map((fixture) => fixture.text), example.messages[0].content].map(hashOf));
   for (const plan of planRankings({sets:["all"]})) hashes.add(hashOf(plan.input));
   for (const plan of planDraftTrial()) hashes.add(hashOf(plan.input));
-  for (const revision of [1,2]) for (const input of legacyDraftTrialInputs(revision)) hashes.add(hashOf(input));
+  for (const revision of [1,2,3]) for (const input of legacyDraftTrialInputs(revision)) hashes.add(hashOf(input));
   const legacy = new Map();
   const plans = [...textPlans().map((plan) => ({...plan, provider:"meta", model:"muse-spark-1.3"})),
     ...basetenPlans().map((plan) => ({...plan, run:1, config:configurations()[1], provider:"baseten", model:BASETEN_MODEL}))];
