@@ -70,7 +70,9 @@ test("the counter gets its Firestore from the default app, with " +
 
   assert.deepEqual(usage, {allowed: true, count: 1});
   assert.equal(usedDb, getFirestore(getApp()), "the default app's Firestore");
-  assert.equal(writes.length, 1);
+  assert.equal(writes.length, 2);
   assert.equal(writes[0].path, "noteUsage/u1");
   assert.equal(writes[0].value.count, 1);
+  assert.equal(writes[1].path, "noteAppUsage/app");
+  assert.equal(writes[1].value.count, 1);
 });

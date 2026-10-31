@@ -1,4 +1,16 @@
-# Script-only Muse Spark Open comparison
+# Muse Spark Open comparison and notification trial
+
+## Current state (31 Oct, Task 19)
+
+The original failed probe below remains historical evidence. The separate A2 follow-up succeeded: one exact-example probe, eight authored cards and six simulated rankings, each on one attempt. Its metadata is a2-run-log.jsonl; authored and ranking results use the a2-prefixed files. Input tokens min/median/max: 147/2184/5228; output including reasoning: 40/783/2218; reasoning: 20/374/1365 across those 15 successful calls. Reasoning is included in completion billing, not added twice. See ../scoring/scorecard-a2.md for outcomes and timings. The historical scripts/lib/basetenScoring.mjs is preserved byte-for-byte from dc38d22.
+
+Task 19 prepares notification drafting with a new Functions-only client shared with the interactive draft trial. It does not replace the historical scoring client or change hosted extraction/ranking. The exact model/base URL are guarded; requests use json_schema, max_tokens 3000, low effort, a 20-second timeout and no retry. Only final content is considered, and JSON, wording, numbers, names and contact/identifier guards run locally. Failures use the standard draft with a reason; the footer is code-owned. The input uses the engine's actual winning window, explicitly approved on 31 Oct, never a differently labelled seven-day number.
+
+The maintainer runs npm.cmd run draft:trial, types the key only at its hidden terminal prompt and confirms y/n. No key file or environment variable is read. The fixed cases are seed 1's first Alert (day 17), its day-19 event and a Signal-only day if one exists; currently no Signal-only day exists, so two calls are planned. Forecast at the full output cap and 5228 input tokens: USD 0.019285 per call, USD 0.038570 for the two cases, excluding unknown failed-request billing. A pending record is appended before each attempt; any recorded attempt is skipped on resume. Unknown usage stops further calls for review. The records go to draft-trial-2026-10-31.jsonl only when the user actually runs the trial. No trial result is fabricated or recorded as successful before that run. Input hashes are verified against rebuilt fixed simulated inputs by the existing transcript scan's catalog; private-audio classifications and all historical allowances remain unchanged.
+
+The paid trial, secret setup, Functions deployment, Hosting deployment, phone checks and push retain separate STOPs. This section records prepared local code, not a live deployment.
+
+## Original comparison record
 
 The user's 30 Oct run made one authored-text probe for exactly meta-models/muse-spark-open-1026 at https://inference.baseten.co/v1, effort low. It returned HTTP 404 after one attempt. All eight authored-card and six simulated-ranking comparisons were skipped; this was not a missing-key skip. The saved metadata does not distinguish an absent model from access-related 404 handling. run-log.jsonl contains only the probe's safe metadata. The checked official pages name the model family but did not verify this exact dated slug.
 

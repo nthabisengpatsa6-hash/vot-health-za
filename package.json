@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "node --test test/unit/*.test.js",
     "rank:saved": "node scripts/rank-saved.mjs",
+    "draft:trial": "node scripts/draft-trial.mjs",
     "heldout:preflight": "node scripts/heldout-preflight.mjs",
     "heldout:stats": "node scripts/heldout-stats.mjs",
     "heldout:rank": "node scripts/heldout-rank.mjs",

@@ -6,6 +6,7 @@ import LevelBadge, { LevelKey } from "../components/LevelBadge";
 import Message from "../components/Message";
 import TownMap from "../components/TownMap";
 import Wordmark from "../components/Wordmark";
+import SignalDetail from "../components/SignalDetail";
 import { LEVEL_ORDER } from "../config/levels";
 import { PRODUCT_NAME } from "../config/product";
 import { LIVE_REPLAY_FOOTER } from "../config/rankingCopy";
@@ -20,8 +21,11 @@ import { MAP_AREAS, TOWN_FILE } from "../lib/townMap";
 // (test/unit/sim-imports.test.js).
 let replayReady = null;
 function loadReplay() {
-  replayReady ??= Promise.all([import("../../functions/shared/sim/engine.mjs"), import("../../functions/shared/signals.mjs"), import("../../functions/shared/sastDay.mjs")])
-    .then(([engine, signals, sastDay]) => createReplay({ createRun: engine.createRun, computeSignals: signals.computeSignals, dayEnd: sastDay.dayEnd, dayOfDate: sastDay.dayOfDate, town: TOWN_FILE }));
+  replayReady ??= Promise.all([import("../../functions/shared/sim/engine.mjs"), import("../../functions/shared/signals.mjs"), import("../../functions/shared/sastDay.mjs"), import("../../functions/shared/signalDetail.mjs")])
+    .then(([engine, signals, sastDay, detail]) => {
+      const replay = createReplay({ createRun: engine.createRun, computeSignals: signals.computeSignals, dayEnd: sastDay.dayEnd, dayOfDate: sastDay.dayOfDate, town: TOWN_FILE });
+      return { ...replay, chartFor: (runId, day, signal) => detail.dailySignalChart({ cards: replay.cardsUpTo(runId, day), asOf: replay.resultFor(runId, day).asOf, signal, town: TOWN_FILE }) };
+    });
   return replayReady;
 }
 
@@ -29,13 +33,14 @@ const SECONDS_PER_DAY = 1.5;
 const SHOWN_CARDS = 3;
 const rankOf = (level) => LEVEL_ORDER.indexOf(level);
 
-export default function DemoScreen({ embedded = false, renderRanking }) {
+export default function DemoScreen({ embedded = false, renderRanking, draftAction }) {
   const [replay, setReplay] = useState(null);
   const [failed, setFailed] = useState(false);
   const [runId, setRunId] = useState(RUNS[0].id);
   const [day, setDay] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [detailSignal, setDetailSignal] = useState(null);
   const [heard, setHeard] = useState({ levels: null, text: "" });
   const opener = useRef(null);
 
@@ -99,6 +104,8 @@ export default function DemoScreen({ embedded = false, renderRanking }) {
   // Highest level first, then the town file's order.
   const areas = MAP_AREAS.map((area) => area.name).sort((a, b) => rankOf(levels[b]) - rankOf(levels[a]));
   const Content = embedded ? "section" : "main";
+
+  if (detailSignal && replay) return <SignalDetail key={`${runId}|${day}|${detailSignal.id}`} signal={detailSignal} replay={replay} runId={runId} day={day} area={selected} town={TOWN_FILE} chart={replay.chartFor(runId, day, detailSignal)} renderRanking={renderRanking} draftAction={draftAction} signedIn={embedded} onBack={() => setDetailSignal(null)} />;
 
   return (
     <div className={`demo${selected ? " has-sheet" : ""}${embedded ? " is-embedded" : ""}`}>
@@ -167,7 +174,7 @@ export default function DemoScreen({ embedded = false, renderRanking }) {
         {!embedded && <Link to="/" className="button button-secondary">Health professionals: sign in</Link>}
       </Content>
 
-      {selected && result && <AreaSheet area={selected} result={result} since={since} onClose={closeSheet} replay={replay} day={day} runId={runId} renderRanking={renderRanking} />}
+      {selected && result && <AreaSheet area={selected} result={result} since={since} onClose={closeSheet} replay={replay} day={day} runId={runId} renderRanking={renderRanking} onOpenSignal={(signal) => { setPlaying(false); setDetailSignal(signal); }} />}
     </div>
   );
 }

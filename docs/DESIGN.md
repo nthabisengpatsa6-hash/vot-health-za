@@ -197,6 +197,12 @@ One square per case, stacked by day, the way outbreak curves are drawn by hand.
 - 14 days. Labels under it: the first day, the middle day, and "Today".
 - If any day passes about 10 cases, switch to one square per 5 cases and say so in the chart's label.
 
+## Signal detail and drafted notification (31 Oct)
+
+Task 19 (31 Oct): Signal detail opens from Open signal in the replay's area sheet. It pauses replay playback and shows the selected day's level, symptom group and areas, the frozen engine's winning-window counts, the daily chart, observations, the card timeline, Possible sources, then Drafted notification. Other merged windows show only the level/areas/window metadata the engine retains. The usual-count explanation is plain text, not a link to historical cards. Each measured count links to its cards. Daily chart squares remain 10 px with 2 px gaps, with a partial square for a remainder at the five-case scale; the usual reference follows weekday/weekend expectations. Accessible daily counts provide full-size card links. Window usual totals aggregate baseline day weights before multiplication and rounding, exactly like the engine.
+
+The detail view is a plain reading screen with the Simulation pill, existing level badge and Back to replay. The ranking action sits immediately below its attribution. The draft's subject input follows the existing input style; its body is a multiline textarea with the same border, radius, tokens and 16/22 UI type, at least 264 px high. Machine text and the fixed footer use Hanken Grotesk. Human edits remain while rankings load or change. Drafting reuses the existing processing waveform and reduced-motion behavior. Names of possible sources are permitted within the drafted notification as well as Possible sources; no new map outlines, print uses or animations are introduced. Copy and Mark as sent use secondary buttons; feedback uses plain status text or the existing wash message.
+
 ## Motion
 
 Motion only happens at three moments, plus small state changes:

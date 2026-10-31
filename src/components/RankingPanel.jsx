@@ -26,13 +26,14 @@ function Evidence({ citations, signal, cards, label }) {
 
 // Presentation only: no Firebase, callable, storage or model requests.
 // Day 6 can pass a different signal/card snapshot into this same panel.
-export default function RankingPanel({ saved = null, live = null, state = "saved", onRank, onShowSaved, busy = false }) {
+export default function RankingPanel({ saved = null, live = null, state = "saved", onRank, onShowSaved, busy = false, detail = false }) {
   const shown = live || saved;
   const ranking = shown?.entry.ranking;
   return (
     <section className="ranking-panel" aria-label="Possible sources" aria-busy={state === "loading"}>
       <h3>Possible sources</h3>
       {shown ? <p className="note ranking-label">{rankingLabel(shown.entry, Boolean(live))}</p> : <p>{NO_SAVED}</p>}
+      {detail && onRank && <button type="button" className="button button-primary" disabled={busy || state === "loading" || state === "capped"} onClick={onRank}>Rank live with Muse Spark</button>}
       {state === "loading" && <div className="ranking-progress" role="status"><Waveform /><p>Ranking possible sources. Please keep this screen open.</p></div>}
       {state === "failed" && <Message kind="error" role="alert">{FAILED}</Message>}
       {state === "capped" && <Message kind="info" role="status">{CAPPED}</Message>}
@@ -53,7 +54,7 @@ export default function RankingPanel({ saved = null, live = null, state = "saved
         );
       })}
       <p className="note ranking-footer">{RANKING_FOOTER}</p>
-      {onRank && <button type="button" className="button button-primary" disabled={busy || state === "loading" || state === "capped"} onClick={onRank}>Rank live with Muse Spark</button>}
+      {!detail && onRank && <button type="button" className="button button-primary" disabled={busy || state === "loading" || state === "capped"} onClick={onRank}>Rank live with Muse Spark</button>}
       {live && onShowSaved && <button type="button" className="text-button" onClick={onShowSaved}>Show saved ranking</button>}
     </section>
   );

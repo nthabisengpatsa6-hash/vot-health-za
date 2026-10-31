@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { FUNCTION_REGION } from "../../functions/shared/runtime.mjs";
 
 // Firebase web config for the "Fola web" app. These values identify the
 // project to the client SDK; they are not secrets. authDomain is the live
@@ -30,7 +31,7 @@ export const app = initializeApp(
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 // Must match the region the callable functions are deployed to.
-export const functions = getFunctions(app, "africa-south1");
+export const functions = getFunctions(app, FUNCTION_REGION);
 
 if (onLocalEmulators) {
   // Our own banner says we're local; the SDK's banner would cover the

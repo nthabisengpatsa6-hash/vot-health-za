@@ -157,7 +157,7 @@ test("production files never import compatibility shims; generator access is thr
 // statistics (decision T1), and only with import(), so neither reaches the
 // main file.
 const DEMO_ROUTE = "src/screens/DemoScreen.jsx";
-const DEMO_LOADS = ["functions/shared/sastDay.mjs", "functions/shared/signals.mjs", "functions/shared/sim/engine.mjs"];
+const DEMO_LOADS = ["functions/shared/sastDay.mjs", "functions/shared/signals.mjs", "functions/shared/sim/engine.mjs", "functions/shared/signalDetail.mjs"];
 
 test("in the app, only the /demo route loads the engine and the statistics, and only with import()", () => {
   for (const file of APP_FILES.filter((path) => rel(path).startsWith("src/") && !path.startsWith(LEGACY_SIM + sep))) {
@@ -169,13 +169,14 @@ test("in the app, only the /demo route loads the engine and the statistics, and 
         continue;
       }
       if (!path || !(path.startsWith(SIM + sep) || isStatistics(path))) continue;
+      if (rel(path).startsWith("functions/shared/draft/") || rel(path) === "functions/shared/runtime.mjs") continue;
       assert.equal(rel(file), DEMO_ROUTE, `${rel(file)} loads ${rel(path)}: only the /demo route may`);
       assert.ok(dynamic, `${DEMO_ROUTE} imports ${rel(path)} without import(), which puts it in the main file`);
       assert.ok(DEMO_LOADS.includes(rel(path)), `${DEMO_ROUTE} loads ${rel(path)}`);
     }
   }
   const loaded = importsOf(join(ROOT, DEMO_ROUTE)).filter(({ dynamic }) => dynamic).map(({ path }) => rel(path));
-  assert.deepEqual(loaded.sort(), DEMO_LOADS);
+  assert.deepEqual(loaded.sort(), [...DEMO_LOADS].sort());
 });
 
 test("following every import from the app, the ground truth and the scorecard are never reached", () => {

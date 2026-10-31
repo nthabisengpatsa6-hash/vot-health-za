@@ -20,10 +20,17 @@ const {errorDetails} = require("./lib/errorLog");
 // Used as module objects so the tests can stand in for Firestore and the log.
 const noteLimit = require("./lib/noteLimit");
 const noteTiming = require("./lib/noteTiming");
+const {FUNCTION_REGION} = require("./shared/runtime.mjs");
 
 setGlobalOptions({maxInstances: 10});
 
 const metaApiKey = defineSecret("META_API_KEY");
+const basetenApiKey = defineSecret("BASETEN_API_KEY");
+const {createDraftHandler, OPTIONS: draftOptions} = require("./lib/draftNotification");
+exports.draftNotification = onCall(
+    {...draftOptions, secrets: [basetenApiKey]},
+    createDraftHandler({apiKey: () => basetenApiKey.value()}),
+);
 
 const {createRankHandler, OPTIONS: rankOptions} = require("./lib/rankSources");
 exports.rankSources = onCall(
@@ -284,7 +291,7 @@ exports.processNote = onCall(
     // clear of it. At most 5 instances, as a cap on spending alongside the
     // daily limit, and none kept warm.
     {
-      region: "africa-south1",
+      region: FUNCTION_REGION,
       secrets: [metaApiKey],
       timeoutSeconds: 300,
       memory: "1GiB",

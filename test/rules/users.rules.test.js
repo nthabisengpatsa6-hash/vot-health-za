@@ -169,7 +169,9 @@ describe("denied: wrong content", () => {
   }
 
   test("createdAt and updatedAt must be the server's time, not the phone's", async () => {
-    const phoneClock = Timestamp.fromDate(new Date());
+    // A wall-clock value can equal the emulator request time in the same
+    // millisecond. A fixed earlier client timestamp tests the rule reliably.
+    const phoneClock = EARLIER;
     await assertFails(setDoc(profileOf(dbAs(OWNER), OWNER), newProfile({ createdAt: phoneClock })));
     await assertFails(setDoc(profileOf(dbAs(OWNER), OWNER), newProfile({ updatedAt: phoneClock })));
   });
@@ -184,7 +186,7 @@ describe("denied: wrong content", () => {
     await seedProfile(OWNER);
     const db = dbAs(OWNER);
     await assertFails(updateDoc(profileOf(db, OWNER), { role: "doctor" }));
-    await assertFails(updateDoc(profileOf(db, OWNER), { role: "doctor", updatedAt: Timestamp.fromDate(new Date()) }));
+    await assertFails(updateDoc(profileOf(db, OWNER), { role: "doctor", updatedAt: EARLIER }));
   });
 
   test("an update can't add an extra field or remove one", async () => {

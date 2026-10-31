@@ -3,7 +3,7 @@
 > The product is Lemoha, Sesotho for "to notice" (working name Fola until 28 Oct 2026). Domain: lemoha.co.za, bought and connected to Firebase Hosting on 28 Oct 2026; www.lemoha.co.za redirects (301) to lemoha.co.za.
 > This file changes only when a decision changes. Day-to-day state lives in HANDOVER.md.
 > Organisers confirmed the repo may stay private until submission but must be public before submitting. The plan remains Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. Never put keys, passwords, tokens or personal data here.
-> Last decision change: 30 Oct 2026.
+> Last decision change: 31 Oct 2026.
 
 ## 1. The hackathon
 
@@ -212,8 +212,8 @@ P0 is the whole demo. Nothing in P1 starts until P0 works end to end.
 
 **Model routing**
 - Voice → transcripts ("two ears", in parallel): Muse Voice Transcribe (muse-voice-transcribe-1.0) on the Meta Model API, by file upload (POST /v1/asr/transcribe, mode PUSH_TO_TALK, place-list keywords) of a 24 kHz mono 16-bit WAV; and Muse Spark audio input on Chat Completions (muse-spark-1.2 or muse-spark-1.3, a single setting chosen by scoring). If one ear fails or is too slow, the card is built from the other and marked single-source.
-- Transcripts → card, ranking sources, drafting notifications: Muse Spark on the Meta Model API. Base URL https://api.meta.ai/v1 (OpenAI-compatible Chat Completions and Responses, plus an Anthropic-style Messages endpoint), Bearer key. Model: muse-spark-1.3 (Standard mode). Never use a "-contributor" model ID: those let Meta train on our prompts and outputs.
-- Open-weights route (P1): Muse Spark Open on Baseten. Base URL https://inference.baseten.co/v1 (OpenAI-compatible). Model name: meta-models/muse-spark-open-1026 (not the docs' default name). This keeps health signals on infrastructure Vault of Time controls and targets the open-weights bonus prize.
+- Transcripts → card and ranking sources: Muse Spark on the Meta Model API. Base URL https://api.meta.ai/v1 (OpenAI-compatible Chat Completions and Responses, plus an Anthropic-style Messages endpoint), Bearer key. Model: muse-spark-1.3 (Standard mode). Never use a "-contributor" model ID: those let Meta train on our prompts and outputs.
+- Notification drafting (Task 19, prepared locally; trial and deployment have separate approvals): Muse Spark Open on Baseten, https://inference.baseten.co/v1, model meta-models/muse-spark-open-1026. It receives allow-listed simulated signal counts, source facts and fixed environmental checks, never card free text or reporter fields. A locally validated subject/body gets a code-owned NMC reminder. Until the signed-in human requests it, or on missing key/failure/caps, a standard draft is shown. Public replay uses only the standard draft. Counts use the frozen engine's winning window with its actual label, as explicitly approved 31 Oct; no second three/seven-day headline calculation. Copy and Mark as sent affect only the screen/clipboard, with no simulated data stored or notification sent. Hosted note extraction and ranking remain on Meta. Open-weight card extraction stays P1.
 - P1: Muse Spark (vision) reads a photographed municipal notice into a dated event on the map.
 
 **Keys.** Only Cloud Functions hold keys, as the Firebase secrets META_API_KEY and BASETEN_API_KEY. Nthabiseng sets them herself at a terminal prompt (firebase functions:secrets:set NAME). The browser never sees a key. For the emulator, local values go in functions/.secret.local, which is gitignored. Never ask for, print, log or commit a key.

@@ -1862,3 +1862,26 @@ button.map-label {
     transition: none !important;
   }
 }
+/* Signal detail and notification editing use the existing Shweshwe tokens. */
+.signal-detail { max-width: 640px; margin-inline: auto; padding: 20px 20px 32px; }
+.signal-detail.is-embedded { padding-inline: 0; }
+.signal-detail h2 { margin-top: 24px; }
+.signal-count { font-variant-numeric: tabular-nums; }
+.signal-evidence summary, .chart-evidence summary { min-height: 44px; padding-block: 12px; cursor: pointer; }
+.signal-evidence a, .chart-evidence a { display: inline-block; min-height: 44px; padding-block: 12px; color: var(--color-indigo); }
+.signal-timeline > li { scroll-margin-top: 24px; }
+.daily-chart { overflow-x: auto; }
+.daily-squares { display: block; width: 280px; height: auto; overflow: visible; }
+.square-usual { fill: var(--color-indigo-disabled); }
+.level-watch .square-raised { fill: var(--color-level-watch); }
+.level-signal .square-raised { fill: var(--color-level-signal); }
+.level-alert .square-raised { fill: var(--color-level-alert); }
+.usual-line { fill: none; stroke: var(--color-ink-muted); stroke-width: 1; stroke-dasharray: 4 3; }
+.daily-squares text { fill: var(--color-ink-muted); font-family: var(--font-ui); font-size: 14px; }
+.draft-field { display: block; margin-block: 16px; color: var(--color-ink); font-size: 16px; }
+.draft-field input, .draft-field textarea { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1.5px solid var(--color-ink-muted); border-radius: 12px; background: var(--color-surface); color: var(--color-ink); font-family: var(--font-ui); font-size: 16px; line-height: 22px; }
+.draft-field input { min-height: 50px; }
+.draft-field textarea { min-height: 264px; resize: vertical; }
+.draft-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.notification-draft { margin-top: 24px; border-top: 1px solid var(--color-line); }
+.draft-footer { white-space: pre-wrap; }
