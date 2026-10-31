@@ -4,6 +4,13 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 16:05 SAST - Task 19 F1 Functions deployed; Hosting approval next
+
+- After the user's secret set and approved F1, ran firebase deploy --project vot-health-za --only "functions:processNote,functions:draftNotification" from clean source fda3e6b. CLI reported successful update/create operations and Deploy complete, exit 0. No CLI question was answered. Deployment granted the runtime service account access to the Baseten secret; no secret value was read or displayed by the agent.
+- Firebase metadata confirms ACTIVE processnote-00006-bob (updated 15:53:44 SAST) and draftnotification-00001-veh (15:53:50 SAST). rankSources remains ranksources-00001-nev and checkMetaConnection remains checkmetaconnection-00004-joh, including unchanged update times. Draft resource settings: 512 MiB, 60 s, max 3, BASETEN_API_KEY binding. Note settings: 1 GiB, 300 s, concurrency 8, max 5, META_API_KEY. Configured minimum is 0; the API omits its default value.
+- gcloud metadata checks failed because its login needed refresh. Verification used Firebase's existing CLI session instead, selecting only non-secret revision/configuration fields from its API response metadata. No credential-reading helper or new login was used. Empty signed-out requests to both deployed functions returned 401 before inference. Source/prompt hash remains the approved r5 version 8aaa44150ff6fabe516e651de33ead9c56f4bbb598c858413671ef1149e0ed16; live signed-in behavior/logs remain for the user's phone check.
+- Checkpoint changes HANDOVER/history only; implementation tests/build remain those of r5. Both privacy scans gate the checkpoint commit. No Hosting/rules deploy, model call, live card operation, deletion or push. Next show the build/Hosting commands and wait for approved H1; phone and final pre-push gates remain separate.
+
 ### 31 Oct 2026, 15:17 SAST - Task 19 r5 trial approved for live use; secret step next
 
 - The user approved both r5 drafts for live use. Preserved all four pending/terminal rows unchanged in draft-trial-2026-10-31-r5.jsonl. Day 17: model, 4436 ms, 827 input / 1308 output / 1110 reasoning tokens, finish stop, USD 0.00659275. Day 19: model, 3643 ms, 827 / 1131 / 933, finish stop, USD 0.0058405. Total USD 0.01243325.
