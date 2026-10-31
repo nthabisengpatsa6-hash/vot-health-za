@@ -4,6 +4,12 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 31 Oct 2026, 16:14 SAST - Task 19 H1 Hosting deployed; user phone check next
+
+- After explicit approved H1, ran npm.cmd run build from clean f83e874: passed with the existing signed-in bundle size warning. Ran firebase deploy --project vot-health-za --only hosting: 30 files uploaded, version finalized/released, Deploy complete, exit 0. No CLI questions. Hosting URL reported: https://vot-health-za.web.app. No Functions/rules redeploy.
+- Read-only live verification at https://lemoha.co.za passed: /, /demo, /app/replay and /replay return 200/current index/no-cache; all 30 published files exactly match the build. Hashed assets use public, max-age=31536000, immutable; all other files use no-cache. No source change, credential access or signed-in inference.
+- HANDOVER records both deployments, the approved r5 prompt version and the original four phone checks, including the live draft_timing hash comparison. Waiting for Phone check done before Part F's final checks/documentation and a-to-i pre-push report. No live card operation, deletion or push; delete list unchanged. Both privacy scans gate this notes-only checkpoint commit.
+
 ### 31 Oct 2026, 16:05 SAST - Task 19 F1 Functions deployed; Hosting approval next
 
 - After the user's secret set and approved F1, ran firebase deploy --project vot-health-za --only "functions:processNote,functions:draftNotification" from clean source fda3e6b. CLI reported successful update/create operations and Deploy complete, exit 0. No CLI question was answered. Deployment granted the runtime service account access to the Baseten secret; no secret value was read or displayed by the agent.
