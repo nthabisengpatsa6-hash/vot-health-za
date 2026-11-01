@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
-import { emulatorConfig, LIVE_HOSTS, shouldUseEmulators } from "../../src/lib/firebaseSettings.js";
+import { emulatorConfig, installLocalNetworkPolicy, LIVE_HOSTS, shouldUseEmulators } from "../../src/lib/firebaseSettings.js";
 
 const start = "6022dc4cdecafa307355bb978ae7d2b5734cdc07";
 const source = readFileSync(new URL("../../src/lib/firebase.js", import.meta.url), "utf8");
@@ -13,6 +13,33 @@ const configOf = (text) => JSON.parse(JSON.stringify(runInNewContext(`(${text.ma
 
 test("live settings deep-equal starting HEAD without exposing values", () => {
   assert.ok(isDeepStrictEqual(configOf(source), configOf(original)), "Live settings changed.");
+});
+
+test("production live hosts install no request policy and leave the document head untouched", () => {
+  // Execute the actual setup, replacing only module syntax and SDK services.
+  // The real selector and policy installer remain in use; no network is involved.
+  const setup = source.replace(/^import .*;\r?$/gm, "")
+    .replace(/^export \{.*;\r?$/gm, "").replace(/^export const /gm, "const ")
+    .replaceAll("import.meta.env.DEV", "false") + "\n;onLocalEmulators;";
+  for (const hostname of [...LIVE_HOSTS, "LEMOHA.CO.ZA", "lemoha.co.za."]) {
+    const existingNode = {}, head = [existingNode];
+    let created = 0, connections = 0;
+    const service = () => ({}), connect = () => { connections++; };
+    let local;
+    try {
+      local = runInNewContext(setup, {
+        window:{location:{hostname}},
+        document:{head:{append(node) { head.push(node); }}, createElement() { created++; return {}; }},
+        emulatorConfig, shouldUseEmulators, installLocalNetworkPolicy, FUNCTION_REGION:"test-region",
+        initializeApp:service, getAuth:service, getFirestore:service, getFunctions:service,
+        connectAuthEmulator:connect, connectFirestoreEmulator:connect, connectFunctionsEmulator:connect,
+      });
+    } catch { assert.fail("Production client setup could not be evaluated."); }
+    assert.equal(local, false, hostname);
+    assert.equal(created, 0, hostname);
+    assert.deepEqual(head, [existingNode], hostname);
+    assert.equal(connections, 0, hostname);
+  }
 });
 
 for (const dev of [false, true]) {
