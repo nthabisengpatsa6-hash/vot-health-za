@@ -1,12 +1,23 @@
 # HANDOVER
 
-**Last updated:** 2026-10-31 19:16 SAST
+**Last updated:** 2026-11-01 04:39 SAST
 
 The product is **Lemoha** (Sesotho for "to notice"; working name Fola until 28 Oct 2026). The domain lemoha.co.za was bought on 28 Oct 2026 and serves the live app. Not renamed, on purpose: the repo and codename vot-health-za, the Firebase project (display name "Fola", web app "Fola web"), the local project ID demo-fola, function names, Firestore collections and stored values.
 
 **Read this first, then docs/PROJECT_CONTEXT.md.** This file is the current state of the build: what's live, how it works, the rules, and what's next. Claude Code updates it and commits at the end of every task, so any new Claude Code session can start from here. The dated record (the day-by-day build log, test results, replaced decisions and the change log) is in docs/HISTORY.md. Organisers confirmed the repo may stay private until submission but must be public before submitting. The plan remains to make it public on Day 8 (Tue 3 Nov). Treat it as public now: the full history becomes visible. No keys, passwords or personal data in this file.
 
 ## Where we are
+
+Task 22 source is implemented and locally validated; the manual judge check is pending. Run npm.cmd run judge on the same computer at http://127.0.0.1:5173. The pinned local Firebase CLI is 15.20.0 (MIT); Auth, Firestore and Functions use demo-fola, with every configured emulator listener explicitly bound to 127.0.0.1. Vite also binds to 127.0.0.1 with a strict port. The launcher checks Node/Java and project/credential environment variables, copies the empty secret template exclusively when missing, reports key presence only, and uses emulators:exec to supervise the web worker and emulator shutdown. The agent has not run the launcher or opened the real secret file.
+
+Dev mode always selects an independent synthetic Firebase config. Production selects live settings only for lemoha.co.za, www.lemoha.co.za, vot-health-za.web.app and vot-health-za.firebaseapp.com, after lowercase normalization and removal of one trailing dot. All other hosts use demo settings. The live config deep-equals the starting Task 22 commit without exposing values in tests. Only App, Auth, Firestore and Functions are initialized; no Analytics or other Google service starts. Emulator mode adds a browser policy restricting connections, images and frames to the page and loopback hosts; this also blocks the Firestore transport's external connectivity image after a failed local connection. Live hosts receive no such policy.
+
+Local processNote uses the unchanged Meta pipeline when running under a demo- emulator with a nonblank Meta key; an empty/missing key returns the existing marked practice fixtures. An emulator with a non-demo project is refused before counters or model calls. Outside the emulator, empty/missing-key errors match the starting handler exactly and cannot load fixtures. Card review shows the approved practice wording only with the practice marker. Baseten remains optional and empty means the standard draft. Empty local secrets can still produce expected demo-project Secret Manager warnings from the CLI.
+
+Task 22 initial validation: web 347, Functions 139 and rules 94 (580 total), versus Task 20's 307/134/94 (535). Lint/build pass with the existing signed-in bundle warning. Both privacy scans pass: 360 files against the fixed 442 private-audio records, zero rejected overlaps; 54 provenance files. No scan allowance or existing dependency version changed. The 48 frozen files, extraction d6bf8dd00961399c, signal abc36af17d67a689, ranking 01622c7f95af2326, draft promptHash 8aaa44150ff6fabe516e651de33ead9c56f4bbb598c858413671ef1149e0ed16, 125 chart comparisons and 71/229/229 comparisons remain unchanged. No deploy, paid model call, live-data operation or push is included. Functions deploy/log scripts are unchanged.
+
+Remaining Task 22 gates: Key ready; user-run launcher and real local check; Local check done; temporary key revocation/removal; Key removed; user-run no-key practice check; final validation, documentation commit and a-to-i pre-push report; only then ask Push now? and require approved push. Actual emulator integration, provider success and Windows Ctrl+C cleanup remain manual checks; macOS/Linux lifecycle logic is tested with simulated processes, not those operating systems.
+
 
 Task 20 is live from 32eba87 and the user has confirmed Phone check done. Today is available within both replays on the current day, with an in-memory area selector, seven-day counts from the existing shared chart arithmetic, and nearby signals in the chosen area and its direct neighbours. Invalid profile areas fall back to Thaga Park. Signed-in Today outside the replay explains that real reports are not checked and links directly to replay Today. The public /demo/scorecard loads a compact derived scorecard on demand. No Functions or rules changes, inference or live-data operation by the agent. A local generator rebuilds the screen JSON from the saved held-out record. The provenance scanner accepts this one additional exact derived JSON path with the same held-out artifact guards; other path restrictions remain unchanged. Signal detail has a local loading/error boundary with the Simulation pill, Try again and Back. Rejected application import promises are evicted; retry creates a fresh lazy component, and Back preserves the originating replay view, day and area.
 
@@ -135,7 +146,7 @@ Delete after the hackathon (needs approved delete): the compatibility shims src/
 - The map (Task 14; docs/DESIGN.md, "The map"): plain SVG on the town file's grid, no library. Each level has its word in the area's chip plus its pattern or shape; level changes fade over 300 ms, never with reduced motion. On /demo each area's name is a real button; screen readers hear the map change, not every day. No supply zones or muted labels yet: they'd point at the answer.
 - Near me (Task 14; decision T3): the map of Kganya with the clinician's profile area outlined and tagged "Your area", the note "Lemoha doesn't check real reports for signals yet, so no area on this map has a level. To see how the checks work, watch the replay of a made-up town.", a "Watch the replay" button and the level key. No Firestore reads (the area comes from the profile the app already watches).
 - Report: hold or tap to record (90 s limit), the voice note row for playback, Send, progress stages that processNote itself streams, card review, then Confirm and save. The audio lives only in memory and is never stored.
-- processNote: sign-in, the WAV check (120 s, 6 MB), the daily limit (40 notes per user per SAST day, counted on noteUsage/{uid}), both ears in parallel (at most 30 s more for the second), the card step with code guards, and one note_timing log line per call. In the local emulators it returns 5 prepared made-up results instead (practice mode).
+- processNote: sign-in, the WAV check (120 s, 6 MB), the daily limit (40 notes per user per SAST day, counted on noteUsage/{uid}), both ears in parallel (at most 30 s more for the second), the card step with code guards, and one note_timing log line per call. In a demo- emulator it uses Meta when a key is present; otherwise it returns five marked prepared practice results.
 - Card review: unsure fields start empty and are question blocks in their place; the transcript is read-only and never stored; fixed notices (single source, advice with the two hotlines, the NMC reminder, not a report). Saved cards have exactly 17 fields, and firestore.rules checks them against the reporter's own profile.
   - Observations are optional and never asked: "Anything else you noticed?" (Sicker than usual; Not getting better with usual treatment), then "Supplies" (Running short of anything?, with "What is running short?" only while ticked). A box starts ticked only when the note said so. unusualSymptoms is never shown and always saved as false.
   - While answers are missing, the save button says "Answer N more to save" and looks disabled, but a tap (or Enter) jumps instantly to the first unanswered question and focuses its first control; the save itself refuses until every kept card is complete. For half a second after a jump, an invisible cover takes taps, so a quick second tap can't land on an answer.
@@ -216,7 +227,7 @@ CLAUDE.md (and AGENTS.md) hold the full rules: show the plan and stop for "appro
   - The iPhone test account (29 Oct, Safari, one card): its sign-in account is already deleted in the console, but its users, noteUsage and card documents are still in Firestore under a UID that no longer exists. Nobody can sign in as that owner, so the delete step must find these documents by listing the users, noteUsage and cards collections (for example in the Firebase console's Firestore data view), not through the app or the owner's account.
 
 ## Next steps (in order)
-0. Task 20 is live and its phone check passed; finish Part E's documentation commit and post-commit checks, report a to i, then wait for approved push. Task 18 and Task 19 are already on origin/main. Monday afternoon (Claude Code): judges' local emulator run path first, then speed work, then Task 17 only if time remains. Test-card cleanup still requires separate approval.
+0. Task 22 manual judge check is next: wait for Key ready before providing the launcher/browser checklist. Do not start the launcher or make model calls. The remaining manual gates and final validation/push workflow are listed in Where we are. Speed work and Task 17 remain later tasks; live test-card deletion still needs separate approval.
 1. Task 19 phone checks passed after the reported phone restart, with additional Report checks on a borrowed phone and laptop. No card was saved; delete list unchanged. No further paid scoring or deployment is needed for this task.
 2. Task 10 Part D, the rest of the phone test, against the live project with real Meta calls. Nthabiseng works through it and reports back. Done so far (28 Oct): two notes from her phone on mobile data at ?timing=1 (results in docs/HISTORY.md, Task 10 Part C).
    1. Use made-up scripts only (the 10 test scripts, or: "Three children under five with watery diarrhoea from Leeba View today. Bomme ba re ba nwa metsi a pompo."). Never real patient details.
@@ -461,7 +472,7 @@ Source: dev.meta.ai/docs/structured-output.
 - src/config/profileOptions.js — the role and facility-type lists (stored value and label).
 - src/config/cardOptions.js — the case card lists (stored value and label) and the text limits; mirrors functions/lib/cardSchema.js. PATIENT_FLAGS and SUPPLIES_FLAG are the observation boxes the card shows.
 - src/config/hotlines.js — the fixed advice text and the NICD and Poisons Information Centre numbers, with their sources.
-- src/lib/firebase.js — Firebase web config; Auth, Firestore and Functions (africa-south1); on localhost, the emulators under demo-fola.
+- src/lib/firebase.js — Firebase web config; Auth, Firestore and Functions (africa-south1); dev and unknown production hosts use independent demo-fola settings and loopback emulators.
 - src/lib/api.js — callFunction(name, data) and streamFunction(name, data, onProgress): call a callable function with a 310 s timeout; streamFunction also passes on progress messages.
 - src/lib/recorder.js — the microphone and MediaRecorder, with the 90 s limit and plain error kinds.
 - src/lib/wav.js — decode and resample a recording to 24 kHz mono, the WAV encoder, base64, and the waveform's bar heights.
@@ -575,7 +586,7 @@ Source: dev.meta.ai/docs/structured-output.
 - test-audio/ — local only, gitignored: raw/ (recordings), wav/ (converted), results/ (run-NNN-… from the transcription runner, score-NNN-… from the scorer).
 
 ## How to run, test and deploy (Windows PowerShell)
-Run these from the repo root. `--prefix functions` tells npm to work inside the functions folder, so there's no need to change folders. The Firebase CLI (`firebase`) is installed globally, not as a project library.
+Run these from the repo root. `--prefix functions` tells npm to work inside the functions folder, so there's no need to change folders. The Firebase CLI is pinned as a local devDependency at 15.20.0. npm scripts resolve that local version; use npm.cmd in PowerShell if npm is blocked.
 
 **Install**
 - `npm install` — downloads the web app's libraries.
@@ -583,29 +594,13 @@ Run these from the repo root. `--prefix functions` tells npm to work inside the 
 - ffmpeg (for the audio test tools only) is installed system-wide with winget (`winget install Gyan.FFmpeg`). It is deliberately not a project dependency.
 - Java 21 (for the Firestore emulator) is installed system-wide with winget (`winget install --id Microsoft.OpenJDK.21 -e`). After installing, close and reopen PowerShell windows (and VS Code) so they find it; `java -version` should print 21.
 
-**Run the app locally with the emulators (nothing touches the live project)**
-Use two PowerShell windows, both in the repo folder.
-1. Window 1: `npm run emulators`. This starts local copies of Auth (9099), Firestore (8080) and Functions (5001) under the made-up project ID demo-fola. Wait for "All emulators ready", then leave it running. Ctrl+C stops it, and that wipes every test account and profile.
-2. Window 2: `npm run dev`. This starts the web app with live reload. Open http://localhost:5173. The indigo strip at the top, "Local test mode: emulators, nothing is live", confirms the app is using the emulators.
-3. Optional: the Emulator UI at http://127.0.0.1:4000 shows the test accounts (Authentication tab) and saved profiles and cards (Firestore tab, collections "users", "cards" and "noteUsage").
+**Run the app locally for judges (same computer only)**
+1. Follow README's Run it locally section: install both dependency sets, then copy functions/.secret.local.example to functions/.secret.local only if missing. The real file is gitignored; the empty template is tracked. Only the user edits keys. Baseten is optional.
+2. Run npm.cmd run judge. It checks Node (22 recommended) and Java (21+ required), refuses conflicting credential/project environment variables, shows only key presence and starts Auth, Firestore, Functions and Vite under demo-fola. Open http://127.0.0.1:5173. Ctrl+C stops the supervised processes; verify actual cleanup in the pending manual check.
+3. Create a local Auth account with made-up details (no email is sent), choose role/facility/area, allow the microphone and record made-up content. With a Meta key the existing pipeline runs; without one the card review shows: Practice card: no Meta key is set, so this card is made up and not from your recording. The launcher terminal shows content-free note_timing records. Empty or absent secrets can produce expected Secret Manager warnings under demo-fola.
+4. No phone or LAN access is supported. Browser network checks exercise real SDK routing with synthetic local responses and block external traffic, including failure probes. Paid provider success and actual multi-process shutdown remain user-run checks. Never run the launcher from an agent tool or open the real secret file.
 
-Trying the Report screen locally (practice mode):
-- Record any note on the Report screen and tap Send. Locally, processNote doesn't call Meta: it returns the 5 prepared made-up results in test-fixtures/practice-results/ in turn (1-n02 first), and the card screen says "Practice result: made up, not from your recording". The cards won't match what you said. Restarting `npm run emulators` starts the turn again at the first result.
-- The audio check and the daily limit still run for real. To try the limit, set noteUsage/<your uid> to count 40 in the Emulator UI.
-- Microphone: the browser asks once for localhost. The Report screen explains how to allow it if it was blocked.
-
-Signing in locally:
-- Email: choose Create account, then any made-up @example.com address and any password of at least 6 characters. No email is ever sent.
-- Google, with the emulator's fake account: tap "Continue with Google". A window from the Auth emulator opens instead of Google, titled "Sign-in with Google.com". Tap "Add new account", then "Auto-generate user information", then "Sign in with Google.com". No real Google account is involved. Next time, the fake account is listed; tap it.
-- Password reset: no email is sent. The reset link appears in window 1 (the emulator output).
-- Only http://localhost and http://127.0.0.1 use the emulators. Opening the dev server from a phone by the computer's network address would use the live project, so check phone widths with the browser's device toolbar (F12, then the phone icon) instead.
-
-Other local commands:
-- `npm run build` — builds the finished web app into dist/. It warns that one file (the signed-in app, with Firebase) is over 500 kB; see Known issues.
-- The replay needs no emulators: with `npm run dev` running, open http://localhost:5173/demo.
-- `npm run preview` — serves the built dist/ at http://localhost:4173; with `npm run emulators` running, it uses the emulators too.
-- Avoid a plain `firebase emulators:start`, `npm --prefix functions run serve` and `npm --prefix functions run shell` for app testing. They run under the real project ID, which the app on localhost doesn't use, and without functions/.secret.local the Functions emulator would then read the live META_API_KEY from Secret Manager.
-- The Functions emulator reads META_API_KEY from functions/.secret.local (gitignored), which Nthabiseng creates herself. Under demo-fola, without that file it logs "Unable to access secret … 403" when a function first runs. That's harmless: under demo-fola, processNote is in practice mode and never calls Meta, and only checkMetaConnection would fail.
+Other local commands: npm.cmd run emulators and npm.cmd run test:rules use the pinned CLI with demo-fola. Functions serve/shell also use that CLI and demo-fola; deploy/log scripts are unchanged. npm.cmd run build builds dist; npm.cmd run preview serves the production build, which uses emulator settings on local/unknown hosts. The public replay needs no emulators.
 
 **Check**
 - `npm run lint` — checks the code for common mistakes.

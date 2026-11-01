@@ -2,8 +2,8 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "serve": "firebase emulators:start --only functions",
-    "shell": "firebase functions:shell",
+    "serve": "node ../node_modules/firebase-tools/lib/bin/firebase.js emulators:start --only functions --project demo-fola",
+    "shell": "node ../node_modules/firebase-tools/lib/bin/firebase.js functions:shell --project demo-fola",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",

@@ -3,6 +3,7 @@ import CaseCardForm from "../components/CaseCardForm";
 import { LockIcon } from "../components/Icons";
 import Message from "../components/Message";
 import NoteNotices from "../components/NoteNotices";
+import PracticeLabel from "../components/PracticeLabel";
 import RecordButton from "../components/RecordButton";
 import VoiceNoteRow from "../components/VoiceNoteRow";
 import Waveform from "../components/Waveform";
@@ -345,7 +346,7 @@ export default function ReportScreen({ user, profile }) {
     return (
       <section className="screen">
         <h1>Check your report</h1>
-        {note.practice && <p className="pill">Practice result: made up, not from your recording.</p>}
+        <PracticeLabel practice={note.practice} />
         {review && <VoiceNoteRow peaks={review.peaks} duration={formatTime(Math.round(review.seconds))} />}
         <TimingLine timing={timing} />
         {!note.isReport && (

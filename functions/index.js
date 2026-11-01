@@ -195,6 +195,10 @@ async function handleNote(request, response, timing) {
         "Please sign in to send a voice note.",
     );
   }
+  const demoEmulator = practiceModeOn();
+  if (process.env.FUNCTIONS_EMULATOR === "true" && !demoEmulator) {
+    throw new HttpsError("failed-precondition", "Local notes require a demo- project.");
+  }
   // The handler runs only once the whole request has arrived, so this first
   // message tells the app when the upload finished (its ?timing=1 line). It
   // carries nothing else, and the screen ignores it.
@@ -212,9 +216,14 @@ async function handleNote(request, response, timing) {
   timing.audioSeconds = Math.round(audio.durationMs / 100) / 10;
 
   await takeDailyPlace(request.auth.uid, timing);
-  if (practiceModeOn()) return practiceNote(response);
-
-  const apiKey = metaApiKey.value();
+  let apiKey;
+  if (demoEmulator) {
+    try { apiKey = metaApiKey.value(); } catch { return practiceNote(response); }
+    if (typeof apiKey !== "string" || !apiKey.trim()) return practiceNote(response);
+  } else {
+    // Preserve the deployed missing-key/error path exactly.
+    apiKey = metaApiKey.value();
+  }
   timing.asrModel = TRANSCRIBE_MODEL;
   timing.audioEarModel = SPARK_AUDIO_MODEL;
   let heard;

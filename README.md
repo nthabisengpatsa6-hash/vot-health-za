@@ -21,3 +21,13 @@ The maintainer runs `npm.cmd run draft:trial` in an interactive PowerShell termi
 ## Fonts
 
 Hanken Grotesk and Source Serif 4, both under the SIL Open Font License 1.1, self-hosted with Fontsource (built from the Google Fonts releases). The licences, with each font's copyright line, are in public/fonts/hanken-grotesk/OFL.txt and public/fonts/source-serif-4/OFL.txt, and are served with the app.
+
+## Run it locally
+
+1. Install Node 22, Java 21 or newer, and Git. Windows PowerShell users should type `npm.cmd` wherever these steps say `npm` if `npm` is blocked by the execution policy.
+2. Copy this repository's HTTPS clone URL from GitHub's Code button. Run `git clone <repository-url> vot-health-za`, replacing `<repository-url>` with that URL, then `cd vot-health-za`.
+3. Install both dependency sets: `npm ci`, then `npm --prefix functions ci`. The Firebase CLI is pinned locally; no global CLI or Firebase login is needed.
+4. Copy `functions/.secret.local.example` to `functions/.secret.local` (PowerShell: `Copy-Item functions/.secret.local.example functions/.secret.local`; macOS/Linux: `cp functions/.secret.local.example functions/.secret.local`). Skip the copy if the destination already exists. Add your own Meta Model API key after `META_API_KEY=`. Baseten is optional: leave `BASETEN_API_KEY=` empty for the standard notification draft. This local secret file is ignored by Git and must never be committed. With no Meta key, cards are clearly labelled practice results and do not come from your recording. With an empty or missing key, a warning that a secret could not be found in Secret Manager is expected under the demo project.
+5. Run `npm run judge` (Windows PowerShell: `npm.cmd run judge`). It checks prerequisites, creates the empty secret file if missing without overwriting an existing one, and starts Auth, Firestore, Functions, and the web app under `demo-fola`. It refuses credential/project environment variables that could select real Google resources. This setup supports only the same computer; no phone or LAN access. Ctrl+C stops everything; local accounts and data are temporary.
+6. Open `http://127.0.0.1:5173`. Create a local account using a made-up email address in the Auth emulator; no real email is sent. Set your role, facility type, and area.
+7. Allow microphone access, then record a made-up note, send it, and review the card. Model calls use your own key and may cost a few cents. The terminal running the launcher shows the content-free `note_timing` line after each note; a real successful note names its three Meta models there. Open the signed-in Replay and a signal to try source ranking and notification drafting. Without Baseten, the draft says “Standard draft.”

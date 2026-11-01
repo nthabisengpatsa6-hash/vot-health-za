@@ -6,11 +6,8 @@ const PRACTICE_DIR = path.join(
     __dirname, "..", "..", "test-fixtures", "practice-results",
 );
 
-// Practice mode stands in for the Meta calls with prepared, made-up results,
-// because the emulators run under a "demo-" project and can't reach Meta.
-// Both checks must pass: the emulator sets FUNCTIONS_EMULATOR, and Firebase
-// never lets a "demo-" project reach a live one. A deployed function has
-// neither.
+// Only this scope may load fixtures. The handler checks the key separately:
+// a demo project isolates Firebase resources but can still call Meta.
 function practiceModeOn(env = process.env) {
   return env.FUNCTIONS_EMULATOR === "true" &&
       typeof env.GCLOUD_PROJECT === "string" &&

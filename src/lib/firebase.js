@@ -3,6 +3,7 @@ import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { FUNCTION_REGION } from "../../functions/shared/runtime.mjs";
+import { emulatorConfig, installLocalNetworkPolicy, shouldUseEmulators } from "./firebaseSettings.js";
 
 // Firebase web config for the "Fola web" app. These values identify the
 // project to the client SDK; they are not secrets. authDomain is the live
@@ -18,16 +19,11 @@ export const firebaseConfig = {
   appId: "1:858004013937:web:74e825940d6c1c00e72cd0",
 };
 
-// On this computer the app talks only to the emulators, under a "demo-"
-// project ID: Firebase never lets a demo project reach a live one, so local
-// testing can't touch real accounts, data or secrets.
-export const LOCAL_PROJECT_ID = "demo-fola";
-export const onLocalEmulators = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-
-export const app = initializeApp(
-  onLocalEmulators ? { ...firebaseConfig, projectId: LOCAL_PROJECT_ID } : firebaseConfig,
-);
-
+// Local and unknown hosts fail closed to a separate demo configuration.
+export { LOCAL_PROJECT_ID } from "./firebaseSettings.js";
+export const onLocalEmulators = shouldUseEmulators(window.location.hostname, import.meta.env.DEV);
+if (onLocalEmulators) installLocalNetworkPolicy(document);
+export const app = initializeApp(onLocalEmulators ? emulatorConfig : firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 // Must match the region the callable functions are deployed to.

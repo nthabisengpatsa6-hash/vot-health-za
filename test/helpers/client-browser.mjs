@@ -4,13 +4,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { rolldown } from "rolldown";
 
-export async function replayBrowser() {
+export async function replayBrowser({ entry = "./replay-client.jsx", firebase = false, define = {}, respond } = {}) {
   const bundle = await rolldown({
-    input: fileURLToPath(new URL("./replay-client.jsx", import.meta.url)), platform: "browser",
-    transform: { jsx: { runtime: "automatic" }, define: { "process.env.NODE_ENV": '"development"' } },
+    input: fileURLToPath(new URL(entry, import.meta.url)), platform: "browser",
+    transform: { jsx: { runtime: "automatic" }, define: { "process.env.NODE_ENV": '"development"', ...define } },
     plugins: [{ name: "offline-services", resolveId(source) {
       if (/\/(rankApi|draftApi)(\.js)?$/.test(source)) return "\0offline-services";
-      if (/^@?firebase(\/|$)/.test(source)) throw Error("The client fixture must not import Firebase");
+      if (!firebase && /^@?firebase(\/|$)/.test(source)) throw Error("The client fixture must not import Firebase");
     }, load(id) { if (id === "\0offline-services") return "export const rankSources = (...args) => window.__serviceCall(...args); export const draftNotification = (...args) => window.__serviceCall(...args);"; } }],
   });
   let code;
@@ -34,7 +34,7 @@ export async function replayBrowser() {
   const ws = new WebSocket(targets.find((target) => target.type === "page").webSocketDebuggerUrl);
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
   let serial = 0;
-  const pending = new Map(), external = [];
+  const pending = new Map(), external = [], requests = [];
   ws.onmessage = (event) => {
     const message = JSON.parse(event.data);
     if (message.id) {
@@ -45,8 +45,15 @@ export async function replayBrowser() {
       }
     }
     if (message.method === "Fetch.requestPaused") {
-      external.push(message.params.request.url);
-      send("Fetch.failRequest", { requestId: message.params.requestId, errorReason: "BlockedByClient" }).catch(() => {});
+      const request = message.params.request;
+      requests.push(request.url);
+      const local = ["127.0.0.1", "localhost"].includes(new URL(request.url).hostname);
+      if (!respond || !local) external.push(request.url);
+      const reply = respond && local ? respond(request) : null;
+      if (reply) send("Fetch.fulfillRequest", { requestId:message.params.requestId, responseCode:reply.status ?? 200,
+        responseHeaders:Object.entries(reply.headers ?? {"Content-Type":"application/json", "Access-Control-Allow-Origin":"*"}).map(([name,value]) => ({name,value})),
+        body:Buffer.from(reply.body ?? "{}").toString("base64") }).catch(() => {});
+      else send("Fetch.failRequest", { requestId: message.params.requestId, errorReason: "BlockedByClient" }).catch(() => {});
     }
   };
   function send(method, params = {}) {
@@ -62,7 +69,11 @@ export async function replayBrowser() {
     await send("Fetch.enable", { patterns: [{ urlPattern: "http://*" }, { urlPattern: "https://*" }] });
     await send("Page.enable");
     await send("Emulation.setDeviceMetricsOverride", { width: 360, height: 800, deviceScaleFactor: 1, mobile: true });
+    if (respond) {
+      await send("Page.navigate", {url:"http://127.0.0.1:5173/"});
+      await evaluate('new Promise(resolve => document.readyState === "complete" ? resolve() : window.addEventListener("load", resolve, {once:true}))');
+    }
     await evaluate(code);
-    return { evaluate, external, async close() { try { await send("Browser.close"); } finally { ws.close(); child.kill(); } } };
+    return { evaluate, external, requests, async close() { try { await send("Browser.close"); } finally { ws.close(); child.kill(); } } };
   } catch (error) { ws.close(); child.kill(); throw error; }
 }
