@@ -4,6 +4,15 @@ The dated record of how Lemoha was built, kept out of HANDOVER.md so that file s
 
 ## Build log
 
+### 2026-11-02 16:25 SAST - Task 23 README sections for judges
+
+- After read-only Parts A and B and the user's "Approved" with six changes, rewrote README.md for judges: opening, How each Meta model is used, Run it locally (the Task 22 section, same SHA-256 before and after), How it was tested, Checking which models ran, What didn't work and what isn't built, Rules Lemoha keeps, Safeguards, Why this matters, and Fonts (unchanged, moved to the end). The old Data and Models and notification drafting sections were merged in; the outdated Task 19 status and the maintainer draft:trial steps were removed (those steps remain in docs/provenance/open-weights/README.md).
+- Every figure was checked before writing. The 53 keywords and all four hashes were recomputed from code. Model IDs and efforts, log fields, daily limits, the 20-second timeout, validator and footer, the area and off-list card guards, the draft input's contents and the helpline numbers were read from source. Task 16, Baseten and held-out figures come from the committed scorecards. The Bronkhorstspruit figures were checked on the gov.za statement (19 Oct) and SAnews (26 Oct); EWN is dated 21 Oct.
+- Corrections to the source draft: keyword wording ("kept after scoring"), five scored outcomes including missed, the 18-second local median measured before the A2 card prompt, the NICD hotline's in-app name, secret keys versus the public Firebase web config, error log lines, and "illness cluster" for the simulated event (hard rule 3). Off-list exposure types are dropped rather than asked, so the guard sentence names the required fields only.
+- Left out because the repo doesn't record them: a 15-second speed target and one live draft_timing duration. Added on the user's confirmation: the video's note_timing and draft_timing shots, and ten people each reading one made-up scenario.
+- Found and not changed: the live held-out scorecard screen says "outbreak" (src/screens/ScorecardScreen.jsx), against hard rule 3. Listed in HANDOVER for after the hackathon.
+- Checks: web 348, Functions 139, rules 94 (581); lint clean; build passes with the existing signed-in bundle warning; transcript scan 360 files against 442 private-audio records with zero rejected overlaps; provenance 54 files. No scan allowance, app code, test, package or deploy change, and no paid model call. README committed in 2bb2b71; push awaits approved push.
+
 ### 2026-11-01 06:08 SAST - Task 22 local checks confirmed and final validation complete
 
 - The user completed the real local check after Key ready: the launcher reported Meta present and Baseten missing; a made-up note produced a real card without a practice label, and local note_timing named all three Meta models. Seeded day 17 Thaga Park at Alert ranked live successfully in 6.7 s; notification drafting showed the standard fallback because Muse Spark Open was not configured. Watch day 16 Leeba View showed no ranking or draft buttons.
