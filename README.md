@@ -9,7 +9,7 @@ Built for the Meta Global AI Developer Hackathon (26 October to 4 November 2026)
 - Public replay, no sign-in needed: https://lemoha.co.za/demo
 - Held-out scorecard: https://lemoha.co.za/demo/scorecard
 - Live app: https://lemoha.co.za (for health professionals; sign-in needed; voice notes use this project's Meta credits, capped at 200 a day across the app)
-- 3-minute video: link added on 4 November 2026
+- 3-minute video: https://youtu.be/_XWh7WJulVw
 - Run it on your own computer with your own Meta key: [Run it locally](#run-it-locally)
 
 > Simulation and made-up data only. Lemoha raises signals; it does not diagnose, give medical advice or replace notifiable medical condition (NMC) reporting.
