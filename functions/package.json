@@ -1,6 +1,7 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "serve": "node ../node_modules/firebase-tools/lib/bin/firebase.js emulators:start --only functions --project demo-fola",
     "shell": "node ../node_modules/firebase-tools/lib/bin/firebase.js functions:shell --project demo-fola",

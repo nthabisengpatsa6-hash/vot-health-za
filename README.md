@@ -30,13 +30,15 @@ On 10 recordings of made-up scenarios, 3 runs each, the shipped card setup made 
 
 ## Run it locally
 
-1. Install Node 22, Java 21 or newer, and Git. Windows PowerShell users should type `npm.cmd` wherever these steps say `npm` if `npm` is blocked by the execution policy.
+1. Install Node 22 or newer, Java 21 or newer, and Git. Windows PowerShell users should type `npm.cmd` wherever these steps say `npm` if `npm` is blocked by the execution policy.
 2. Copy this repository's HTTPS clone URL from GitHub's Code button. Run `git clone <repository-url> vot-health-za`, replacing `<repository-url>` with that URL, then `cd vot-health-za`.
 3. Install both dependency sets: `npm ci`, then `npm --prefix functions ci`. The Firebase CLI is pinned locally; no global CLI or Firebase login is needed.
 4. Copy `functions/.secret.local.example` to `functions/.secret.local` (PowerShell: `Copy-Item functions/.secret.local.example functions/.secret.local`; macOS/Linux: `cp functions/.secret.local.example functions/.secret.local`). Skip the copy if the destination already exists. Add your own Meta Model API key after `META_API_KEY=`. Baseten is optional: leave `BASETEN_API_KEY=` empty for the standard notification draft. This local secret file is ignored by Git and must never be committed. With no Meta key, cards are clearly labelled practice results and do not come from your recording. With an empty or missing key, a warning that a secret could not be found in Secret Manager is expected under the demo project.
 5. Run `npm run judge` (Windows PowerShell: `npm.cmd run judge`). It checks prerequisites, creates the empty secret file if missing without overwriting an existing one, and starts Auth, Firestore, Functions, and the web app under `demo-fola`. It refuses credential/project environment variables that could select real Google resources. This setup supports only the same computer; no phone or LAN access. Ctrl+C stops everything; local accounts and data are temporary.
 6. Open `http://127.0.0.1:5173`. Create a local account using a made-up email address in the Auth emulator; no real email is sent. Set your role, facility type, and area.
 7. Allow microphone access, then record a made-up note, send it, and review the card. Model calls use your own key and may cost a few cents. The terminal running the launcher shows the content-free `note_timing` line after each note; a real successful note names its three Meta models there. Open the signed-in Replay and a signal to try source ranking and notification drafting. Without Baseten, the draft says “Standard draft.”
+
+If the page says 'Still connecting' after a restart, your browser still has a sign-in from an earlier run. Open `http://127.0.0.1:5173` in a private window, or clear the site data for `127.0.0.1:5173`, and sign up again.
 
 ## How it was tested
 
@@ -120,6 +122,10 @@ Between 7 and 18 October 2026, 408 cases of gastrointestinal illness were report
 The pattern is the one Lemoha looks for: one source, several neighbouring areas, and cases arriving at more than one place of care. Lemoha's demo town is fictional and its illness cluster is simulated; the timing is modelled on these events, not a claim about them.
 
 Sources: [joint government statement, 19 Oct 2026](https://www.gov.za/news/media-statements/joint-media-statement-ministries-health-water-and-sanitation-gauteng); [BusinessDay, 20 Oct 2026](https://www.businessday.co.za/news/2026-10-20-hundreds-of-children-fall-ill-after-tshwane-fails-to-chlorinate-water/); [EWN, 21 Oct 2026](https://www.ewn.co.za/bronkhorstspruit-residents-warned-not-to-consume-tap-water-as-tshwane-races-to-restore-supply/); [SAnews, 26 Oct 2026](https://www.sanews.gov.za/south-africa/gastrointestinal-illness-cases-rise-833).
+
+## Licence
+
+Copyright (C) 2026 Vault of Time (Pty) Ltd. Licensed under the GNU Affero General Public License, version 3 only (AGPL-3.0-only); see [LICENSE](LICENSE). The fonts keep their own licences; see [Fonts](#fonts).
 
 ## Fonts
 
